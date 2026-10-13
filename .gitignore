@@ -1,3 +1,4 @@
 preview.png
 node_modules/
 .DS_Store
+training/output/
