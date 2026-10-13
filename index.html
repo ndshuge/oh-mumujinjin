@@ -7,6 +7,7 @@
   <meta name="description" content="哦，木木金金棋——从一张手绘地图诞生的双人路线争夺策略棋。走棋、筑墙、传送、滑冰与加速，先抵达对方营地者获胜。">
   <title>哦，木木金金棋 · 步步为营</title>
   <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./mobile.css">
 </head>
 <body>
 <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
@@ -16,7 +17,7 @@
       <span class="brand-glyph">木<span>◇</span>金</span>
       <span class="brand-caption">MUMU JINJIN <small>BOARD GAME STUDIO</small></span>
     </a>
-    <div class="header-right"><span class="online-dot"></span><span>本地双人 · 无需联网</span><button class="icon-btn" id="helpTop" title="游戏规则" aria-label="游戏规则">?</button></div>
+    <div class="header-right"><button class="icon-btn mobile-settings-button" id="mobileSettingsBtn" type="button" aria-label="选择玩法模式" aria-expanded="false" aria-controls="mobileSettingsPanel">⚙</button><span class="online-dot"></span><span>本地双人 · 无需联网</span><button class="icon-btn" id="helpTop" title="游戏规则" aria-label="游戏规则">?</button></div>
   </header>
 
   <main>
@@ -28,6 +29,10 @@
 
     <section class="game-layout" aria-label="游戏区域">
       <div class="play-section">
+        <div class="mobile-status" aria-live="polite" aria-atomic="true">
+          <div class="mobile-status-top"><strong id="mobilePhase">选择金方营地</strong><span id="mobileRound">第 1 回合</span><span id="mobileWalls" class="mobile-walls">金 5 · 木 5</span></div>
+          <p id="mobileMessage">点击金色营地格子开始对弈</p>
+        </div>
         <div class="board-head">
           <div class="board-heading"><span class="tiny-square"></span><span>对弈战场</span><span class="board-index">09 × 13</span></div>
           <div class="board-version"><span class="tiny-dot"></span><span id="boardVersion">经典战场</span></div>
@@ -82,7 +87,7 @@
           <div class="tool-footer"><button id="undoBtn" class="small-tool" type="button">↶ <span>悔棋</span></button><span class="tool-line"></span><button id="restartBtn" class="small-tool" type="button">⟳ <span>重新开始</span></button></div>
         </section>
 
-        <section class="side-panel settings-panel">
+        <section class="side-panel settings-panel" id="mobileSettingsPanel">
           <div class="panel-overline">GAME MODE <span>SELECT</span></div>
           <div class="mode-options"><button class="mode-button selected" id="modeClassic" type="button"><span class="mode-marker">01</span><span class="mode-label"><b>经典策略</b><small>筑墙 · 障碍 · 传送</small></span><span class="mode-check">✓</span></button>
           <button class="mode-button" id="modeAdvanced" type="button"><span class="mode-marker">02</span><span class="mode-label"><b>跑道挑战</b><small>增加冰面与加速带</small></span><span class="mode-check">✓</span></button></div>
@@ -133,5 +138,6 @@
   </div>
 </div>
 <script defer src="./game.js"></script>
+<script defer src="./mobile.js"></script>
 </body>
 </html>

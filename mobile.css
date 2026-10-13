@@ -1,0 +1,175 @@
+/* Mobile play mode: the board, live turn indicator and primary controls share one viewport.
+   Desktop layout and the game engine are deliberately left unchanged. */
+.mobile-status,.mobile-settings-button{display:none!important}
+
+@media (max-width:760px){
+  :root { --mobile-dock:calc(66px + env(safe-area-inset-bottom, 0px)); }
+  body.mobile-wall-open{--mobile-dock:calc(113px + env(safe-area-inset-bottom, 0px));}
+  html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+  .shell{
+    display:flex;flex-direction:column;
+    height:100vh;height:100dvh;
+    min-height:0;padding:0 12px;
+  }
+  .topbar{height:52px;flex:0 0 52px;min-height:0}
+  .brand{gap:8px}
+  .brand-glyph{font-size:23px}
+  .brand-caption{font-size:9px;letter-spacing:1.2px}
+  .brand-caption small{display:none}
+  .header-right{gap:8px}
+  .header-right>.online-dot{display:none}
+  .header-right .icon-btn{margin:0;width:34px;height:34px}
+  .mobile-settings-button{display:grid!important;font-size:19px;color:#d1dbe5}
+  .shell>main{
+    min-height:0;flex:1;display:flex;flex-direction:column;
+    padding-bottom:var(--mobile-dock);transition:padding-bottom .12s ease-out;
+  }
+  .intro,.footer{display:none}
+  .game-layout{
+    display:flex;flex-direction:column;flex:1;min-height:0;gap:0;
+    grid-template-columns:none;position:relative;
+  }
+  .play-section{
+    display:flex;flex-direction:column;flex:1;min-height:0;min-width:0;
+  }
+  .mobile-status{
+    display:block!important;flex:0 0 auto;
+    margin:0;padding:9px 3px 6px;min-height:55px;
+  }
+  .mobile-status-top{display:flex;align-items:center;gap:10px;min-width:0}
+  .mobile-status-top strong{
+    color:#f4c58c;font-family:var(--serif);
+    font-size:17px;font-weight:750;white-space:nowrap;
+  }
+  .mobile-status-top span{
+    font-size:10px;color:#8b9db0;white-space:nowrap;
+  }
+  .mobile-status-top .mobile-walls{
+    margin-left:auto;color:#b4c6d1;font-size:10px;
+  }
+  .mobile-status p{
+    margin:4px 0 0;color:#90a4b9;font-size:11px;line-height:1.5;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .board-head{
+    height:25px;flex:0 0 25px;margin:0;padding:0 3px;
+  }
+  .board-heading{font-size:11px;gap:8px}
+  .board-index{font-size:9px;letter-spacing:1px}
+  .board-version{font-size:10px}
+  .board-frame{
+    display:flex;align-items:center;justify-content:center;
+    flex:1;min-height:0;margin:0 -3px;padding:0;
+    border-radius:6px;overflow:hidden;
+  }
+  /* Constrain both flex item's intrinsic width and canvas aspect ratio.
+     Without min-width:0 Chrome may expand the 9×13 board past the viewport. */
+  .board-frame{width:100%;max-width:100%;min-width:0}
+  .board-wrap{flex:1 1 100%;max-width:100%;overflow:hidden}
+  .board-wrap canvas{
+    flex:none;
+    width:min(calc(100vw - 30px), calc((100dvh - var(--mobile-dock) - 143px) * 0.73469));
+    max-width:100%;height:auto;max-height:100%;
+  }
+  .board-corner{display:none}
+  .board-wrap{
+    display:flex;align-items:center;justify-content:center;
+    min-width:0;min-height:0;width:100%;height:100%;
+    max-width:none;margin:0;padding:0;
+  }
+  .board-wrap canvas{
+    display:block;width:auto;height:auto;
+    max-width:100%;max-height:100%;
+    aspect-ratio:720/980;object-fit:contain;
+    touch-action:manipulation;
+  }
+  .board-footer,.under-board{display:none}
+  .sidebar{display:contents}
+  .sidebar .turn-panel{display:none}
+  .sidebar .guide-link{display:none}
+  .sidebar .actions{
+    position:fixed;z-index:12;inset:auto 0 0 0;
+    width:100%;margin:0;
+    border:1px solid #385067;border-left:0;border-right:0;border-bottom:0;
+    border-radius:12px 12px 0 0;
+    background:#131f2e;
+    box-shadow:0 -12px 35px #050b16c9;
+    display:grid;grid-template-columns:minmax(0,1fr) auto;
+    gap:8px 8px;align-items:center;
+    padding:8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+  .sidebar .actions>.panel-overline{display:none}
+  .sidebar .actions .action-tabs{
+    grid-column:1;grid-row:1;
+    margin:0;gap:7px;
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .sidebar .actions .action-tab{
+    min-width:0;min-height:48px;height:48px;
+    padding:8px 7px;display:flex;flex-direction:row;
+    justify-content:center;align-items:center;gap:7px;border-radius:7px;
+  }
+  .sidebar .actions .action-tab .action-symbol{font-size:22px;line-height:1}
+  .sidebar .actions .action-tab b{font-size:13px;margin:0}
+  .sidebar .actions .action-tab small{display:none}
+  .sidebar .actions .tool-footer{
+    grid-column:2;grid-row:1;
+    height:48px;min-height:0;margin:0;padding:0;
+    border:0;display:flex;gap:2px;align-items:center;
+  }
+  .sidebar .actions .small-tool{
+    display:flex;flex-direction:column;justify-content:center;
+    align-items:center;gap:1px;
+    min-width:48px;min-height:45px;
+    font-size:18px;padding:3px 5px;line-height:1.15;
+    touch-action:manipulation;
+  }
+  .sidebar .actions .small-tool span{font-size:10px;white-space:nowrap}
+  .sidebar .actions .tool-line{height:22px}
+  .sidebar .actions .wall-tools{
+    grid-column:1/-1;grid-row:1;
+    display:flex;align-items:center;justify-content:space-between;
+    gap:10px;margin:0;padding:0;min-height:38px;
+  }
+  .sidebar .actions .wall-tools[hidden]{display:none!important}
+  .sidebar .actions .wall-tools-caption{
+    flex:1;font-size:11px;white-space:nowrap;
+  }
+  .sidebar .actions .wall-tools-caption span,
+  .sidebar .actions .wall-hint{display:none}
+  .sidebar .actions .orientation-control{
+    display:flex;gap:7px;margin:0;
+  }
+  .sidebar .actions .orientation-btn{
+    white-space:nowrap;min-width:79px;height:35px;
+    padding:5px 9px;font-size:11px;border-radius:5px;
+  }
+  .sidebar .actions .orientation-btn span{font-size:15px;margin-right:2px}
+  body.mobile-wall-open .sidebar .actions .action-tabs,
+  body.mobile-wall-open .sidebar .actions .tool-footer{grid-row:2}
+  .sidebar .settings-panel{
+    display:none;position:fixed;z-index:14;
+    bottom:calc(var(--mobile-dock) + 8px);left:12px;right:12px;
+    width:auto;margin:0;
+    padding:18px;border:1px solid #60788c;border-radius:8px;
+    background:linear-gradient(150deg,#203249,#142233);
+    box-shadow:0 16px 60px #000c;
+  }
+  body.mobile-settings-open .sidebar .settings-panel{display:block}
+  body.mobile-settings-open .mobile-settings-button{
+    color:#ffd29a;border-color:#b68a57;
+  }
+}
+@media(max-width:760px) and (max-height:600px){
+  .topbar{height:46px;flex-basis:46px}
+  .mobile-status{min-height:0;padding:5px 3px}
+  .mobile-status p{margin-top:1px}
+  .board-head{height:19px;flex-basis:19px}
+}
+@media(max-width:760px) and (orientation:landscape) and (max-height:400px){
+  /* Very short displays can scroll rather than making 13 rows untappable. */
+  html,body{overflow:auto}
+  .shell{height:auto;min-height:100dvh}
+  .shell>main{min-height:310px}
+  .board-frame{min-height:240px}
+}
