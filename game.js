@@ -147,15 +147,16 @@
   function newGame(variant){
     return {variant:variant||"classic",playMode:"local",aiLevel:"normal",phase:"pick-attack",players:[null,null],turn:0,
       walls:[],left:[5,5],moves:0,history:[],action:"move",orientation:"h",
-      hover:null,slideDir:[null,null],pending:null,winner:null,notice:""};
+      hover:null,slideDir:[null,null],pending:null,winner:null,repetitions:{},notice:""};
   }
   function snapshot(){
     return JSON.stringify({phase:state.phase,players:state.players,turn:state.turn,walls:state.walls,
-      left:state.left,moves:state.moves,slideDir:state.slideDir,pending:state.pending,winner:state.winner});
+      left:state.left,moves:state.moves,slideDir:state.slideDir,pending:state.pending,winner:state.winner,repetitions:state.repetitions});
   }
   function restore(s){
     var old=JSON.parse(s);
-    ["phase","players","turn","walls","left","moves","slideDir","pending","winner"].forEach(function(k){state[k]=old[k];});
+    ["phase","players","turn","walls","left","moves","slideDir","pending","winner","repetitions"].forEach(function(k){state[k]=old[k];});
+    state.repetitions=state.repetitions||{};
     state.hover=null;state.notice="";
   }
   function save(){
@@ -168,6 +169,7 @@
       var parsed=JSON.parse(raw);
       if(parsed.version!==1||!parsed.state||!Array.isArray(parsed.state.walls)||!Array.isArray(parsed.state.players))return null;
       if(parsed.state.variant!=="classic"&&parsed.state.variant!=="advanced")return null;
+      parsed.state.repetitions=parsed.state.repetitions||{};
       return parsed.state;
     } catch(e){return null;}
   }
@@ -213,14 +215,14 @@
     choices.forEach(function(d){
       var next={x:p.x+d.x,y:p.y+d.y};
       if(!canStep(p,next,walls))return;
-      result.push({p:next,d:d,steps:1,nextLock:ice(next)?(currentIce&&force?lock:d):null});
+      result.push({p:next,d:d,firstDir:d,steps:1,nextLock:ice(next)?(currentIce&&force?lock:d):null});
       if(boost(p)){
         DIRS.forEach(function(d2){
           var target={x:next.x+d2.x,y:next.y+d2.y};
           if(canStep(next,target,walls)&&!same(target,p)&&!boost(target)){
             if(!result.some(function(m){return same(m.p,target)&&m.steps===2;})){
               // On a two-step boost, momentum is determined by the LAST step.
-              result.push({p:target,d:d2,steps:2,nextLock:ice(target)?d2:null});
+              result.push({p:target,d:d2,firstDir:d,steps:2,nextLock:ice(target)?d2:null});
             }
           }
         });
@@ -334,11 +336,24 @@
       setModal("winModal",true);
     }else{
       state.turn=1-moving;
-      state.notice=NAMES[moving]+actionName+"。轮到"+NAMES[state.turn]+"行动。";
+      state.repetitions=state.repetitions||{};
+      var repeatKey=JSON.stringify([state.turn,state.players,state.slideDir,
+        state.walls.map(function(w){return w.o+":"+w.x+":"+w.y;}).sort(),state.left]);
+      var times=(state.repetitions[repeatKey]||0)+1;
+      state.repetitions[repeatKey]=times;
+      if(times>=3||state.moves>=120){
+        state.phase="finished";state.winner=null;
+        state.notice=times>=3?"同一局面出现三次，平局。":"达到 120 手上限，平局。";
+        $("winTitle").textContent="平局";
+        $("winDesc").textContent=state.notice;
+        $("winTurns").textContent=String(state.moves);
+        $("winWalls").textContent=String(state.walls.length);
+        setModal("winModal",true);
+      }else state.notice=NAMES[moving]+actionName+"。轮到"+NAMES[state.turn]+"行动。";
     }
     commit();
     if(state.playMode==="cpu"){
-      if(state.phase==="finished")showAIQuote(state.winner===1?"win":"lose",true);
+      if(state.phase==="finished"&&state.winner!==null)showAIQuote(state.winner===1?"win":"lose",true);
       else if(moving===1)showAIQuote(actionName.indexOf("墙")>=0?"wall":actionName.indexOf("门")>=0?"portal":"move",false);
       else if(state.moves%5===0)showAIQuote("danger",true);
     }
@@ -589,7 +604,7 @@
     $("mapEditorButton").textContent=editing?"关闭工坊":"地图工坊";
     $("mapNameActive").textContent=editorName;
     var title=state.phase==="pick-attack"?"金方选择起点":state.phase==="pick-defend"?"木方选择起点":
-      state.phase==="finished"?NAMES[state.winner]+"赢得胜利":NAMES[state.turn]+"的回合";
+      state.phase==="finished"?(state.winner===null?"平局":NAMES[state.winner]+"赢得胜利"):NAMES[state.turn]+"的回合";
     var help=state.phase==="pick-attack"?"点击棋盘右下角的任一金色营地格，作为金方出生点。":
       state.phase==="pick-defend"?"点击棋盘左上角的任一青色营地格，作为木方出生点。":
       state.phase==="finished"?"本局对战结束。可以悔棋或再来一局。":
