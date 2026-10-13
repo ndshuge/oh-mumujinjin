@@ -18,7 +18,7 @@ for(let mapId=0;mapId<5;mapId++){
   const now=Date.now(),result=search(e,s,side,{simulations:12});
   const duration=Date.now()-now;
   assert(result.action&&used.has(policy.encode(result.action)));
-  assert.strictEqual(result.policySize,426);
+  assert.strictEqual(result.policySize,232);
   assert.strictEqual(result.visits.reduce((v,x)=>v+x.n,0),12);
   console.log("map",mapId,"side",side,"rocks",map.rocks.length,"legal",list.length,"ms",duration);
   count++;

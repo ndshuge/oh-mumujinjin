@@ -7,7 +7,7 @@ el("board").getContext=()=>new Proxy({},{get:()=>()=>{}});
 const document={getElementById:el,querySelectorAll:()=>[],createElement:()=>({}),addEventListener(){}},localStorage={getItem:()=>null,setItem(){}},window={confirm:()=>true,setTimeout:()=>0};
 const needle='state=load()||newGame("classic");';
 if(!source.includes(needle))throw Error("Engine entry changed");
-const expose='window.lab={cleanMap,hellCandidates,hellApply,computerDistance,terrain:{CAMPS,PORTALS,ICE,BOOST},setRocks:r=>{ROCKS=r},getRocks:()=>ROCKS};'+needle;
+const expose='window.lab={cleanMap,hellCandidates,hellApply,hellWallAllowed,movementOptions,portal,computerDistance,terrain:{CAMPS,PORTALS,ICE,BOOST},setRocks:r=>{ROCKS=r},getRocks:()=>ROCKS};'+needle;
 vm.runInNewContext(source.replace(needle,expose),{window,document,localStorage,Set,Math,JSON,Number,Uint8Array,TextEncoder,TextDecoder,atob,btoa,console,location:{hash:""}});
 const engine=window.lab,excluded=new Set();
 for(const list of engine.terrain.CAMPS)for(const p of list)excluded.add(p.x+","+p.y);
