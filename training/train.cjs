@@ -61,6 +61,8 @@ function choose(s,i,method,seen){
  }
  return best;
 }
+module.exports={engine,mapGen,choose,score,notation,rand,pick,seed};
+if(require.main===module){
 const folder=path.join(__dirname,"output");fs.mkdirSync(folder,{recursive:true});
 const lines=[],report={seed,games:N,train:0,heldOut:0,wins:[0,0],draws:0,repetitions:0,outcomes:{goal:0,"no-actions":0,repetition:0,"ply-cap":0},agentResults:{search:{wins:0,losses:0,draws:0},greedy:{wins:0,losses:0,draws:0}},heldOutResults:{wins:[0,0],draws:0}};
 const start=Date.now();
@@ -95,3 +97,5 @@ report.elapsedMs=Date.now()-start;
 fs.writeFileSync(path.join(folder,"games-"+seed+".jsonl"),lines.join("\n")+"\n");
 fs.writeFileSync(path.join(folder,"report-"+seed+".json"),JSON.stringify(report,null,2));
 console.log("REPORT",JSON.stringify(report));
+
+}
