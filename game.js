@@ -86,25 +86,52 @@
     return true;
   }
   function canStep(a,b,walls){return inside(b)&&!rock(b)&&Math.abs(a.x-b.x)+Math.abs(a.y-b.y)===1&&!barrier(a,b,walls);}
-  function findPath(start,target,walls){
+  // Use one movement rule for both real turns and legal-wall path searches.
+  // On ice the entry heading is part of the game state, not just the tile.
+  function movementOptions(p,lock,walls){
+    var currentIce=ice(p),force=lock&&currentIce&&canStep(p,{x:p.x+lock.x,y:p.y+lock.y},walls);
+    var choices=force?[lock]:DIRS,result=[];
+    choices.forEach(function(d){
+      var next={x:p.x+d.x,y:p.y+d.y};
+      if(!canStep(p,next,walls))return;
+      result.push({p:next,d:d,steps:1,nextLock:ice(next)?(currentIce&&force?lock:d):null});
+      if(boost(p)){
+        DIRS.forEach(function(d2){
+          var target={x:next.x+d2.x,y:next.y+d2.y};
+          if(canStep(next,target,walls)&&!same(target,p)&&!boost(target)){
+            if(!result.some(function(m){return same(m.p,target)&&m.steps===2;})){
+              // On a two-step boost, momentum is determined by the LAST step.
+              result.push({p:target,d:d2,steps:2,nextLock:ice(target)?d2:null});
+            }
+          }
+        });
+      }
+    });
+    return result;
+  }
+  function pathStateKey(p,dir){
+    return posKey(p)+"|"+(dir?dir.x+","+dir.y:"free");
+  }
+  function findPath(start,target,walls,initialLock){
     if(!start||rock(start))return false;
-    var queue=[start],at=0,seen=new Set([posKey(start)]);
+    var queue=[{p:start,lock:initialLock||null}],at=0;
+    var seen=new Set([pathStateKey(start,initialLock)]);
+    function enqueue(p,lock){
+      var id=pathStateKey(p,lock);
+      if(!seen.has(id)){seen.add(id);queue.push({p:p,lock:lock});}
+    }
     while(at<queue.length){
-      var cur=queue[at++];
+      var current=queue[at++],cur=current.p;
       if(has(target,cur))return true;
-      DIRS.forEach(function(d){
-        var next={x:cur.x+d.x,y:cur.y+d.y},k=posKey(next);
-        if(!seen.has(k)&&canStep(cur,next,walls)){seen.add(k);queue.push(next);}
+      movementOptions(cur,current.lock,walls).forEach(function(move){
+        enqueue(move.p,move.nextLock);
       });
-      // A portal is an OPTIONAL edge in the movement graph, not an ordinary
-      // step across a wall. When placing a wall, both walking and teleporting
-      // routes must be considered before claiming a player is trapped.
+      // Teleporting is optional; either stay at this portal or take its exit.
+      // Arrival by teleportation clears ice momentum (same as choosePortal).
       var gate=portal(cur);
       if(gate){
-        var exit=same(cur,gate.a)?gate.b:gate.a,exitKey=posKey(exit);
-        if(!seen.has(exitKey)&&inside(exit)&&!rock(exit)){
-          seen.add(exitKey);queue.push(exit);
-        }
+        var exit=same(cur,gate.a)?gate.b:gate.a;
+        if(inside(exit)&&!rock(exit))enqueue(exit,null);
       }
     }
     return false;
@@ -124,7 +151,7 @@
     for(var i=0;i<2;i++){
       var starts=state.players[i] ? [state.players[i]] : CAMPS[i];
       var target=CAMPS[1-i];
-      if(!starts.some(function(s){return findPath(s,target,all);}))return false;
+      if(!starts.some(function(s){return findPath(s,target,all,state.players[i]?state.slideDir[i]:null);}))return false;
     }
     return true;
   }
@@ -136,24 +163,7 @@
   }
   function availableMoves(){
     if(state.phase!=="play"||!state.players[state.turn])return [];
-    var p=state.players[state.turn],result=[],lock=ice(p)?state.slideDir[state.turn]:null;
-    var forced=lock&&canStep(p,{x:p.x+lock.x,y:p.y+lock.y});
-    var choices=forced?[lock]:DIRS;
-    choices.forEach(function(d){
-      var next={x:p.x+d.x,y:p.y+d.y};
-      if(!canStep(p,next))return;
-      result.push({p:next,d:d,steps:1});
-      if(boost(p)){
-        DIRS.forEach(function(d2){
-          var target={x:next.x+d2.x,y:next.y+d2.y};
-          if(canStep(next,target)&&!same(target,p)&&!boost(target)){
-            if(!result.some(function(m){return same(m.p,target)&&m.steps===2;}))
-              result.push({p:target,d:d,steps:2});
-          }
-        });
-      }
-    });
-    return result;
+    return movementOptions(state.players[state.turn],state.slideDir[state.turn],state.walls);
   }
   function selectOrigin(p){
     var who=state.phase==="pick-attack"?0:1;
@@ -168,11 +178,10 @@
   }
   function playerMove(move){
     record();
-    var prev=state.players[state.turn];
     state.players[state.turn]={x:move.p.x,y:move.p.y};
-    if(ice(move.p)){
-      state.slideDir[state.turn]=ice(prev)&&state.slideDir[state.turn]?state.slideDir[state.turn]:move.d;
-    } else {state.slideDir[state.turn]=null;}
+    // The destination's momentum is calculated by the same transition
+    // function used by wall validation. A turn after hitting a wall resets it.
+    state.slideDir[state.turn]=move.nextLock||null;
     var gate=portal(move.p);
     if(gate){
       state.pending={index:PORTALS.indexOf(gate)};
@@ -264,6 +273,14 @@
       state.phase==="pick-defend"?"点击棋盘左上角的任一青色营地格，作为木方出生点。":
       state.phase==="finished"?"本局对战结束。可以悔棋或再来一局。":
       state.action==="wall"?"在棋盘上点击修筑两格长的墙。修墙会结束当前回合。":"点击棋盘内发光的格子行动。一次移动或筑墙即结束回合。";
+    // Show the forced ice heading to make advanced movement predictable.
+    if(state.variant==="advanced"&&state.phase==="play"&&state.action==="move"&&ice(state.players[state.turn])&&state.slideDir[state.turn]){
+      var at=state.players[state.turn],heading=state.slideDir[state.turn];
+      var forward={x:at.x+heading.x,y:at.y+heading.y};
+      var arrow=heading.x>0?"→":heading.x<0?"←":heading.y>0?"↓":"↑";
+      help=canStep(at,forward)?"冰面惯性 "+arrow+"：本回合必须沿箭头方向移动。":
+        "冰面前方受阻：可转向，下一回合沿新方向继续滑行。";
+    }
     $("phaseInfo").textContent=title;
     $("message").textContent=state.notice||help;
     $("roundBadge").textContent="ROUND "+String(Math.floor(state.moves/2)+1).padStart(2,"0");
@@ -386,6 +403,10 @@
     ctx.beginPath();ctx.arc(x,y,sameCell?17:23,0,Math.PI*2);ctx.fillStyle=i===0?"#6e4a32":"#1d5154";ctx.fill();
     ctx.lineWidth=3;ctx.strokeStyle=color;ctx.stroke();ctx.restore();
     text(i===0?"金":"木",x,y+2,sameCell?16:21,color);
+    if(state.variant==="advanced"&&ice(p)&&state.slideDir[i]){
+      var d=state.slideDir[i],arrow=d.x>0?"→":d.x<0?"←":d.y>0?"↓":"↑";
+      text(arrow,x+17,y-21,18,"#ffffff");
+    }
     if(state.phase==="play"&&state.turn===i&&!state.pending){
       ctx.beginPath();ctx.arc(x,y,sameCell?22:29,0,Math.PI*2);ctx.strokeStyle=color+"65";ctx.lineWidth=1.5;ctx.stroke();
     }

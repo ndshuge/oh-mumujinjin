@@ -90,8 +90,8 @@
         <section class="side-panel settings-panel" id="mobileSettingsPanel">
           <div class="panel-overline">GAME MODE <span>SELECT</span></div>
           <div class="mode-options"><button class="mode-button selected" id="modeClassic" type="button"><span class="mode-marker">01</span><span class="mode-label"><b>经典策略</b><small>筑墙 · 障碍 · 传送</small></span><span class="mode-check">✓</span></button>
-          <button class="mode-button" id="modeAdvanced" type="button"><span class="mode-marker">02</span><span class="mode-label"><b>跑道挑战</b><small>增加冰面与加速带</small></span><span class="mode-check">✓</span></button></div>
-          <p class="settings-foot">切换模式将重置当前对局。</p>
+          <button class="mode-button" id="modeAdvanced" type="button"><span class="mode-marker">02</span><span class="mode-label"><b>跑道挑战 · 测试版</b><small>冰面惯性与加速带</small></span><span class="mode-check">✓</span></button></div>
+          <p class="settings-foot">推荐正式对局使用经典策略。跑道挑战仍在测试；切换模式将重置当前对局。</p>
         </section>
         <button id="guideBtn" class="guide-link" type="button"><span>▧</span> 游戏玩法 & 操作指南 <span class="guide-arrow">↗</span></button>
       </aside>
@@ -112,7 +112,7 @@
       <article><span class="rule-num">03</span><h3>修筑高墙</h3><p>每回合也可以选择放一堵长度为 2 的横墙或竖墙。每方最多 5 堵。墙不能重叠或十字交叉，也不能完全切断任一方前往对方营地的路径（允许通过传送门绕行）。</p></article>
       <article><span class="rule-num">04</span><h3>赢得胜利</h3><p>金方率先到达左上角任意守方营地格，或木方率先到达右下角任意攻方营地格，即获胜。</p></article>
       <article><span class="rule-num">05</span><h3>传送之门</h3><p>地图中的 △、✦、○ 分别成对出现。走到传送门上时可自行选择是否传送至另一个同符号格；传送不额外消耗回合。</p></article>
-      <article><span class="rule-num">06</span><h3>进阶跑道</h3><p>在「跑道挑战」中，踏上冰面后按原方向滑行，直到离开冰面或遇到阻挡；从加速带出发的一回合可走两步并转弯，但第二步不能落在加速带内。</p></article>
+      <article><span class="rule-num">06</span><h3>进阶跑道</h3><p>在测试版「跑道挑战」中，进入冰面后必须沿进入方向移动；如果正前方被阻挡，可以选择新方向，之后沿新方向继续滑行。从加速带出发的一回合可走两步并转弯，但第二步不能落在加速带内。</p></article>
     </div>
     <div class="keyboard-tip">小技巧：在「筑墙」模式下可以按 <kbd>R</kbd> 切换墙体方向，按 <kbd>Esc</kbd> 关闭弹窗。</div>
     <button class="primary-btn" data-close="guideModal" type="button">开始对弈 ↗</button>
@@ -137,7 +137,7 @@
     <button id="playAgainBtn" class="primary-btn" type="button">再来一局 ↗</button>
   </div>
 </div>
-<script defer src="./game.js?v=portal-path-20261013"></script>
+<script defer src="./game.js?v=ice-direction-fix-20261013"></script>
 <script defer src="./mobile.js"></script>
 </body>
 </html>
