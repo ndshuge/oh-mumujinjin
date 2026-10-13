@@ -30,7 +30,7 @@
   var boost = function(p){return state.variant==="advanced" && has(BOOST,p);};
   var portal = function(p){return PORTALS.find(function(g){return same(g.a,p)||same(g.b,p);}) || null;};
   function newGame(variant){
-    return {variant:variant||"classic",phase:"pick-attack",players:[null,null],turn:0,
+    return {variant:variant||"classic",playMode:"local",aiLevel:"normal",phase:"pick-attack",players:[null,null],turn:0,
       walls:[],left:[5,5],moves:0,history:[],action:"move",orientation:"h",
       hover:null,slideDir:[null,null],pending:null,winner:null,notice:""};
   }
@@ -57,9 +57,11 @@
     } catch(e){return null;}
   }
   function notice(text){state.notice=text;drawUI();}
-  function commit(){state.notice="";save();drawUI();drawBoard();}
+  function commit(){state.notice="";save();drawUI();drawBoard();scheduleComputerTurn();}
   function resetGame(variant){
+    var playMode=state.playMode||"local",aiLevel=state.aiLevel||"normal";
     state=newGame(variant||state.variant);
+    state.playMode=playMode;state.aiLevel=aiLevel;
     closeAll();commit();
   }
   function confirmSwitch(variant){
@@ -70,7 +72,9 @@
   function record(){state.history.push(snapshot());if(state.history.length>120)state.history.shift();}
   function undo(){
     if(!state.history.length){notice("还没有可悔的步骤。");return;}
-    restore(state.history.pop());closeAll();commit();
+    var count=state.playMode==="cpu"&&state.phase==="play"&&state.turn===0?2:1;
+    while(count-- > 0 && state.history.length)restore(state.history.pop());
+    closeAll();commit();
   }
   function campOwner(p){
     if(has(CAMPS[0],p))return 0;
@@ -239,6 +243,7 @@
     return w.x>=0&&w.y>=0&&w.x<W-1&&w.y<H-1?w:null;
   }
   function canvasClick(event){
+    if(state.playMode==="cpu"&&state.phase==="play"&&state.turn===1)return;
     if(state.phase==="finished"||state.pending)return;
     var p=pointerPos(event),t=tileAt(p);
     if(state.phase==="pick-attack"||state.phase==="pick-defend"){
@@ -256,8 +261,106 @@
       else notice("此处不可到达。请选择棋盘上发光的可移动格。");
     }
   }
+  // Local, deterministic-rule computer player. No server/API required.
+  // All candidate moves and barriers use the same legal actions as human turns.
+  var cpuScheduleToken=0;
+  function computerDistance(start,goal,walls,lock){
+    var queue=[{p:start,lock:lock||null,n:0}],head=0;
+    var seen=new Set([pathStateKey(start,lock)]);
+    while(head<queue.length){
+      var cur=queue[head++];
+      if(has(goal,cur.p))return cur.n;
+      var options=movementOptions(cur.p,cur.lock,walls);
+      for(var i=0;i<options.length;i++){
+        var m=options[i],g=portal(m.p),out=[{p:m.p,lock:m.nextLock}];
+        if(g){out.push({p:same(g.a,m.p)?g.b:g.a,lock:null});}
+        for(var j=0;j<out.length;j++){
+          var q=out[j],id=pathStateKey(q.p,q.lock);
+          if(!seen.has(id)){seen.add(id);queue.push({p:q.p,lock:q.lock,n:cur.n+1});}
+        }
+      }
+    }
+    return Infinity;
+  }
+  function computerWallChoice(level){
+    if(level==="easy"||!state.left[1])return null;
+    var mine=state.players[1],them=state.players[0],beforeMine=computerDistance(mine,CAMPS[0],state.walls,state.slideDir[1]);
+    var beforeThem=computerDistance(them,CAMPS[1],state.walls,state.slideDir[0]);
+    var best=null,bestScore=-Infinity,seen=new Set();
+    for(var dx=-2;dx<=1;dx++)for(var dy=-2;dy<=1;dy++)for(var k=0;k<2;k++){
+      var w={x:them.x+dx,y:them.y+dy,o:k===0?"h":"v"},id=w.x+","+w.y+","+w.o;
+      if(seen.has(id))continue;seen.add(id);
+      if(!validWall(w))continue;
+      var all=state.walls.concat([w]);
+      var theirs=computerDistance(them,CAMPS[1],all,state.slideDir[0]);
+      var ours=computerDistance(mine,CAMPS[0],all,state.slideDir[1]);
+      if(!Number.isFinite(ours)||!Number.isFinite(theirs))continue;
+      var score=1.5*(theirs-beforeThem)-1.1*(ours-beforeMine);
+      if(score>bestScore){bestScore=score;best=w;}
+    }
+    var needed=level==="hard"?1.05:2.3;
+    return bestScore>=needed?best:null;
+  }
+  function computerMoveChoice(level){
+    var options=availableMoves();
+    if(!options.length)return null;
+    if(level==="easy"&&Math.random()<0.22)return options[Math.floor(Math.random()*options.length)];
+    var goal=CAMPS[0],best=null,score=Infinity;
+    for(var i=0;i<options.length;i++){
+      var m=options[i],destinations=[{p:m.p,lock:m.nextLock}],g=portal(m.p);
+      if(g)destinations.push({p:same(g.a,m.p)?g.b:g.a,lock:null});
+      var dist=Math.min.apply(null,destinations.map(function(dest){
+        return computerDistance(dest.p,goal,state.walls,dest.lock);
+      }));
+      var tie=(level==="hard"?Math.random()*0.08:Math.random()*0.6);
+      var preference=dist+tie-0.07*(m.steps-1);
+      if(preference<score){score=preference;best=m;}
+    }
+    return best;
+  }
+  function computerTakeTurn(){
+    if(state.playMode!=="cpu"||state.phase!=="play"||state.turn!==1||state.pending)return;
+    var level=state.aiLevel||"normal";
+    var wall=computerWallChoice(level);
+    if(wall){placeWall(wall);return;}
+    var move=computerMoveChoice(level);
+    if(!move)return;
+    playerMove(move);
+    if(state.pending&&state.turn===1){
+      var gate=PORTALS[state.pending.index],cur=state.players[1];
+      var exit=same(gate.a,cur)?gate.b:gate.a;
+      var stayDistance=computerDistance(cur,CAMPS[0],state.walls,null);
+      var warpDistance=computerDistance(exit,CAMPS[0],state.walls,null);
+      choosePortal(warpDistance<stayDistance);
+    }
+  }
+  function scheduleComputerTurn(){
+    var token=++cpuScheduleToken;
+    if(state.playMode!=="cpu"||typeof window.setTimeout!=="function")return;
+    if(state.phase==="pick-defend"){
+      window.setTimeout(function(){
+        if(token!==cpuScheduleToken||state.phase!=="pick-defend"||state.playMode!=="cpu")return;
+        selectOrigin({x:1,y:0});
+      },280);
+    }else if(state.phase==="play"&&state.turn===1&&!state.pending){
+      window.setTimeout(function(){
+        if(token!==cpuScheduleToken||state.phase!=="play"||state.turn!==1||state.playMode!=="cpu")return;
+        computerTakeTurn();
+      },420);
+    }
+  }
+  function setPlayMode(mode){
+    if(state.playMode===mode)return;
+    if(state.moves>0&&!window.confirm("切换对战方式会重置当前对局。确定继续？"))return;
+    state.playMode=mode;resetGame(state.variant);
+  }
+  function setAILevel(level){
+    if(state.playMode==="cpu"&&state.aiLevel===level)return;
+    if(state.moves>0&&!window.confirm("切换人机难度会重置当前对局。确定继续？"))return;
+    state.playMode="cpu";state.aiLevel=level;resetGame(state.variant);
+  }
   function setAction(a){
-    if(state.phase!=="play")return;
+    if(state.phase!=="play"||(state.playMode==="cpu"&&state.turn===1))return;
     state.action=a;state.hover=null;drawUI();drawBoard();
   }
   function orientation(o){
@@ -281,6 +384,10 @@
       help=canStep(at,forward)?"冰面惯性 "+arrow+"：本回合必须沿箭头方向移动。":
         "冰面前方受阻：可转向，下一回合沿新方向继续滑行。";
     }
+    if(state.playMode==="cpu"){
+      if(state.phase==="pick-defend")help="电脑正在选择木方出生点…";
+      if(state.phase==="play"&&state.turn===1){title="木方电脑的回合";help="电脑正在计算下一步，请稍候。";}
+    }
     $("phaseInfo").textContent=title;
     $("message").textContent=state.notice||help;
     $("roundBadge").textContent="ROUND "+String(Math.floor(state.moves/2)+1).padStart(2,"0");
@@ -294,13 +401,22 @@
     }
     $("moveMode").classList.toggle("selected",state.action==="move");
     $("wallMode").classList.toggle("selected",state.action==="wall");
-    $("moveMode").disabled=picking;$("wallMode").disabled=picking||state.left[state.turn]===0;
+    var cpuBusy=state.playMode==="cpu"&&state.turn===1;
+    $("moveMode").disabled=picking||cpuBusy;$("wallMode").disabled=picking||cpuBusy||state.left[state.turn]===0;
     $("wallTools").hidden=state.action!=="wall"||picking;
     $("wallH").classList.toggle("selected",state.orientation==="h");
     $("wallV").classList.toggle("selected",state.orientation==="v");
     $("modeClassic").classList.toggle("selected",state.variant==="classic");
     $("modeAdvanced").classList.toggle("selected",state.variant==="advanced");
     $("boardVersion").textContent=state.variant==="classic"?"经典战场":"跑道挑战";
+    if(state.playMode==="cpu")$("player1Label").textContent=state.phase==="play"&&state.turn===1?"电脑思考中":"电脑执木方";
+    $("playLocal").classList.toggle("selected",state.playMode!=="cpu");
+    $("playAI").classList.toggle("selected",state.playMode==="cpu");
+    $("aiDifficulty").hidden=state.playMode!=="cpu";
+    ["easy","normal","hard"].forEach(function(level){
+      $("ai-"+level).classList.toggle("selected",state.aiLevel===level);
+      if(typeof $("ai-"+level).setAttribute==="function")$("ai-"+level).setAttribute("aria-pressed",state.aiLevel===level?"true":"false");
+    });
     $("legendExtra").hidden=state.variant!=="advanced";
     $("undoBtn").disabled=state.history.length===0;
     $("board").style.cursor=state.action==="wall"&&state.phase==="play"?"crosshair":"pointer";
@@ -434,6 +550,11 @@
     $("wallMode").addEventListener("click",function(){setAction("wall");});
     $("wallH").addEventListener("click",function(){orientation("h");});
     $("wallV").addEventListener("click",function(){orientation("v");});
+    $("playLocal").addEventListener("click",function(){setPlayMode("local");});
+    $("playAI").addEventListener("click",function(){setPlayMode("cpu");});
+    ["easy","normal","hard"].forEach(function(level){
+      $("ai-"+level).addEventListener("click",function(){setAILevel(level);});
+    });
     $("undoBtn").addEventListener("click",undo);
     $("restartBtn").addEventListener("click",function(){
       if(state.moves>0&&!window.confirm("确定放弃当前对局并重新开始吗？"))return;
@@ -453,7 +574,7 @@
       if(e.key==="Escape"){setModal("guideModal",false);return;}
       if(!$("portalModal").hidden||!$("winModal").hidden||!$("guideModal").hidden)return;
       if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="z"){e.preventDefault();undo();return;}
-      if(state.phase!=="play")return;
+      if(state.phase!=="play"||(state.playMode==="cpu"&&state.turn===1))return;
       if(e.key.toLowerCase()==="r"){orientation(state.orientation==="h"?"v":"h");return;}
       var m={"ArrowRight":{x:1,y:0},"ArrowLeft":{x:-1,y:0},"ArrowDown":{x:0,y:1},"ArrowUp":{x:0,y:-1}}[e.key];
       if(m&&state.action==="move"){
@@ -469,6 +590,8 @@
   }
   state=load()||newGame("classic");
   state.hover=null;state.notice=state.notice||"";
+  state.playMode=state.playMode==="cpu"?"cpu":"local";
+  state.aiLevel=["easy","normal","hard"].indexOf(state.aiLevel)>=0?state.aiLevel:"normal";
   bindEvents();drawUI();drawBoard();
   if(state.phase==="finished"&&state.winner!==null){
     $("winTitle").textContent=NAMES[state.winner]+"获胜！";
@@ -479,4 +602,5 @@
     $("portalIcon").textContent=PORTALS[state.pending.index].symbol;
     setModal("portalModal",true);
   }
+  scheduleComputerTurn();
 })();

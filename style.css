@@ -16,3 +16,19 @@
 @media(max-width:1050px){.shell{padding:0 26px}.game-layout{grid-template-columns:minmax(0,1fr) 310px;gap:17px}.side-panel{padding:19px 15px}.board-wrap{max-width:490px}.board-footer{padding:13px 12px;font-size:9px}.player-card{padding:10px 8px;gap:8px}.player-avatar{flex-basis:34px;width:34px;height:34px}.wall-count{letter-spacing:1px}}
 @media(max-width:760px){.shell{padding:0 16px}.topbar{height:68px}.brand-glyph{font-size:21px}.brand-caption{font-size:8px}.brand-caption small{font-size:7px}.header-right>span:not(.online-dot){display:none}.header-right .icon-btn{margin-left:0}.intro{padding:39px 0 25px}.intro h1{font-size:clamp(37px,8vw,54px);margin:13px 0}.intro p{font-size:12px}.eyebrow{font-size:9px;letter-spacing:1.9px}.mobile-break{display:block}.game-layout{grid-template-columns:1fr;gap:9px}.board-wrap{max-width:490px;padding:0 6px}.board-frame{margin:0 -4px}.board-footer{padding:12px 10px;font-size:9px}.board-footer span:nth-child(2){font-size:8px}.sidebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.turn-panel{grid-column:1/-1}.turn-desc{min-height:0}.players{flex-direction:row;align-items:center;gap:4px}.player-card{flex:1;min-width:0}.player-card .player-right{display:none}.player-details b{font-size:11px}.versus{flex:0 0 25px}.versus span{display:none}.actions,.settings-panel{grid-column:span 1}.actions .panel-overline,.settings-panel .panel-overline{font-size:9px}.action-tabs{gap:5px}.action-tab{padding:10px 10px}.action-tab small{font-size:9px}.action-symbol{font-size:22px}.mode-button{padding:10px 8px;gap:7px}.mode-marker{width:22px;height:24px;font-size:10px}.mode-label b{font-size:11px}.mode-label small{font-size:9px}.tool-footer{min-height:45px;margin-top:11px}.guide-link{grid-column:1/-1}.footer{flex-wrap:wrap;gap:12px;margin-top:30px}.footer>span{display:none}.modal-dialog{padding:26px 20px}.rules-grid{gap:16px}.modal-dialog h2{font-size:30px}}
 @media(max-width:430px){.shell{padding:0 12px}.intro h1{font-size:36px}.board-head{padding:0 3px}.board-heading{font-size:12px}.board-version{font-size:10px}.sidebar{display:flex}.turn-panel{grid-column:auto}.players{gap:5px}.player-card .player-right{display:block}.player-card{padding:10px 6px}.player-avatar{width:30px;height:30px;flex-basis:30px;font-size:15px}.player-details b{font-size:11px}.player-details small{font-size:9px}.wall-count{font-size:8px;letter-spacing:0}.player-right small{font-size:8px}.actions,.settings-panel{grid-column:auto}.action-tab{padding:12px 16px}.under-board{gap:11px;font-size:9px;padding:12px 5px}.under-board>span{gap:5px}.rules-grid{grid-template-columns:1fr}.modal-dialog{max-height:86vh}.board-footer span:nth-child(2){display:none}}
+/* Standalone computer opponent controls (desktop + mobile). */
+.settings-divider{height:1px;background:#304255;margin:20px 0 18px}
+.match-options{gap:7px}
+.ai-difficulty{margin-top:15px;padding:12px;border:1px solid #3a5065;border-radius:5px;background:#101c29}
+.ai-difficulty[hidden]{display:none!important}
+.difficulty-label{display:flex;align-items:center;justify-content:space-between;color:#cedbe4;font-size:12px;margin-bottom:9px}
+.difficulty-label span{font-size:9px;color:#72899e}
+.ai-levels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.ai-level{background:#1e2e3f;border:1px solid #3b5268;border-radius:5px;color:#b7c9d9;padding:9px 4px;font-size:12px}
+.ai-level.selected{background:#463527;color:#ffdaa1;border-color:#d2a367}
+@media(max-width:760px){
+.sidebar .settings-panel{max-height:min(64dvh,520px);overflow-y:auto;overscroll-behavior:contain}
+.settings-divider{margin:14px 0 12px}
+.ai-difficulty{padding:10px}
+.ai-level{min-height:40px}
+}
