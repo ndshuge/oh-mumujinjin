@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a111d">
+  <meta name="description" content="哦，木木金金棋——从一张手绘地图诞生的双人路线争夺策略棋。走棋、筑墙、传送、滑冰与加速，先抵达对方营地者获胜。">
+  <title>哦，木木金金棋 · 步步为营</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="返回游戏首页">
+      <span class="brand-glyph">木<span>◇</span>金</span>
+      <span class="brand-caption">MUMU JINJIN <small>BOARD GAME STUDIO</small></span>
+    </a>
+    <div class="header-right"><span class="online-dot"></span><span>本地双人 · 无需联网</span><button class="icon-btn" id="helpTop" title="游戏规则" aria-label="游戏规则">?</button></div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <div class="eyebrow"><span class="star">✦</span> FROM A HAND-DRAWN IDEA <span class="line"></span> V 1.0</div>
+      <h1>哦，<span>木木金金棋</span><i>。</i></h1>
+      <p>每一步，都是一场关于路线的博弈。<br class="mobile-break">跨越障碍、筑起高墙，先闯入对手的营地。</p>
+    </section>
+
+    <section class="game-layout" aria-label="游戏区域">
+      <div class="play-section">
+        <div class="board-head">
+          <div class="board-heading"><span class="tiny-square"></span><span>对弈战场</span><span class="board-index">09 × 13</span></div>
+          <div class="board-version"><span class="tiny-dot"></span><span id="boardVersion">经典战场</span></div>
+        </div>
+        <div class="board-frame">
+          <div class="board-corner corner-tl"></div><div class="board-corner corner-tr"></div>
+          <div class="board-corner corner-bl"></div><div class="board-corner corner-br"></div>
+          <div class="board-wrap">
+            <canvas id="board" width="720" height="980" aria-label="九列十三行棋盘。点击高亮格移动棋子，筑墙模式点击棋盘放置墙体。" tabindex="0"></canvas>
+          </div>
+          <div class="board-footer"><span>◉ 守方营地 <em>↗</em></span><span>手稿地图 · 灵感复刻</span><span><em>↘</em> 攻方营地 ◉</span></div>
+        </div>
+        <div class="under-board">
+          <span><span class="legend-tile wall"></span> 墙</span>
+          <span><span class="legend-tile rock"></span> 障碍</span>
+          <span><span class="legend-tile portal"></span> 传送门</span>
+          <span id="legendExtra" class="subtle-legend"><span class="legend-tile special"></span> 进阶地形</span>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <section class="side-panel turn-panel">
+          <div class="panel-overline">MATCH STATUS <span id="roundBadge">ROUND 01</span></div>
+          <div id="phaseInfo" class="phase-info">选择攻方起点</div>
+          <p id="message" class="turn-desc" aria-live="polite">点击棋盘右下方的金色营地，选定你的出发位置。</p>
+          <div class="players">
+            <div class="player-card active" id="player0">
+              <div class="player-avatar attack-avatar">金</div>
+              <div class="player-details"><b>攻方 <span>· 金</span></b><small id="player0Label">等待选择起点</small></div>
+              <div class="player-right"><div class="wall-count" id="walls0">✦ ✦ ✦ ✦ ✦</div><small>剩余城墙</small></div>
+            </div>
+            <div class="versus">VS <span></span></div>
+            <div class="player-card" id="player1">
+              <div class="player-avatar guard-avatar">木</div>
+              <div class="player-details"><b>守方 <span>· 木</span></b><small id="player1Label">等待选择起点</small></div>
+              <div class="player-right"><div class="wall-count" id="walls1">✦ ✦ ✦ ✦ ✦</div><small>剩余城墙</small></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="side-panel actions">
+          <div class="panel-overline">YOUR MOVE <span>01 / 02</span></div>
+          <div class="action-tabs" role="group" aria-label="操作选择">
+            <button id="moveMode" class="action-tab selected" type="button"><span class="action-symbol">↗</span><b>移动</b><small>前进一步</small></button>
+            <button id="wallMode" class="action-tab" type="button"><span class="action-symbol">┇</span><b>筑墙</b><small>封锁道路</small></button>
+          </div>
+          <div class="wall-tools" id="wallTools" hidden>
+            <div class="wall-tools-caption">筑墙方向 <span>每次占据连续 2 段边线</span></div>
+            <div class="orientation-control"><button id="wallH" class="orientation-btn selected" type="button"><span>━━</span> 横向墙</button><button id="wallV" class="orientation-btn" type="button"><span>┃</span> 纵向墙</button></div>
+            <small class="wall-hint">点击棋盘预览位置；不能封死任意一方所有去路。</small>
+          </div>
+          <div class="tool-footer"><button id="undoBtn" class="small-tool" type="button">↶ <span>悔棋</span></button><span class="tool-line"></span><button id="restartBtn" class="small-tool" type="button">⟳ <span>重新开始</span></button></div>
+        </section>
+
+        <section class="side-panel settings-panel">
+          <div class="panel-overline">GAME MODE <span>SELECT</span></div>
+          <div class="mode-options"><button class="mode-button selected" id="modeClassic" type="button"><span class="mode-marker">01</span><span class="mode-label"><b>经典策略</b><small>筑墙 · 障碍 · 传送</small></span><span class="mode-check">✓</span></button>
+          <button class="mode-button" id="modeAdvanced" type="button"><span class="mode-marker">02</span><span class="mode-label"><b>跑道挑战</b><small>增加冰面与加速带</small></span><span class="mode-check">✓</span></button></div>
+          <p class="settings-foot">切换模式将重置当前对局。</p>
+        </section>
+        <button id="guideBtn" class="guide-link" type="button"><span>▧</span> 游戏玩法 & 操作指南 <span class="guide-arrow">↗</span></button>
+      </aside>
+    </section>
+
+    <footer class="footer"><div class="footer-brand">木 <span>×</span> 金</div><p>源自一张手绘规则纸。为每一次奇思妙想而造。</p><span>HANDMADE IDEA · BUILT FOR THE WEB</span></footer>
+  </main>
+</div>
+
+<div class="modal-cover" id="guideModal" hidden>
+  <div class="modal-dialog guide-dialog" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
+    <button class="modal-close" data-close="guideModal" type="button" aria-label="关闭">×</button>
+    <span class="modal-kicker">HOW TO PLAY</span><h2 id="guideTitle">步步为营<span>。</span></h2>
+    <p class="modal-lead">这不是比谁走得快的游戏，而是比谁更会规划下一步。</p>
+    <div class="rules-grid">
+      <article><span class="rule-num">01</span><h3>选择营地</h3><p>金方先选右下角 3 个出生格之一，再由木方选择左上角 3 个出生格之一。金方先手。</p></article>
+      <article><span class="rule-num">02</span><h3>移动棋子</h3><p>每回合移动至相邻的上、下、左、右一个可通行格。双方允许暂时站在同一格；黑色障碍不能进入。</p></article>
+      <article><span class="rule-num">03</span><h3>修筑高墙</h3><p>每回合也可以选择放一堵长度为 2 的横墙或竖墙。每方最多 5 堵。墙不能重叠或十字交叉，也不能完全切断任一方前往对方营地的路径。</p></article>
+      <article><span class="rule-num">04</span><h3>赢得胜利</h3><p>金方率先到达左上角任意守方营地格，或木方率先到达右下角任意攻方营地格，即获胜。</p></article>
+      <article><span class="rule-num">05</span><h3>传送之门</h3><p>地图中的 △、✦、○ 分别成对出现。走到传送门上时可自行选择是否传送至另一个同符号格；传送不额外消耗回合。</p></article>
+      <article><span class="rule-num">06</span><h3>进阶跑道</h3><p>在「跑道挑战」中，踏上冰面后按原方向滑行，直到离开冰面或遇到阻挡；从加速带出发的一回合可走两步并转弯，但第二步不能落在加速带内。</p></article>
+    </div>
+    <div class="keyboard-tip">小技巧：在「筑墙」模式下可以按 <kbd>R</kbd> 切换墙体方向，按 <kbd>Esc</kbd> 关闭弹窗。</div>
+    <button class="primary-btn" data-close="guideModal" type="button">开始对弈 ↗</button>
+  </div>
+</div>
+
+<div class="modal-cover" id="portalModal" hidden>
+  <div class="modal-dialog prompt-dialog" role="dialog" aria-modal="true" aria-labelledby="portalTitle">
+    <span class="portal-icon" id="portalIcon">△</span>
+    <span class="modal-kicker">WARP GATE ACTIVATED</span>
+    <h2 id="portalTitle">发现传送门</h2>
+    <p>你踏入了一道神秘的门。要瞬移到它的另一端吗？</p>
+    <div class="prompt-actions"><button id="stayBtn" class="secondary-btn" type="button">留在此处</button><button id="warpBtn" class="primary-btn" type="button">立即传送 ↗</button></div>
+  </div>
+</div>
+
+<div class="modal-cover" id="winModal" hidden>
+  <div class="modal-dialog win-dialog" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+    <div class="win-laurel">✦　✧　✦</div><span class="modal-kicker">VICTORY</span>
+    <h2 id="winTitle">金方获胜！</h2><p id="winDesc">突破层层封锁，成功抵达对方营地。</p>
+    <div class="win-stats"><div><strong id="winTurns">0</strong><span>总回合</span></div><div><strong id="winWalls">0</strong><span>已筑高墙</span></div></div>
+    <button id="playAgainBtn" class="primary-btn" type="button">再来一局 ↗</button>
+  </div>
+</div>
+<script defer src="./game.js"></script>
+</body>
+</html>
