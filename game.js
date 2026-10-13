@@ -96,6 +96,16 @@
         var next={x:cur.x+d.x,y:cur.y+d.y},k=posKey(next);
         if(!seen.has(k)&&canStep(cur,next,walls)){seen.add(k);queue.push(next);}
       });
+      // A portal is an OPTIONAL edge in the movement graph, not an ordinary
+      // step across a wall. When placing a wall, both walking and teleporting
+      // routes must be considered before claiming a player is trapped.
+      var gate=portal(cur);
+      if(gate){
+        var exit=same(cur,gate.a)?gate.b:gate.a,exitKey=posKey(exit);
+        if(!seen.has(exitKey)&&inside(exit)&&!rock(exit)){
+          seen.add(exitKey);queue.push(exit);
+        }
+      }
     }
     return false;
   }
