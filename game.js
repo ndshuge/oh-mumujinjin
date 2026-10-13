@@ -10,16 +10,131 @@
     [{x:6,y:12},{x:7,y:12},{x:8,y:12}],
     [{x:0,y:0},{x:1,y:0},{x:2,y:0}]
   ];
-  var ROCKS = [{x:3,y:2},{x:3,y:3},{x:7,y:2},{x:2,y:4},{x:4,y:5},{x:5,y:5},{x:0,y:8},{x:3,y:9},{x:5,y:9},{x:6,y:9}];
+  var DEFAULT_ROCKS = [{x:3,y:2},{x:3,y:3},{x:7,y:2},{x:2,y:4},{x:4,y:5},{x:5,y:5},{x:0,y:8},{x:3,y:9},{x:5,y:9},{x:6,y:9}];
   var PORTALS = [
     {symbol:"△",name:"三角之门",a:{x:5,y:2},b:{x:2,y:5}},
     {symbol:"✦",name:"星辉之门",a:{x:6,y:4},b:{x:1,y:11}},
     {symbol:"○",name:"圆环之门",a:{x:8,y:6},b:{x:3,y:8}}
   ];
+  var ROCKS = DEFAULT_ROCKS.map(function(p){return {x:p.x,y:p.y};});
   var ICE = [{x:1,y:6},{x:1,y:7},{x:1,y:8},{x:7,y:7},{x:7,y:8}];
   var BOOST = [{x:4,y:3},{x:4,y:4},{x:6,y:10},{x:7,y:10}];
   var DIRS = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
   var state;
+  var aiDialogueDisabled=false,aiBanterTurns=0;
+  var AI_QUOTES={
+    opening:["金方先手？那就看看你能走多远。","我已经在想三步之后的局面了。","别急，棋盘才刚刚热起来。"],
+    wall:["这道墙，喜欢吗？","近路没了。现在考验你的耐心。","别只盯着终点，看看脚下的路。"],
+    move:["我已经看见通往你营地的路了。","你的下一步，我会认真接招。","慢慢来，胜负还没定。"],
+    portal:["传送门？真是有趣的捷径。","空间可比你想的复杂。"],
+    danger:["看来局面有点危险，我要认真了。","好吧，这一步确实漂亮。"],
+    lose:["这一局你赢了。下一局我会改变策略。"],
+    win:["将军。下次再来挑战吧。"]
+  };
+  function showAIQuote(kind,force){
+    if(!state||state.playMode!=="cpu"||editing||aiDialogueDisabled)return;
+    if(!force&&state.moves%3!==0&&kind!=="wall")return;
+    var box=$("aiBanter");if(!box)return;
+    var list=AI_QUOTES[kind]||AI_QUOTES.move;
+    $("aiBanterText").textContent=list[aiBanterTurns++%list.length];
+    box.hidden=false;$("aiReplies").hidden=true;
+  }
+  function refreshAIBanter(){
+    var box=$("aiBanter");if(!box)return;
+    box.hidden=state.playMode!=="cpu"||editing||aiDialogueDisabled;
+    $("aiQuiet").textContent=aiDialogueDisabled?"开启对话":"安静模式";
+    $("aiReplyToggle").hidden=aiDialogueDisabled;
+  }
+  var editing=false,editorTool="add",editorName="我的地图",editorRocks=null;
+  var MAP_KEY="mumujinjin-custom-maps-v1", ACTIVE_KEY="mumujinjin-active-map-v1";
+  function fixedTile(t){return CAMPS.some(function(arr){return has(arr,t);})||PORTALS.some(function(g){return same(g.a,t)||same(g.b,t);})||has(ICE,t)||has(BOOST,t);}
+  function cleanMap(input){
+    if(!input||input.version!==1||!Array.isArray(input.rocks)||input.rocks.length>100||typeof input.name!=="string")return null;
+    var name=input.name.trim().slice(0,40)||"自定义地图",seen=new Set(),rocks=[];
+    for(var i=0;i<input.rocks.length;i++){
+      var t=input.rocks[i];
+      if(!t||!Number.isInteger(t.x)||!Number.isInteger(t.y)||!inside(t)||fixedTile(t)||seen.has(posKey(t)))return null;
+      seen.add(posKey(t));rocks.push({x:t.x,y:t.y});
+    }
+    var old=ROCKS;ROCKS=rocks;
+    var valid=CAMPS.every(function(starts,i){return starts.every(function(s){return findPath(s,CAMPS[1-i],[]);});});
+    ROCKS=old;
+    return valid?{version:1,name:name,rocks:rocks}:null;
+  }
+  function readMaps(){try{var m=JSON.parse(localStorage.getItem(MAP_KEY));return Array.isArray(m)?m.filter(cleanMap).slice(0,15):[];}catch(e){return [];}}
+  function installMap(map){
+    var valid=cleanMap(map);if(!valid)return false;
+    ROCKS=valid.rocks.map(function(t){return {x:t.x,y:t.y};});
+    editorName=valid.name;try{localStorage.setItem(ACTIVE_KEY,JSON.stringify(valid));}catch(e){}
+    resetGame(state.variant);return true;
+  }
+  function mapCurrent(){return {version:1,name:editorName,rocks:ROCKS.map(function(t){return{x:t.x,y:t.y};})};}
+  function mapDraft(){return {version:1,name:editorName,rocks:editorRocks.map(function(t){return{x:t.x,y:t.y};})};}
+  function editorMessage(msg){$("editorMessage").textContent=msg;}
+  function editorDraw(){
+    $("mapEditor").hidden=!editing;
+    $("mapEditorButton").textContent=editing?"关闭工坊":"地图工坊";
+    $("editorAdd").classList.toggle("selected",editorTool==="add");
+    $("editorErase").classList.toggle("selected",editorTool==="erase");
+    $("editorName").value=editorName;
+    $("mapNameActive").textContent=editorName;
+    refreshAIBanter();
+    drawBoard();
+  }
+  function openEditor(){
+    if(!editing && state.moves>0&&!window.confirm("进入地图编辑将结束当前对局，确定继续？"))return;
+    editing=!editing;
+    if(editing){editorRocks=ROCKS.map(function(t){return{x:t.x,y:t.y};});editorTool="add";editorMessage("点击棋盘放置障碍；橙色提示表示该地图当前不可游玩。");}
+    editorDraw();
+  }
+  function editCell(t){
+    if(!t||fixedTile(t)){editorMessage("营地、传送门及特殊地形不能覆盖。");return;}
+    var ix=editorRocks.findIndex(function(p){return same(p,t);});
+    if(editorTool==="erase"){if(ix>=0)editorRocks.splice(ix,1);}
+    else if(ix<0)editorRocks.push({x:t.x,y:t.y});
+    var v=cleanMap(mapDraft());
+    editorMessage(v?"地图合法，可保存或试玩。":"目前存在被封闭的出生路线，请调整障碍。");
+    drawBoard();
+  }
+  function saveMap(){
+    editorName=$("editorName").value.trim().slice(0,40)||"自定义地图";
+    var map=cleanMap(mapDraft());
+    if(!map){editorMessage("无法保存：地图存在不可到达的路线或无效障碍。");return;}
+    var maps=readMaps().filter(function(x){return x.name!==map.name;});
+    maps.unshift(map);try{localStorage.setItem(MAP_KEY,JSON.stringify(maps.slice(0,15)));}catch(e){editorMessage("浏览器存储失败。");return;}
+    editorMessage("已保存："+map.name);refreshMapSelect();
+  }
+  function refreshMapSelect(){
+    var select=$("savedMaps");if(!select||!select.appendChild)return;
+    select.innerHTML="";
+    var empty=document.createElement("option");empty.value="";empty.textContent="选择已保存地图";select.appendChild(empty);
+    readMaps().forEach(function(map){var opt=document.createElement("option");opt.value=map.name;opt.textContent=map.name;select.appendChild(opt);});
+  }
+  function shareMap(){
+    editorName=$("editorName").value.trim().slice(0,40)||"自定义地图";
+    var map=cleanMap(mapDraft());if(!map){editorMessage("不能分享无解地图。");return;}
+    var bytes=new TextEncoder().encode(JSON.stringify(map)),binary="";
+    bytes.forEach(function(b){binary+=String.fromCharCode(b);});
+    var code=btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+    var link=location.origin+location.pathname+"#map="+code;
+    $("mapShareLink").value=link;
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(link).catch(function(){});
+    editorMessage("分享链接已生成，并尝试复制到剪贴板。");
+  }
+  function loadShare(){
+    var fragment=typeof location==="undefined"?"":(location.hash||""),value=fragment.startsWith("#map=")?fragment.slice(5):"";
+    if(!value)return;
+    try{
+      if(value.length>5000)return;
+      var binary=atob(value.replace(/-/g,"+").replace(/_/g,"/")),bytes=Uint8Array.from(binary,function(s){return s.charCodeAt(0);});
+      var map=cleanMap(JSON.parse(new TextDecoder().decode(bytes)));
+      if(map){ROCKS=map.rocks;editorName=map.name;localStorage.setItem(ACTIVE_KEY,JSON.stringify(map));}
+    }catch(e){}
+  }
+  function initMap(){
+    try{var active=cleanMap(JSON.parse(localStorage.getItem(ACTIVE_KEY)));if(active){ROCKS=active.rocks;editorName=active.name;}}catch(e){}
+    loadShare();
+  }
   var $ = function(id){return document.getElementById(id);};
   var posKey = function(p){return p.x + "," + p.y;};
   var same = function(a,b){return a && b && a.x===b.x && a.y===b.y;};
@@ -179,6 +294,7 @@
     if(who===0){state.phase="pick-defend";state.turn=1;}
     else {state.phase="play";state.turn=0;}
     commit();
+    if(who===1)showAIQuote("opening",true);
   }
   function playerMove(move){
     record();
@@ -221,6 +337,11 @@
       state.notice=NAMES[moving]+actionName+"。轮到"+NAMES[state.turn]+"行动。";
     }
     commit();
+    if(state.playMode==="cpu"){
+      if(state.phase==="finished")showAIQuote(state.winner===1?"win":"lose",true);
+      else if(moving===1)showAIQuote(actionName.indexOf("墙")>=0?"wall":actionName.indexOf("门")>=0?"portal":"move",false);
+      else if(state.moves%5===0)showAIQuote("danger",true);
+    }
   }
   function pointerPos(event){
     var rect=canvas.getBoundingClientRect();
@@ -243,6 +364,7 @@
     return w.x>=0&&w.y>=0&&w.x<W-1&&w.y<H-1?w:null;
   }
   function canvasClick(event){
+    if(editing){editCell(tileAt(pointerPos(event)));return;}
     if(state.playMode==="cpu"&&state.phase==="play"&&state.turn===1)return;
     if(state.phase==="finished"||state.pending)return;
     var p=pointerPos(event),t=tileAt(p);
@@ -298,12 +420,104 @@
       var score=1.5*(theirs-beforeThem)-1.1*(ours-beforeMine);
       if(score>bestScore){bestScore=score;best=w;}
     }
-    var needed=level==="hard"?1.05:2.3;
+    var needed=level==="hell"?0.35:level==="hard"?1.05:2.3;
     return bestScore>=needed?best:null;
+  }
+  // 地狱级：有界两层对抗搜索（AI 下一步 vs 玩家最佳应对）。
+  // Includes both legal wall placements and player moves, and both portal choices.
+  function hellWallAllowed(s,w,who){
+    if(w.x<0||w.y<0||w.x>W-2||w.y>H-2||s.left[who]<=0)return false;
+    if(s.walls.some(function(q){
+      return q.o===w.o?(w.o==="h"?q.y===w.y&&Math.abs(q.x-w.x)<2:q.x===w.x&&Math.abs(q.y-w.y)<2):q.x===w.x&&q.y===w.y;
+    }))return false;
+    var proposed=s.walls.concat([w]);
+    return [0,1].every(function(p){return findPath(s.players[p],CAMPS[1-p],proposed,s.dirs[p]);});
+  }
+  function hellApply(s,who,a){
+    var next={players:s.players.map(function(p){return{x:p.x,y:p.y};}),
+      dirs:s.dirs.slice(),walls:s.walls.slice(),left:s.left.slice()};
+    if(a.wall){next.walls.push(a.wall);next.left[who]--;}
+    else {next.players[who]={x:a.p.x,y:a.p.y};next.dirs[who]=a.lock||null;}
+    return next;
+  }
+  function hellEvaluate(s){
+    if(has(CAMPS[0],s.players[1]))return 100000;
+    if(has(CAMPS[1],s.players[0]))return -100000;
+    var mine=computerDistance(s.players[1],CAMPS[0],s.walls,s.dirs[1]);
+    var theirs=computerDistance(s.players[0],CAMPS[1],s.walls,s.dirs[0]);
+    if(!Number.isFinite(mine))return -10000;
+    if(!Number.isFinite(theirs))return 10000;
+    return 4*(theirs-mine)+0.32*(s.left[1]-s.left[0]);
+  }
+  function hellCandidates(s,who){
+    var result=[],moves=movementOptions(s.players[who],s.dirs[who],s.walls);
+    moves.forEach(function(m){
+      result.push({p:m.p,lock:m.nextLock,move:m,kind:"move"});
+      var gate=portal(m.p);
+      if(gate){var out=same(gate.a,m.p)?gate.b:gate.a;
+        result.push({p:out,lock:null,move:m,warp:true,kind:"move"});}
+    });
+    var enemy=s.players[1-who];
+    if(s.left[who]>0){
+      for(var dx=-2;dx<=1;dx++)for(var dy=-2;dy<=1;dy++)
+      for(var j=0;j<2;j++){
+        var w={x:enemy.x+dx,y:enemy.y+dy,o:j?"v":"h"};
+        if(hellWallAllowed(s,w,who))result.push({wall:w,kind:"wall"});
+      }
+    }
+    return result;
+  }
+  function hellChooseAction(){
+    var start={players:state.players,dirs:state.slideDir,walls:state.walls,left:state.left};
+    var root=hellCandidates(start,1);
+    if(!root.length)return null;
+    var rootRanked=root.map(function(a){
+      var s=hellApply(start,1,a);return{a:a,s:s,val:hellEvaluate(s)};
+    }).sort(function(a,b){return b.val-a.val;}).slice(0,9);
+    var best=null,bestScore=-Infinity;
+    rootRanked.forEach(function(item){
+      var score=item.val;
+      if(score>=100000){best=item.a;bestScore=score;return;}
+      var replies=hellCandidates(item.s,0);
+      // Human makes their strongest immediate response.
+      if(replies.length){
+        var worst=Infinity;
+        replies.forEach(function(reply){
+          var val=hellEvaluate(hellApply(item.s,0,reply));
+          if(val<worst)worst=val;
+        });
+        score=0.78*worst+0.22*item.val;
+      }
+      if(score>bestScore){bestScore=score;best=item.a;}
+    });
+    return best;
+  }
+  function hellMoveChoice(options){
+    // Bounded tactical search: evaluate our candidate followed by the human's best
+    // immediate response, then prioritize a robust line and avoid portal traps.
+    var best=null,bestScore=-Infinity;
+    var human=state.players[0],myGoal=CAMPS[0],humanGoal=CAMPS[1];
+    var theirDist=computerDistance(human,humanGoal,state.walls,state.slideDir[0]);
+    var theirReplies=movementOptions(human,state.slideDir[0],state.walls);
+    var replyDist=theirReplies.reduce(function(shortest,m){
+      var g=portal(m.p),positions=[{p:m.p,l:m.nextLock}];
+      if(g)positions.push({p:same(g.a,m.p)?g.b:g.a,l:null});
+      return Math.min(shortest,...positions.map(function(q){return computerDistance(q.p,humanGoal,state.walls,q.l);}));
+    },theirDist);
+    options.forEach(function(move){
+      var g=portal(move.p),positions=[{p:move.p,l:move.nextLock}];
+      if(g)positions.push({p:same(g.a,move.p)?g.b:g.a,l:null});
+      var ownDist=Math.min(...positions.map(function(q){return computerDistance(q.p,myGoal,state.walls,q.l);}));
+      var score=-3*ownDist+1.2*replyDist+0.25*theirDist+0.1*(move.steps-1);
+      if(has(myGoal,move.p))score+=1000;
+      if(score>bestScore){bestScore=score;best=move;}
+    });
+    return best;
   }
   function computerMoveChoice(level){
     var options=availableMoves();
     if(!options.length)return null;
+    if(level==="hell")return hellMoveChoice(options);
     if(level==="easy"&&Math.random()<0.22)return options[Math.floor(Math.random()*options.length)];
     var goal=CAMPS[0],best=null,score=Infinity;
     for(var i=0;i<options.length;i++){
@@ -321,9 +535,10 @@
   function computerTakeTurn(){
     if(state.playMode!=="cpu"||state.phase!=="play"||state.turn!==1||state.pending)return;
     var level=state.aiLevel||"normal";
-    var wall=computerWallChoice(level);
+    var tactical=level==="hell"?hellChooseAction():null;
+    var wall=tactical?tactical.wall:computerWallChoice(level);
     if(wall){placeWall(wall);return;}
-    var move=computerMoveChoice(level);
+    var move=tactical?tactical.move:computerMoveChoice(level);
     if(!move)return;
     playerMove(move);
     if(state.pending&&state.turn===1){
@@ -331,12 +546,12 @@
       var exit=same(gate.a,cur)?gate.b:gate.a;
       var stayDistance=computerDistance(cur,CAMPS[0],state.walls,null);
       var warpDistance=computerDistance(exit,CAMPS[0],state.walls,null);
-      choosePortal(warpDistance<stayDistance);
+      choosePortal(tactical?tactical.warp===true:warpDistance<stayDistance);
     }
   }
   function scheduleComputerTurn(){
     var token=++cpuScheduleToken;
-    if(state.playMode!=="cpu"||typeof window.setTimeout!=="function")return;
+    if(editing||state.playMode!=="cpu"||typeof window.setTimeout!=="function")return;
     if(state.phase==="pick-defend"){
       window.setTimeout(function(){
         if(token!==cpuScheduleToken||state.phase!=="pick-defend"||state.playMode!=="cpu")return;
@@ -360,7 +575,7 @@
     state.playMode="cpu";state.aiLevel=level;resetGame(state.variant);
   }
   function setAction(a){
-    if(state.phase!=="play"||(state.playMode==="cpu"&&state.turn===1))return;
+    if(editing||state.phase!=="play"||(state.playMode==="cpu"&&state.turn===1))return;
     state.action=a;state.hover=null;drawUI();drawBoard();
   }
   function orientation(o){
@@ -369,7 +584,10 @@
   function setModal(id,show){$(id).hidden=!show;}
   function closeAll(){["guideModal","portalModal","winModal"].forEach(function(id){setModal(id,false);});}
   function drawUI(){
-    var picking=state.phase!=="play";
+    var picking=state.phase!=="play"||editing;
+    refreshAIBanter();
+    $("mapEditorButton").textContent=editing?"关闭工坊":"地图工坊";
+    $("mapNameActive").textContent=editorName;
     var title=state.phase==="pick-attack"?"金方选择起点":state.phase==="pick-defend"?"木方选择起点":
       state.phase==="finished"?NAMES[state.winner]+"赢得胜利":NAMES[state.turn]+"的回合";
     var help=state.phase==="pick-attack"?"点击棋盘右下角的任一金色营地格，作为金方出生点。":
@@ -413,7 +631,7 @@
     $("playLocal").classList.toggle("selected",state.playMode!=="cpu");
     $("playAI").classList.toggle("selected",state.playMode==="cpu");
     $("aiDifficulty").hidden=state.playMode!=="cpu";
-    ["easy","normal","hard"].forEach(function(level){
+    ["easy","normal","hard","hell"].forEach(function(level){
       $("ai-"+level).classList.toggle("selected",state.aiLevel===level);
       if(typeof $("ai-"+level).setAttribute==="function")$("ai-"+level).setAttribute("aria-pressed",state.aiLevel===level?"true":"false");
     });
@@ -456,7 +674,7 @@
     }
     for(var col=0;col<W;col++)text(String.fromCharCode(65+col),X+col*STEP+STEP/2,Y-30,13,"#627c91");
     for(var row=0;row<H;row++)text(String(H-row),X-28,Y+row*STEP+STEP/2,12,"#657c90");
-    ROCKS.forEach(function(p){
+    (editing?editorRocks:ROCKS).forEach(function(p){
       var x=X+p.x*STEP,y=Y+p.y*STEP;
       rounded(x+7,y+7,STEP-14,STEP-14,6,"#536671","#75919a");
       rounded(x+10,y+10,STEP-20,STEP-20,5,"#283947","#3f5a65");
@@ -532,7 +750,8 @@
     drawBase();
     drawTargets();
     state.walls.forEach(function(w){drawWall(w,true,false);});
-    drawPawn(1);drawPawn(0);
+    if(!editing){drawPawn(1);drawPawn(0);}
+    else {rounded(X-14,Y-14,W*STEP+28,H*STEP+28,16,null,cleanMap(mapDraft())?"#5fe3c2":"#fa786a");}
     if(state.phase==="finished"){
       ctx.save();ctx.fillStyle="#0b1424af";rounded(X+100,Y+350,W*STEP-200,118,8,"#0a1629df","#9d8d66");
       text(NAMES[state.winner]+" 获 胜",360,Y+403,35,state.winner===0?"#f6c180":"#9ce8dc");
@@ -550,9 +769,54 @@
     $("wallMode").addEventListener("click",function(){setAction("wall");});
     $("wallH").addEventListener("click",function(){orientation("h");});
     $("wallV").addEventListener("click",function(){orientation("v");});
+    $("mapEditorButton").addEventListener("click",openEditor);
+    $("editorMore").addEventListener("click",function(){var expanded=$("mapEditor").classList.toggle("expanded");$("editorMore").setAttribute("aria-expanded",String(expanded));});
+    $("editorAdd").addEventListener("click",function(){editorTool="add";editorDraw();});
+    $("editorErase").addEventListener("click",function(){editorTool="erase";editorDraw();});
+    $("editorDefault").addEventListener("click",function(){
+      editorRocks=DEFAULT_ROCKS.map(function(p){return{x:p.x,y:p.y};});editorDraw();editorMessage("已恢复默认布局（尚未应用）。");
+    });
+    $("editorSave").addEventListener("click",saveMap);
+    $("editorPlay").addEventListener("click",function(){
+      editorName=$("editorName").value.trim().slice(0,40)||"自定义地图";
+      var map=cleanMap(mapDraft());
+      if(!map){editorMessage("地图尚未通过合法性检查。");return;}
+      editing=false;installMap(map);editorDraw();
+    });
+    $("editorShare").addEventListener("click",shareMap);
+    $("editorImport").addEventListener("click",function(){
+      var source=$("mapImportData").value.trim(),data;
+      try{
+        if(source.includes("#map=")){var encoded=source.split("#map=")[1].split("&")[0];
+          var str=atob(encoded.replace(/-/g,"+").replace(/_/g,"/"));
+          data=JSON.parse(new TextDecoder().decode(Uint8Array.from(str,function(c){return c.charCodeAt(0);})));
+        }else data=JSON.parse(source);
+      }catch(e){editorMessage("无法解析导入内容。");return;}
+      var map=cleanMap(data);if(!map){editorMessage("地图格式无效或存在不可通行的路线。");return;}
+      editorRocks=map.rocks;editorName=map.name;editorDraw();editorMessage("导入成功，请试玩或保存。");
+    });
+    $("savedMaps").addEventListener("change",function(){
+      var entry=readMaps().find(function(m){return m.name===$("savedMaps").value;});
+      if(entry){editorRocks=entry.rocks.map(function(p){return{x:p.x,y:p.y};});editorName=entry.name;editorDraw();}
+    });
+    $("editorUseDefault").addEventListener("click",function(){editing=false;installMap({version:1,name:"经典地图",rocks:DEFAULT_ROCKS});editorDraw();});
+
     $("playLocal").addEventListener("click",function(){setPlayMode("local");});
     $("playAI").addEventListener("click",function(){setPlayMode("cpu");});
-    ["easy","normal","hard"].forEach(function(level){
+    $("aiQuiet").addEventListener("click",function(){
+      aiDialogueDisabled=!aiDialogueDisabled;
+      try{localStorage.setItem("mumujinjin-ai-quiet",aiDialogueDisabled?"1":"0");}catch(e){}
+      refreshAIBanter();
+      if(!aiDialogueDisabled)showAIQuote("opening",true);
+    });
+    $("aiReplyToggle").addEventListener("click",function(){$("aiReplies").hidden=!$("aiReplies").hidden;});
+    document.querySelectorAll("[data-reply]").forEach(function(b){
+      b.addEventListener("click",function(){
+        $("aiBanterText").textContent="你：" + b.dataset.reply + "  木：好，我记下这句话了。";
+        $("aiReplies").hidden=true;
+      });
+    });
+    ["easy","normal","hard","hell"].forEach(function(level){
       $("ai-"+level).addEventListener("click",function(){setAILevel(level);});
     });
     $("undoBtn").addEventListener("click",undo);
@@ -589,10 +853,13 @@
     });
   }
   state=load()||newGame("classic");
+  initMap();refreshMapSelect();
   state.hover=null;state.notice=state.notice||"";
+  try{aiDialogueDisabled=localStorage.getItem("mumujinjin-ai-quiet")==="1";}catch(e){}
   state.playMode=state.playMode==="cpu"?"cpu":"local";
-  state.aiLevel=["easy","normal","hard"].indexOf(state.aiLevel)>=0?state.aiLevel:"normal";
+  state.aiLevel=["easy","normal","hard","hell"].indexOf(state.aiLevel)>=0?state.aiLevel:"normal";
   bindEvents();drawUI();drawBoard();
+  if(state.playMode==="cpu"&&state.phase==="play")showAIQuote("opening",true);
   if(state.phase==="finished"&&state.winner!==null){
     $("winTitle").textContent=NAMES[state.winner]+"获胜！";
     $("winTurns").textContent=String(state.moves);
