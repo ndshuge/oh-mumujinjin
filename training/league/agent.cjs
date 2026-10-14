@@ -42,16 +42,20 @@ function prepared(p){
   return {...item,net:models[item.name].net,instance:cache.get(item.name)};
  });
 }
-function move(engine,state,who,map,genome,globalBudgetMs){
+function move(engine,state,who,map,genome,globalBudgetMs,searchOptions){
  const p=check(genome),t0=Date.now(),timeMs=Math.max(50,Math.min(6000,globalBudgetMs||120));
+ // Opt-in reproducible mode. Propagated to every search/PUCT component so an
+ // entire game can be replayed identically on any machine. Absent by default,
+ // which leaves the legacy wall-clock pipeline byte-for-byte unchanged.
+ const det=searchOptions&&searchOptions.deterministic?{deterministic:true,...(Number.isFinite(searchOptions.maxNodes)?{maxNodes:Math.floor(searchOptions.maxNodes)}:{})}:{};
  if(p.family==="search"){
-  const result=strong[p.engine].choose(engine,state,who,{depth:p.depth,timeMs});
+  const result=strong[p.engine].choose(engine,state,who,{depth:p.depth,timeMs,...det});
   return {...result,modelFamily:"search",timeMs:Date.now()-t0};
  }
  if(p.family==="hybrid"){
   const split=Math.round(timeMs*p.searchShare),searchBudget=Math.max(50,split),puctBudget=Math.max(50,timeMs-split);
-  const s=move(engine,state,who,map,{id:p.id+"-search",family:"search",engine:p.engine,depth:p.depth},searchBudget);
-  const n=move(engine,state,who,map,{...p,id:p.id+"-neural",family:"puct"},puctBudget);
+  const s=move(engine,state,who,map,{id:p.id+"-search",family:"search",engine:p.engine,depth:p.depth},searchBudget,searchOptions);
+  const n=move(engine,state,who,map,{...p,id:p.id+"-neural",family:"puct"},puctBudget,searchOptions);
   const hasGoal=(next)=>engine.terrain.CAMPS[1-who].some(g=>g.x===next.players[who].x&&g.y===next.players[who].y);
   const rank=(action)=>{
    if(!action)return -Infinity;
@@ -73,7 +77,7 @@ function move(engine,state,who,map,genome,globalBudgetMs){
   return {action,modelFamily:"hybrid",timeMs:Date.now()-t0,componentTimeMs:[s.timeMs,n.timeMs]};
  }
  const nets=prepared(p);
- const settings={simulations:p.sims,c:p.c,timeMs};
+ const settings={simulations:p.sims,c:p.c,timeMs,...det};
  const input={...map,terrain:engine.terrain};
  if(nets.length&&p.priorMix){
   settings.priorWeight=p.priorMix;

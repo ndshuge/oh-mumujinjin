@@ -9,7 +9,14 @@
   function choose(engine,state,side,options={}){
     const maxDepth=Math.min(4,Math.max(1,options.depth||2));
     const timeLimitMs=Math.max(20,Math.min(5000,options.timeMs||450));
-    const start=Date.now(),deadline=start+timeLimitMs;
+    const start=Date.now();
+    // Deterministic mode is opt-in and leaves the default path untouched: the
+    // wall-clock cutoff is replaced by a fixed node budget, so identical inputs
+    // yield identical move choices regardless of CPU speed or machine load.
+    const maxNodes=Number.isFinite(options.maxNodes)&&options.maxNodes>0?Math.floor(options.maxNodes):null;
+    const timeCapped=!options.deterministic&&maxNodes===null;
+    const deadline=timeCapped?start+timeLimitMs:Infinity;
+    const overBudget=()=>maxNodes!==null?visited>maxNodes:timeCapped&&Date.now()>=deadline;
     const camps=engine.terrain.CAMPS;
     let visited=0,cacheHit=0,timeouts=0,wallChecks=0;
     const tt=new Map(),distanceMemo=new Map(),wallMemo=new Map();
@@ -109,7 +116,7 @@
     best=fallback;
     function negamax(s,player,depth,alpha,beta,history){
       visited++;
-      if(visited%16===0&&Date.now()>=deadline)throw Error("SEARCH_TIMEOUT");
+      if((maxNodes!==null||visited%16===0)&&overBudget())throw Error("SEARCH_TIMEOUT");
       if(win(s,player))return 100000+depth;
       if(win(s,1-player))return -100000-depth;
       if(depth===0)return evaluate(s,player);
@@ -142,7 +149,7 @@
       try{
         let alpha=-Infinity;
         for(const item of roots){
-          if(Date.now()>=deadline)throw Error("SEARCH_TIMEOUT");
+          if(overBudget())throw Error("SEARCH_TIMEOUT");
           const val=-negamax(item.next,1-side,depth-1,-Infinity,-alpha,new Set([positionKey(state,side)]));
           if(val>currentScore){currentScore=val;currentBest=item.action;}
           if(val>alpha)alpha=val;

@@ -4,7 +4,9 @@
 const policy=require("./policy.cjs");
 function search(engine,root,side,opt={}){
  const maxSim=Math.max(1,Math.min(2048,opt.simulations||32));
- const deadline=Date.now()+Math.max(1,opt.timeMs||60000);
+ // Deterministic mode is opt-in: the wall-clock cutoff is dropped and exactly
+ // maxSim iterations run, so the visit distribution cannot depend on CPU speed.
+ const deadline=opt.deterministic?Infinity:Date.now()+Math.max(1,opt.timeMs||60000);
  const c=opt.c||1.35,table=new Map(),goal=engine.terrain.CAMPS;
  let created=0,cacheHits=0;
  function winner(s){
