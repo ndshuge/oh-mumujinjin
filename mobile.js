@@ -7,8 +7,18 @@
   const statusSource = el("phaseInfo");
   const messageSource = el("message");
   const wallTools = el("wallTools");
+  let previousPhase = statusSource.textContent.trim();
 
   const synchronize = () => {
+    const nextPhase = statusSource.textContent.trim();
+    if (nextPhase !== previousPhase) {
+      previousPhase = nextPhase;
+      [statusSource, el("mobilePhase")].filter(Boolean).forEach(node => {
+        node.classList.remove("ui-phase-flash");
+        void node.offsetWidth;
+        node.classList.add("ui-phase-flash");
+      });
+    }
     if (el("mobilePhase")) el("mobilePhase").textContent = statusSource.textContent;
     if (el("mobileMessage")) el("mobileMessage").textContent = messageSource.textContent;
     const round = el("roundBadge").textContent.trim();
@@ -41,8 +51,23 @@
   document.addEventListener("keydown", event => {
     if (event.key === "Escape") closeSettings();
   });
-  ["modeClassic","modeAdvanced","playLocal","ai-easy","ai-normal","ai-hard","ai-hell","ai-xiaodi","mapEditorButton"].forEach(id => {
+  ["modeClassic","modeAdvanced","playLocal","playAI","ai-easy","ai-normal","ai-hard","ai-hell","ai-xiaodi","mapEditorButton"].forEach(id => {
     el(id).addEventListener("click", closeSettings);
+  });
+
+  // Presentation-only pointer light: does not alter canvas coordinates or game state.
+  const board = el("board");
+  const boardWrap = board.closest(".board-wrap");
+  board.addEventListener("pointerdown", event => {
+    if (!event.isPrimary || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const rect = boardWrap.getBoundingClientRect();
+    const spark = document.createElement("span");
+    spark.className = "board-tap";
+    spark.style.left = (event.clientX - rect.left) + "px";
+    spark.style.top = (event.clientY - rect.top) + "px";
+    spark.setAttribute("aria-hidden", "true");
+    boardWrap.appendChild(spark);
+    spark.addEventListener("animationend", () => spark.remove(), { once: true });
   });
 
   // In the mobile viewport the top status replaces the off-screen desktop sidebar.
