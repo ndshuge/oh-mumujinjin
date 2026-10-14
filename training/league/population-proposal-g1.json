@@ -1,0 +1,122 @@
+{
+  "schema": "mumu-evolution-league-v1",
+  "generation": 1,
+  "globalBudgetMs": 120,
+  "sourceReport": "league-train-2900-2-b120.json",
+  "evidence": {
+    "games": 16,
+    "maps": 2,
+    "split": "train"
+  },
+  "status": "experimental-proposal",
+  "promotionApproved": false,
+  "lineage": {
+    "parents": [
+      "s-baseline",
+      "s-defence"
+    ],
+    "searchSpecialist": "s-threat",
+    "neuralSpecialist": "n-policy2",
+    "method": "hyperparameter crossover and blended model inference; no raw tensor splice"
+  },
+  "policy": "No winner auto-promoted; new generation must beat frozen incumbent on new maps.",
+  "agents": [
+    {
+      "id": "g1-elite-a",
+      "family": "search",
+      "engine": "v1.1",
+      "depth": 2,
+      "description": "复制胜率最高配置"
+    },
+    {
+      "id": "g1-elite-b",
+      "family": "search",
+      "engine": "v2",
+      "depth": 2,
+      "description": "复制次优配置"
+    },
+    {
+      "id": "g1-search-specialist",
+      "family": "search",
+      "engine": "v3",
+      "depth": 2,
+      "description": "保留搜索家族多样性"
+    },
+    {
+      "id": "g1-neural-specialist",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.3,
+      "priorMix": 0.25,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ],
+      "description": "保留神经网络家族多样性"
+    },
+    {
+      "id": "g1-child-strategy-a",
+      "family": "puct",
+      "description": "候选杂交，不得据此自动晋级",
+      "sims": 8,
+      "c": 1.303,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g1-child-strategy-b",
+      "family": "puct",
+      "description": "候选杂交，不得据此自动晋级",
+      "sims": 9,
+      "c": 1.314,
+      "priorMix": 0.069,
+      "valueMix": 0.062,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g1-child-hybrid-a",
+      "family": "hybrid",
+      "description": "候选杂交，不得据此自动晋级",
+      "sims": 7,
+      "c": 1.378,
+      "priorMix": 0.17,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ],
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.396
+    },
+    {
+      "id": "g1-child-hybrid-b",
+      "family": "hybrid",
+      "description": "候选杂交，不得据此自动晋级",
+      "sims": 6,
+      "c": 1.323,
+      "priorMix": 0.049,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ],
+      "engine": "v2",
+      "depth": 2,
+      "searchShare": 0.343
+    }
+  ]
+}
