@@ -18,4 +18,11 @@ const key=JSON.stringify([1,s.players,s.slideDir,s.walls.map(w=>w.o+":"+w.x+":"+
 s.repetitions[key]=2;t.record();t.finishTurn("pass-test");
 assert.strictEqual(s.phase,"finished");assert.strictEqual(s.winner,null);assert.strictEqual(s.repetitions[key],3);
 t.undo();assert.strictEqual(s.repetitions[key],2);
-console.log("PASS: browser threefold repetition, 120-ply draw, undo restores state and repetition counts");
+s=setup();
+s.players=[{x:7,y:10},{x:0,y:0}];s.walls=[{x:0,y:0,o:"v"},{x:0,y:0,o:"h"}];
+t.record();t.finishTurn("trap-test");
+assert.strictEqual(s.phase,"finished","trapped next player must not soft-lock the board");
+assert.strictEqual(s.winner,0,"side that trapped the other must win");
+assert.strictEqual(el("winTitle").textContent,"金方获胜");
+t.undo();assert.strictEqual(s.phase,"play","undo must restore the game after a trap ending");
+console.log("PASS: browser repetition, 120-ply draw, trapped-pawn win and undo restoration");
