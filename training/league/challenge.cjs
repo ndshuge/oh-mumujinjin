@@ -9,7 +9,7 @@ if(!/^[a-zA-Z0-9_-]+\.json$/.test(fileName)||!Number.isInteger(offset)||offset<0
 const roster=JSON.parse(fs.readFileSync(path.join(__dirname,fileName),"utf8")),candidate=roster.agents.find(x=>x.id===candidateId);
 if(!candidate)throw Error("Unknown candidate");
 agent.check(candidate);
-const champion={id:"frozen-v1.1",family:"search",engine:"v1.1",depth:2};
+const champion={id:"frozen-v11",family:"search",engine:"v1.1",depth:2};
 const input=fs.readFileSync(path.join(__dirname,"..","output","s0-records-120-10000.jsonl"),"utf8").split("\n"),
  unique=new Set(),maps=[];
 let n=0;
