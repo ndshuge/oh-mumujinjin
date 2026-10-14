@@ -67,7 +67,7 @@ b.sort((x,y)=>x-y);
 timings.sort((a,b)=>a-b);
 const summary={candidate:candidateId,baseChampion:champion.id,roster:fileName,mapCount,games:results.length,
  wins,losses,draws,scoreRate:(wins+.5*draws)/results.length,
- pairedBootstrap95:[b[100],b[3900]],illegal,
+ pairedBootstrap95:[b[100],b[3900]],illegal:invalid,
  p95MoveMs:timings[Math.floor(timings.length*.95)]||0,elapsedMs:Date.now()-start,
  ruleBasis:"game.js",source:"heldOut layouts from S0; NOT guaranteed untouched by prior model selection",
  statisticallyBetter:mapCount>=500&&b[100]>.5,
