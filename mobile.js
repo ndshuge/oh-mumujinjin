@@ -4,6 +4,8 @@
   const el = id => document.getElementById(id);
   const settingsButton = el("mobileSettingsBtn");
   const settingsPanel = el("mobileSettingsPanel");
+  const settingsClose = el("settingsCloseBtn");
+  const settingsInline = el("openSettingsInline");
   const statusSource = el("phaseInfo");
   const messageSource = el("message");
   const wallTools = el("wallTools");
@@ -36,12 +38,17 @@
   new MutationObserver(synchronize).observe(wallTools, {attributes:true, attributeFilter:["hidden"]});
 
   const closeSettings = () => {
+    const wasOpen = document.body.classList.contains("mobile-settings-open");
     document.body.classList.remove("mobile-settings-open");
     settingsButton.setAttribute("aria-expanded", "false");
+    if (wasOpen) settingsButton.focus({preventScroll:true});
   };
+  if (settingsClose) settingsClose.addEventListener("click", closeSettings);
+  if (settingsInline) settingsInline.addEventListener("click", () => settingsButton.click());
   settingsButton.addEventListener("click", () => {
     const opened = document.body.classList.toggle("mobile-settings-open");
     settingsButton.setAttribute("aria-expanded", String(opened));
+    if (opened) settingsClose?.focus({preventScroll:true});
   });
   document.addEventListener("pointerdown", event => {
     if (!document.body.classList.contains("mobile-settings-open")) return;

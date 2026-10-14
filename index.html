@@ -3,28 +3,37 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0a111d">
+  <meta name="theme-color" content="#f4f0e7">
   <meta name="description" content="哦，木木金金棋——从一张手绘地图诞生的双人路线争夺策略棋。走棋、筑墙、传送、滑冰与加速，先抵达对方营地者获胜。">
   <title>哦，木木金金棋 · 步步为营</title>
-  <link rel="stylesheet" href="./style.css?v=ui-jade-v3-20261014">
-  <link rel="stylesheet" href="./mobile.css?v=ui-jade-v3-20261014">
+  <link rel="stylesheet" href="./style.css?v=ui-studio-v4-20261014">
+  <link rel="stylesheet" href="./mobile.css?v=ui-studio-v4-20261014">
 </head>
 <body>
 <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+<div id="settingsScrim" class="settings-scrim" hidden></div>
 <div class="shell">
   <header class="topbar">
-    <a class="brand" href="./" aria-label="返回游戏首页">
-      <span class="brand-glyph">木<span>◇</span>金</span>
-      <span class="brand-caption">MUMU JINJIN <small>BOARD GAME STUDIO</small></span>
+    <a class="brand" href="./" aria-label="哦，木木金金棋首页">
+      <span class="brand-sigil" aria-hidden="true"><span>木</span><i>✣</i><span>金</span></span>
+      <span class="brand-caption"><b>MUMU · JINJIN</b><small>原创策略棋 / BOARD GAME</small></span>
     </a>
-    <div class="header-right"><button class="icon-btn mobile-settings-button" id="mobileSettingsBtn" type="button" aria-label="选择玩法模式" aria-expanded="false" aria-controls="mobileSettingsPanel">⚙</button><span class="online-dot"></span><span>本地双人 · 无需联网</span><button class="icon-btn" id="helpTop" title="游戏规则" aria-label="游戏规则">?</button></div>
+    <div class="topbar-center"><span class="topbar-rule"></span><span>THE ART OF EVERY MOVE</span><span class="topbar-rule"></span></div>
+    <nav class="header-right" aria-label="游戏工具">
+      <span class="connection-tag"><span class="connection-light"></span>无需联网</span>
+      <button class="icon-btn help-button" id="helpTop" title="查看玩法" aria-label="查看玩法"><span aria-hidden="true">?</span><span class="nav-button-label">玩法</span></button>
+      <button class="icon-btn mobile-settings-button" id="mobileSettingsBtn" type="button" aria-label="打开游戏设置" aria-expanded="false" aria-controls="mobileSettingsPanel"><span aria-hidden="true">☷</span><span class="nav-button-label">设置</span></button>
+    </nav>
   </header>
 
   <main>
     <section class="intro">
-      <div class="eyebrow"><span class="star">✦</span> FROM A HAND-DRAWN IDEA <span class="line"></span> V 1.0</div>
-      <h1>哦，<span>木木金金棋</span><i>。</i></h1>
-      <p>每一步，都是一场关于路线的博弈。<br class="mobile-break">跨越障碍、筑起高墙，先闯入对手的营地。</p>
+      <div class="intro-main">
+        <div class="eyebrow"><span class="eyebrow-mark">✦</span> ORIGINAL STRATEGY GAME <span class="eyebrow-dash"></span> MMJJ / 2026</div>
+        <h1>哦，<span>木木金金棋</span><i>。</i></h1>
+        <p>筑起壁垒，寻找路径。每一步，都可能改写棋局。</p>
+      </div>
+      <div class="intro-edition" aria-hidden="true"><span>对弈艺术</span><strong>01 <small>/</small> 01</strong><small>AN ORIGINAL GAME</small></div>
     </section>
 
     <section id="mapEditor" class="map-editor" hidden>
@@ -47,14 +56,9 @@
           <p id="mobileMessage">点击金色营地格子开始对弈</p>
         </div>
         <div class="board-head">
-          <div class="board-heading"><span class="tiny-square"></span><span>对弈战场</span><span class="board-index">09 × 13</span></div>
+          <div class="board-heading"><span class="board-kicker">01 / THE ARENA</span><strong>棋局</strong><span class="board-index">09 × 13</span></div>
           <div class="board-version"><span class="tiny-dot"></span><span id="boardVersion">经典战场</span></div>
         </div>
-        <div class="board-frame">
-          <div class="arena-rail arena-rail-wood" aria-hidden="true"><span class="arena-rail-dot"></span><span>木之领域</span><small>WOOD TERRITORY</small></div>
-          <div class="arena-rail arena-rail-gold" aria-hidden="true"><span class="arena-rail-dot"></span><span>金之领域</span><small>GOLD TERRITORY</small></div>
-          <div class="board-corner corner-tl"></div><div class="board-corner corner-tr"></div>
-          <div class="board-corner corner-bl"></div><div class="board-corner corner-br"></div>
           <div id="aiBanter" class="ai-banter" hidden aria-live="polite">
             <div class="ai-banter-head"><span>木 · 电脑对手</span><button id="aiQuiet" type="button" aria-label="切换对话声音">静音</button></div>
             <p id="aiBanterText">准备好迎战了吗？</p>
@@ -65,12 +69,17 @@
             </div>
             <button id="aiReplyToggle" class="ai-reply-toggle" type="button">回一句 ↗</button>
           </div>
+        <div class="board-frame">
+          <div class="arena-rail arena-rail-wood" aria-hidden="true"><span class="arena-rail-dot"></span><span>木之领域</span><small>WOOD TERRITORY</small></div>
+          <div class="arena-rail arena-rail-gold" aria-hidden="true"><span class="arena-rail-dot"></span><span>金之领域</span><small>GOLD TERRITORY</small></div>
+          <div class="board-corner corner-tl"></div><div class="board-corner corner-tr"></div>
+          <div class="board-corner corner-bl"></div><div class="board-corner corner-br"></div>
           <div class="board-wrap">
             <canvas id="board" width="720" height="980" aria-label="九列十三行棋盘。点击高亮格移动棋子，筑墙模式点击棋盘放置墙体。" tabindex="0"></canvas>
           </div>
-          <div class="board-footer"><span>◉ 守方营地 <em>↗</em></span><span>手稿地图 · 灵感复刻</span><span><em>↘</em> 攻方营地 ◉</span></div>
+          <div class="board-footer"><span><i class="footer-wood"></i>木方起点 · 北</span><span class="board-footer-center">↗ 每一步都至关重要 ↙</span><span>金方起点 · 南<i class="footer-gold"></i></span></div>
         </div>
-        <div class="under-board">
+        <div class="under-board"><strong>棋盘图例 <small>/ LEGEND</small></strong>
           <span><span class="legend-tile wall"></span> 墙</span>
           <span><span class="legend-tile rock"></span> 障碍</span>
           <span><span class="legend-tile portal"></span> 传送门</span>
@@ -80,7 +89,7 @@
 
       <aside class="sidebar">
         <section class="side-panel turn-panel">
-          <div class="panel-overline">MATCH STATUS <span id="roundBadge">ROUND 01</span></div>
+          <div class="panel-overline"><span class="status-ornament">✦</span> 对局实况 <span id="roundBadge">ROUND 01</span></div>
           <div id="phaseInfo" class="phase-info">选择攻方起点</div>
           <p id="message" class="turn-desc" aria-live="polite">点击棋盘右下方的金色营地，选定你的出发位置。</p>
           <div class="players">
@@ -99,7 +108,7 @@
         </section>
 
         <section class="side-panel actions">
-          <div class="panel-overline">YOUR MOVE <span>01 / 02</span></div>
+          <div class="panel-overline"><span class="status-ornament">✦</span> 你的行动 <span>CHOOSE AN ACTION</span></div><p class="action-lead">选择行动，掌控下一步。</p>
           <div class="action-tabs" role="group" aria-label="操作选择">
             <button id="moveMode" class="action-tab selected" type="button"><span class="action-symbol">↗</span><b>移动</b><small>前进一步</small></button>
             <button id="wallMode" class="action-tab" type="button"><span class="action-symbol">┇</span><b>筑墙</b><small>封锁道路</small></button>
@@ -112,14 +121,15 @@
           <div class="tool-footer"><button id="undoBtn" class="small-tool" type="button">↶ <span>悔棋</span></button><span class="tool-line"></span><button id="restartBtn" class="small-tool" type="button">⟳ <span>重新开始</span></button></div>
         </section>
 
-        <section class="side-panel settings-panel" id="mobileSettingsPanel">
-          <div class="panel-overline">GAME MODE <span>SELECT</span></div>
+        <section class="side-panel settings-panel" id="mobileSettingsPanel" aria-label="游戏设置">
+          <div class="settings-heading"><div><small>CONFIGURATION</small><h2>对局设置<span>。</span></h2></div><button id="settingsCloseBtn" class="settings-close" type="button" aria-label="关闭设置">×</button></div>
+          <div class="panel-overline">游戏模式 <span>GAME MODE</span></div>
           <div class="mode-options"><button class="mode-button selected" id="modeClassic" type="button"><span class="mode-marker">01</span><span class="mode-label"><b>经典策略</b><small>筑墙 · 障碍 · 传送</small></span><span class="mode-check">✓</span></button>
           <button class="mode-button" id="modeAdvanced" type="button"><span class="mode-marker">02</span><span class="mode-label"><b>跑道挑战 · 测试版</b><small>冰面惯性与加速带</small></span><span class="mode-check">✓</span></button></div>
           <button id="mapEditorButton" class="mode-button workshop-entry" type="button">▧ 地图工坊 · 编辑障碍物 ↗</button>
           <div class="map-active">当前地图：<span id="mapNameActive">经典地图</span></div>
           <div class="settings-divider"></div>
-          <div class="panel-overline">OPPONENT <span>SELECT</span></div>
+          <div class="panel-overline">选择对手 <span>OPPONENT</span></div>
           <div class="mode-options match-options">
             <button class="mode-button selected" id="playLocal" type="button"><span class="mode-marker">2P</span><span class="mode-label"><b>本地双人</b><small>两个人轮流操作</small></span><span class="mode-check">✓</span></button>
             <button class="mode-button" id="playAI" type="button"><span class="mode-marker">AI</span><span class="mode-label"><b>人机对战</b><small>金方玩家 vs 木方电脑</small></span><span class="mode-check">✓</span></button>
@@ -134,6 +144,7 @@
           </div>
           <p class="settings-foot">经典模式适合正式对局。跑道挑战仍在测试；切换玩法或对手会重置当前对局。</p>
         </section>
+        <button class="setup-launch" id="openSettingsInline" type="button"><span class="setup-launch-icon">⚙</span><span>玩法与对手设置<small>CLASSIC / ADVANCED / AI</small></span><span class="setup-arrow">↗</span></button>
         <button id="guideBtn" class="guide-link" type="button"><span>▧</span> 游戏玩法 & 操作指南 <span class="guide-arrow">↗</span></button>
       </aside>
     </section>
@@ -181,6 +192,6 @@
 </div>
 <script defer src="./xiaodi-engine.js?v=g4-h13-20261014"></script>
 <script defer src="./game.js?v=s0-s3-rules-20261014"></script>
-<script defer src="./mobile.js?v=ui-jade-v3-20261014"></script>
+<script defer src="./mobile.js?v=ui-studio-v4-20261014"></script>
 </body>
 </html>
