@@ -1,0 +1,141 @@
+{
+  "schema": "mumu-evolution-league-v1",
+  "generation": 2,
+  "globalBudgetMs": 120,
+  "sourceReport": "league-train-3000-3-b150.json",
+  "evidence": {
+    "games": 24,
+    "maps": 3,
+    "split": "train"
+  },
+  "status": "experimental-proposal",
+  "promotionApproved": false,
+  "lineage": {
+    "parents": [
+      "g1-elite-b",
+      "g1-child-hybrid-a"
+    ],
+    "searchSpecialist": "g1-elite-a",
+    "neuralSpecialist": "g1-child-hybrid-b",
+    "method": "hyperparameter crossover and blended model inference; no raw tensor splice"
+  },
+  "policy": "No winner auto-promoted; new generation must beat frozen incumbent on new maps.",
+  "agents": [
+    {
+      "id": "g2-elite-a",
+      "family": "search",
+      "engine": "v2",
+      "depth": 2,
+      "description": "复制胜率最高配置"
+    },
+    {
+      "id": "g2-elite-b",
+      "family": "hybrid",
+      "description": "复制次优配置",
+      "sims": 7,
+      "c": 1.378,
+      "priorMix": 0.17,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ],
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.396
+    },
+    {
+      "id": "g2-search-specialist",
+      "family": "search",
+      "engine": "v1.1",
+      "depth": 2,
+      "description": "保留搜索家族多样性"
+    },
+    {
+      "id": "g2-neural-specialist",
+      "family": "hybrid",
+      "description": "保留神经网络家族多样性",
+      "sims": 6,
+      "c": 1.323,
+      "priorMix": 0.049,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ],
+      "engine": "v2",
+      "depth": 2,
+      "searchShare": 0.343
+    },
+    {
+      "id": "g2-child-strategy-a",
+      "family": "puct",
+      "description": "候选杂交，不得据此自动晋级",
+      "sims": 8,
+      "c": 1.482,
+      "priorMix": 0.15,
+      "valueMix": 0.069,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g2-child-strategy-b",
+      "family": "puct",
+      "description": "候选杂交，不得据此自动晋级",
+      "sims": 9,
+      "c": 1.191,
+      "priorMix": 0,
+      "valueMix": 0.024,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g2-child-hybrid-a",
+      "family": "hybrid",
+      "description": "候选杂交，不得据此自动晋级",
+      "sims": 8,
+      "c": 1.208,
+      "priorMix": 0.007,
+      "valueMix": 0.002,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ],
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.337
+    },
+    {
+      "id": "g2-child-hybrid-b",
+      "family": "hybrid",
+      "description": "候选杂交，不得据此自动晋级",
+      "sims": 7,
+      "c": 1.459,
+      "priorMix": 0.137,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ],
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.58
+    }
+  ]
+}

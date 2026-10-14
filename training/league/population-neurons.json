@@ -1,0 +1,115 @@
+{
+  "schema": "mumu-evolution-league-v1",
+  "rules": "game.js authoritative",
+  "generation": 0,
+  "modelVersion": "experimental-neuron-width-sweep",
+  "globalBudgetMs": 160,
+  "agents": [
+    {
+      "id": "w-search-base",
+      "family": "search",
+      "engine": "v1.1",
+      "depth": 2,
+      "description": "传统搜索基线"
+    },
+    {
+      "id": "w-search-def",
+      "family": "search",
+      "engine": "v2",
+      "depth": 2,
+      "description": "防守型搜索"
+    },
+    {
+      "id": "w-puct-base",
+      "family": "puct",
+      "sims": 10,
+      "c": 1.35,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "description": "无神经网络 PUCT"
+    },
+    {
+      "id": "w-neuron-24",
+      "family": "puct",
+      "sims": 10,
+      "c": 1.35,
+      "priorMix": 0.25,
+      "valueMix": 0.05,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ],
+      "description": "24 隐藏神经元"
+    },
+    {
+      "id": "w-neuron-48",
+      "family": "puct",
+      "sims": 10,
+      "c": 1.35,
+      "priorMix": 0.25,
+      "valueMix": 0.05,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ],
+      "description": "48 隐藏神经元"
+    },
+    {
+      "id": "w-neuron-64",
+      "family": "puct",
+      "sims": 10,
+      "c": 1.35,
+      "priorMix": 0.25,
+      "valueMix": 0.05,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ],
+      "description": "64 隐藏神经元"
+    },
+    {
+      "id": "w-ensemble-24-64",
+      "family": "puct",
+      "sims": 10,
+      "c": 1.35,
+      "priorMix": 0.3,
+      "valueMix": 0.05,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 0.5
+        },
+        {
+          "name": "n64",
+          "weight": 0.5
+        }
+      ],
+      "description": "24+64 神经网络集成"
+    },
+    {
+      "id": "w-hybrid-64",
+      "family": "hybrid",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.55,
+      "sims": 10,
+      "c": 1.35,
+      "priorMix": 0.3,
+      "valueMix": 0.05,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ],
+      "description": "64 神经网络加 alpha-beta 搜索"
+    }
+  ]
+}

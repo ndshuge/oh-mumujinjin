@@ -1,0 +1,99 @@
+{
+  "schema": "mumu-evolution-league-v1",
+  "rules": "game.js authoritative",
+  "generation": 0,
+  "modelVersion": "experimental",
+  "globalBudgetMs": 120,
+  "agents": [
+    {
+      "id": "s-baseline",
+      "family": "search",
+      "engine": "v1.1",
+      "depth": 2,
+      "description": "冻结的 V1.1 基线"
+    },
+    {
+      "id": "s-defence",
+      "family": "search",
+      "engine": "v2",
+      "depth": 2,
+      "description": "紧急防守候选搜索"
+    },
+    {
+      "id": "s-threat",
+      "family": "search",
+      "engine": "v3",
+      "depth": 2,
+      "description": "即时威胁搜索"
+    },
+    {
+      "id": "p-standard",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.3,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "description": "纯启发式 PUCT"
+    },
+    {
+      "id": "p-explore",
+      "family": "puct",
+      "sims": 14,
+      "c": 1.8,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "description": "偏探索搜索"
+    },
+    {
+      "id": "n-policy2",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.3,
+      "priorMix": 0.25,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ],
+      "description": "V2 网络弱策略先验"
+    },
+    {
+      "id": "n-policy3",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.4,
+      "priorMix": 0.3,
+      "valueMix": 0.15,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ],
+      "description": "V3 双头辅助"
+    },
+    {
+      "id": "n-ensemble",
+      "family": "puct",
+      "sims": 10,
+      "c": 1.5,
+      "priorMix": 0.35,
+      "valueMix": 0.1,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 0.5
+        },
+        {
+          "name": "v3",
+          "weight": 0.5
+        }
+      ],
+      "description": "两种网络融合"
+    }
+  ]
+}
