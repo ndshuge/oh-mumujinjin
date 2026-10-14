@@ -1,0 +1,84 @@
+{
+  "schema": "mumu-hall-component-fingerprints-v1",
+  "createdAt": "2026-10-14T02:01:20.029Z",
+  "role": "current component fingerprint for reproducibility; not proof that older matches used identical bytes",
+  "frozenChampionEntries": [
+    {
+      "id": "g0-h02",
+      "genomeSha256": "6ea58c3e39e1db652b44cc08adf608cfa0dc3d8d566787f83326a06c3c640feb"
+    },
+    {
+      "id": "g1-sv15",
+      "genomeSha256": "e40bc387a8d825676839be148430b6c8e4e9005e36cad6d8d523ebb7d1fefecb"
+    },
+    {
+      "id": "odd-hawks",
+      "genomeSha256": "e78f39707f414b8da8677a9cb3c3bfb1c020dca093e6a64c9eaaa2dee486dc8c"
+    },
+    {
+      "id": "odd-tunnel",
+      "genomeSha256": "57744b02a0f58f7d743de5c7d14cf3e0ca6bbcc3fe64e33c61ddfd2283af53cf"
+    },
+    {
+      "id": "odd-tortoise",
+      "genomeSha256": "06f443cac83647b36f54a824da8c71fea40fac5c887eb2f12e9b552b4a3cb11c"
+    },
+    {
+      "id": "odd-dreamer",
+      "genomeSha256": "f48fea3393d0d937818b0b22264d2dbe0c9bdd0e9fd4e5a270c636a0bd2199e9"
+    }
+  ],
+  "files": [
+    {
+      "relativePath": "game.js",
+      "sha256": "84b52c9f1f5b40ff477cd61489f44c2cafff139e593975d11ed210c626cba3b4",
+      "bytes": 47124
+    },
+    {
+      "relativePath": "strong-search-v1.1.js",
+      "sha256": "924ebadaa1d79d0478f77e9282a7bdb8b69d8f016fc22801e32d38af7c30ea66",
+      "bytes": 7243
+    },
+    {
+      "relativePath": "strong-search-v2.js",
+      "sha256": "e060e099628d3887135d5e08c318163c8b5f792d3aa86ed3528e8d245d3afed5",
+      "bytes": 9015
+    },
+    {
+      "relativePath": "strong-search-v3.js",
+      "sha256": "f13efea00a4ed0d1c749f53433e550f248999bf663d78adc47bb8e69eac83681",
+      "bytes": 8468
+    },
+    {
+      "relativePath": "training/g4/hall-of-fame.json",
+      "sha256": "2f36bc9fba76dee7c191a603bc334a90b7385d545c2dac7842bb321a5d236e8f",
+      "bytes": 5917
+    },
+    {
+      "relativePath": "training/league/agent.cjs",
+      "sha256": "c0ac1796ac9d25c8f10dd4ff29e8d524744c90f629b5373db37eccd58d88e6ba",
+      "bytes": 4788
+    },
+    {
+      "relativePath": "training/models/policy-value-n24.json",
+      "sha256": "89b5de78dca8a0f23f30a88483967d0a346829d43c812340bbf4d5b595cbe13e",
+      "bytes": 585471
+    },
+    {
+      "relativePath": "training/models/policy-value-n64.json",
+      "sha256": "faf85d68298b4faadb7d20c24f8e4fdad83273978556845ef71ebdf7c6efc707",
+      "bytes": 1550649
+    },
+    {
+      "relativePath": "training/models/policy-value-v3-balanced.json",
+      "sha256": "1f32ef49065231bb59abab351b8f458ed2bd9450727b990e96ce1864cb8e3331",
+      "bytes": 1164216
+    },
+    {
+      "relativePath": "training/puct.cjs",
+      "sha256": "b050c0555212097ac6cfb34c5b6abcd6e6f2b3a47c5667bcaf7fefe29cf79219",
+      "bytes": 4490
+    }
+  ],
+  "promotionApproved": false
+}
