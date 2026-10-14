@@ -246,14 +246,14 @@
       if(has(target,cur))return true;
       movementOptions(cur,current.lock,walls).forEach(function(move){
         enqueue(move.p,move.nextLock);
+        // Portal choice happens upon stepping onto the tile, never for free later.
+        var arrivingGate=portal(move.p);
+        if(arrivingGate){
+          var otherEnd=same(move.p,arrivingGate.a)?arrivingGate.b:arrivingGate.a;
+          if(inside(otherEnd)&&!rock(otherEnd))enqueue(otherEnd,null);
+        }
       });
-      // Teleporting is optional; either stay at this portal or take its exit.
-      // Arrival by teleportation clears ice momentum (same as choosePortal).
-      var gate=portal(cur);
-      if(gate){
-        var exit=same(cur,gate.a)?gate.b:gate.a;
-        if(inside(exit)&&!rock(exit))enqueue(exit,null);
-      }
+      // Arrivals have already generated both stay and teleport choices.
     }
     return false;
   }
@@ -350,6 +350,16 @@
         $("winWalls").textContent=String(state.walls.length);
         setModal("winModal",true);
       }else state.notice=NAMES[moving]+actionName+"。轮到"+NAMES[state.turn]+"行动。";
+    }
+    // A trapped pawn cannot regain mobility by building additional walls.
+    if(state.phase==="play"&&!movementOptions(state.players[state.turn],state.slideDir[state.turn],state.walls).length){
+      state.winner=1-state.turn;state.phase="finished";
+      state.notice="棋子已无合法移动，判为被困方失败。";
+      $("winTitle").textContent=NAMES[state.winner]+"获胜";
+      $("winDesc").textContent=state.notice;
+      $("winTurns").textContent=String(state.moves);
+      $("winWalls").textContent=String(state.walls.length);
+      setModal("winModal",true);
     }
     commit();
     if(state.playMode==="cpu"){
@@ -547,10 +557,16 @@
     }
     return best;
   }
+  function xiaodiChooseAction(){
+    if(!window.MumuXiaodi){throw Error("小迪引擎未加载，拒绝降级为其他难度");}
+    var snapshot={players:state.players.map(function(p){return {x:p.x,y:p.y};}),dirs:state.slideDir.map(function(d){return d?{x:d.x,y:d.y}:null;}),walls:state.walls.map(function(w){return {x:w.x,y:w.y,o:w.o};}),left:state.left.slice()};
+    var engine={terrain:{CAMPS:CAMPS,PORTALS:PORTALS,ICE:ICE,BOOST:BOOST},setRocks:function(){},movementOptions:movementOptions,computerDistance:computerDistance,hellWallAllowed:hellWallAllowed,hellApply:hellApply,hellEvaluate:hellEvaluate,portal:portal};
+    return window.MumuXiaodi.choose(engine,snapshot,1,{rocks:ROCKS},260);
+  }
   function computerTakeTurn(){
     if(state.playMode!=="cpu"||state.phase!=="play"||state.turn!==1||state.pending)return;
     var level=state.aiLevel||"normal";
-    var tactical=level==="hell"?hellChooseAction():null;
+    var tactical=level==="xiaodi"?xiaodiChooseAction():level==="hell"?hellChooseAction():null;
     var wall=tactical?tactical.wall:computerWallChoice(level);
     if(wall){placeWall(wall);return;}
     var move=tactical?tactical.move:computerMoveChoice(level);
@@ -646,7 +662,7 @@
     $("playLocal").classList.toggle("selected",state.playMode!=="cpu");
     $("playAI").classList.toggle("selected",state.playMode==="cpu");
     $("aiDifficulty").hidden=state.playMode!=="cpu";
-    ["easy","normal","hard","hell"].forEach(function(level){
+    ["easy","normal","hard","hell","xiaodi"].forEach(function(level){
       $("ai-"+level).classList.toggle("selected",state.aiLevel===level);
       if(typeof $("ai-"+level).setAttribute==="function")$("ai-"+level).setAttribute("aria-pressed",state.aiLevel===level?"true":"false");
     });
@@ -831,7 +847,7 @@
         $("aiReplies").hidden=true;
       });
     });
-    ["easy","normal","hard","hell"].forEach(function(level){
+    ["easy","normal","hard","hell","xiaodi"].forEach(function(level){
       $("ai-"+level).addEventListener("click",function(){setAILevel(level);});
     });
     $("undoBtn").addEventListener("click",undo);
@@ -872,7 +888,7 @@
   state.hover=null;state.notice=state.notice||"";
   try{aiDialogueDisabled=localStorage.getItem("mumujinjin-ai-quiet")==="1";}catch(e){}
   state.playMode=state.playMode==="cpu"?"cpu":"local";
-  state.aiLevel=["easy","normal","hard","hell"].indexOf(state.aiLevel)>=0?state.aiLevel:"normal";
+  state.aiLevel=["easy","normal","hard","hell","xiaodi"].indexOf(state.aiLevel)>=0?state.aiLevel:"normal";
   bindEvents();drawUI();drawBoard();
   if(state.playMode==="cpu"&&state.phase==="play")showAIQuote("opening",true);
   if(state.phase==="finished"&&state.winner!==null){
