@@ -1,0 +1,819 @@
+{
+  "schema": "mumu-g4-population-v1",
+  "generation": 0,
+  "created": "2026-10-14",
+  "parentExperiment": "G3 g2 + strange-mutation champion study",
+  "rules": "game.js",
+  "policy": "32 retained + 32 children, per-family diversity floors; no raw neural weight splice",
+  "defaultBudgetMs": 260,
+  "agentCount": 64,
+  "families": {
+    "search": 16,
+    "rule-puct": 16,
+    "neural": 16,
+    "hybrid": 16
+  },
+  "experimentOnly": true,
+  "agents": [
+    {
+      "id": "g4-s01",
+      "description": "搜索 v1.1 / 1 层",
+      "family": "search",
+      "engine": "v1.1",
+      "depth": 1
+    },
+    {
+      "id": "g4-s02",
+      "description": "搜索 v1.1 / 2 层",
+      "family": "search",
+      "engine": "v1.1",
+      "depth": 2
+    },
+    {
+      "id": "g4-s03",
+      "description": "搜索 v1.1 / 3 层",
+      "family": "search",
+      "engine": "v1.1",
+      "depth": 3
+    },
+    {
+      "id": "g4-s04",
+      "description": "搜索 v1.1 / 4 层",
+      "family": "search",
+      "engine": "v1.1",
+      "depth": 4
+    },
+    {
+      "id": "g4-s05",
+      "description": "搜索 v2 / 1 层",
+      "family": "search",
+      "engine": "v2",
+      "depth": 1
+    },
+    {
+      "id": "g4-s06",
+      "description": "搜索 v2 / 2 层",
+      "family": "search",
+      "engine": "v2",
+      "depth": 2
+    },
+    {
+      "id": "g4-s07",
+      "description": "搜索 v2 / 3 层",
+      "family": "search",
+      "engine": "v2",
+      "depth": 3
+    },
+    {
+      "id": "g4-s08",
+      "description": "搜索 v2 / 4 层",
+      "family": "search",
+      "engine": "v2",
+      "depth": 4
+    },
+    {
+      "id": "g4-s09",
+      "description": "搜索 v3 / 1 层",
+      "family": "search",
+      "engine": "v3",
+      "depth": 1
+    },
+    {
+      "id": "g4-s10",
+      "description": "搜索 v3 / 2 层",
+      "family": "search",
+      "engine": "v3",
+      "depth": 2
+    },
+    {
+      "id": "g4-s11",
+      "description": "搜索 v3 / 3 层",
+      "family": "search",
+      "engine": "v3",
+      "depth": 3
+    },
+    {
+      "id": "g4-s12",
+      "description": "搜索 v3 / 4 层",
+      "family": "search",
+      "engine": "v3",
+      "depth": 4
+    },
+    {
+      "id": "g4-s13",
+      "description": "保种搜索 v1.1 / 2 层",
+      "family": "search",
+      "engine": "v1.1",
+      "depth": 2
+    },
+    {
+      "id": "g4-s14",
+      "description": "保种搜索 v2 / 2 层",
+      "family": "search",
+      "engine": "v2",
+      "depth": 2
+    },
+    {
+      "id": "g4-s15",
+      "description": "保种搜索 v3 / 3 层",
+      "family": "search",
+      "engine": "v3",
+      "depth": 3
+    },
+    {
+      "id": "g4-s16",
+      "description": "保种搜索 v1.1 / 3 层",
+      "family": "search",
+      "engine": "v1.1",
+      "depth": 3
+    },
+    {
+      "id": "g4-p01",
+      "description": "纯 PUCT 4 模拟 / 探索 0.35",
+      "family": "puct",
+      "sims": 4,
+      "c": 0.35,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-p02",
+      "description": "纯 PUCT 4 模拟 / 探索 0.8",
+      "family": "puct",
+      "sims": 4,
+      "c": 0.8,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-p03",
+      "description": "纯 PUCT 4 模拟 / 探索 1.5",
+      "family": "puct",
+      "sims": 4,
+      "c": 1.5,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-p04",
+      "description": "纯 PUCT 4 模拟 / 探索 2.9",
+      "family": "puct",
+      "sims": 4,
+      "c": 2.9,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-p05",
+      "description": "纯 PUCT 8 模拟 / 探索 0.35",
+      "family": "puct",
+      "sims": 8,
+      "c": 0.35,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-p06",
+      "description": "纯 PUCT 8 模拟 / 探索 0.8",
+      "family": "puct",
+      "sims": 8,
+      "c": 0.8,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-p07",
+      "description": "纯 PUCT 8 模拟 / 探索 1.5",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.5,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-p08",
+      "description": "纯 PUCT 8 模拟 / 探索 2.9",
+      "family": "puct",
+      "sims": 8,
+      "c": 2.9,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-p09",
+      "description": "纯 PUCT 12 模拟 / 探索 0.35",
+      "family": "puct",
+      "sims": 12,
+      "c": 0.35,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-p10",
+      "description": "纯 PUCT 12 模拟 / 探索 0.8",
+      "family": "puct",
+      "sims": 12,
+      "c": 0.8,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-p11",
+      "description": "纯 PUCT 12 模拟 / 探索 1.5",
+      "family": "puct",
+      "sims": 12,
+      "c": 1.5,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-p12",
+      "description": "纯 PUCT 12 模拟 / 探索 2.9",
+      "family": "puct",
+      "sims": 12,
+      "c": 2.9,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-p13",
+      "description": "纯 PUCT 16 模拟 / 探索 0.35",
+      "family": "puct",
+      "sims": 16,
+      "c": 0.35,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-p14",
+      "description": "纯 PUCT 16 模拟 / 探索 0.8",
+      "family": "puct",
+      "sims": 16,
+      "c": 0.8,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-p15",
+      "description": "纯 PUCT 16 模拟 / 探索 1.5",
+      "family": "puct",
+      "sims": 16,
+      "c": 1.5,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-p16",
+      "description": "纯 PUCT 16 模拟 / 探索 2.9",
+      "family": "puct",
+      "sims": 16,
+      "c": 2.9,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-n01",
+      "description": "神经元 n24 权重 0.13",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.3,
+      "priorMix": 0.13,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-n02",
+      "description": "神经元 n24 权重 0.3",
+      "family": "puct",
+      "sims": 12,
+      "c": 1.5,
+      "priorMix": 0.3,
+      "valueMix": 0.08,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-n03",
+      "description": "神经元 n24 权重 0.6",
+      "family": "puct",
+      "sims": 16,
+      "c": 0.8,
+      "priorMix": 0.6,
+      "valueMix": 0.3,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-n04",
+      "description": "神经元 n24 权重 0.55",
+      "family": "puct",
+      "sims": 10,
+      "c": 2.4,
+      "priorMix": 0.55,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-n05",
+      "description": "神经元 v2 权重 0.13",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.3,
+      "priorMix": 0.13,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-n06",
+      "description": "神经元 v2 权重 0.3",
+      "family": "puct",
+      "sims": 12,
+      "c": 1.5,
+      "priorMix": 0.3,
+      "valueMix": 0.08,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-n07",
+      "description": "神经元 v2 权重 0.6",
+      "family": "puct",
+      "sims": 16,
+      "c": 0.8,
+      "priorMix": 0.6,
+      "valueMix": 0.3,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-n08",
+      "description": "神经元 v2 权重 0.55",
+      "family": "puct",
+      "sims": 10,
+      "c": 2.4,
+      "priorMix": 0.55,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-n09",
+      "description": "神经元 v3 权重 0.13",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.3,
+      "priorMix": 0.13,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-n10",
+      "description": "神经元 v3 权重 0.3",
+      "family": "puct",
+      "sims": 12,
+      "c": 1.5,
+      "priorMix": 0.3,
+      "valueMix": 0.08,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-n11",
+      "description": "神经元 v3 权重 0.6",
+      "family": "puct",
+      "sims": 16,
+      "c": 0.8,
+      "priorMix": 0.6,
+      "valueMix": 0.3,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-n12",
+      "description": "神经元 v3 权重 0.55",
+      "family": "puct",
+      "sims": 10,
+      "c": 2.4,
+      "priorMix": 0.55,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-n13",
+      "description": "神经元 n64 权重 0.13",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.3,
+      "priorMix": 0.13,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-n14",
+      "description": "神经元 n64 权重 0.3",
+      "family": "puct",
+      "sims": 12,
+      "c": 1.5,
+      "priorMix": 0.3,
+      "valueMix": 0.08,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-n15",
+      "description": "神经元 n64 权重 0.6",
+      "family": "puct",
+      "sims": 16,
+      "c": 0.8,
+      "priorMix": 0.6,
+      "valueMix": 0.3,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-n16",
+      "description": "神经元 n64 权重 0.55",
+      "family": "puct",
+      "sims": 10,
+      "c": 2.4,
+      "priorMix": 0.55,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h01",
+      "description": "杂交 v1.1 搜索 0.25 + n64",
+      "family": "hybrid",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.25,
+      "sims": 12,
+      "c": 1.25,
+      "priorMix": 0.5,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h02",
+      "description": "杂交 v1.1 搜索 0.45 + v3",
+      "family": "hybrid",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.45,
+      "sims": 10,
+      "c": 1.6,
+      "priorMix": 0.3,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h03",
+      "description": "杂交 v1.1 搜索 0.6 + v2",
+      "family": "hybrid",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.6,
+      "sims": 8,
+      "c": 1.1,
+      "priorMix": 0.22,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h04",
+      "description": "杂交 v1.1 搜索 0.75 + n24",
+      "family": "hybrid",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.75,
+      "sims": 16,
+      "c": 2.1,
+      "priorMix": 0.58,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h05",
+      "description": "杂交 v2 搜索 0.25 + n64",
+      "family": "hybrid",
+      "engine": "v2",
+      "depth": 2,
+      "searchShare": 0.25,
+      "sims": 12,
+      "c": 1.25,
+      "priorMix": 0.5,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h06",
+      "description": "杂交 v2 搜索 0.45 + v3",
+      "family": "hybrid",
+      "engine": "v2",
+      "depth": 2,
+      "searchShare": 0.45,
+      "sims": 10,
+      "c": 1.6,
+      "priorMix": 0.3,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h07",
+      "description": "杂交 v2 搜索 0.6 + v2",
+      "family": "hybrid",
+      "engine": "v2",
+      "depth": 2,
+      "searchShare": 0.6,
+      "sims": 8,
+      "c": 1.1,
+      "priorMix": 0.22,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h08",
+      "description": "杂交 v2 搜索 0.75 + n24",
+      "family": "hybrid",
+      "engine": "v2",
+      "depth": 2,
+      "searchShare": 0.75,
+      "sims": 16,
+      "c": 2.1,
+      "priorMix": 0.58,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h09",
+      "description": "杂交 v3 搜索 0.25 + n64",
+      "family": "hybrid",
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.25,
+      "sims": 12,
+      "c": 1.25,
+      "priorMix": 0.5,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h10",
+      "description": "杂交 v3 搜索 0.45 + v3",
+      "family": "hybrid",
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.45,
+      "sims": 10,
+      "c": 1.6,
+      "priorMix": 0.3,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h11",
+      "description": "杂交 v3 搜索 0.6 + v2",
+      "family": "hybrid",
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.6,
+      "sims": 8,
+      "c": 1.1,
+      "priorMix": 0.22,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h12",
+      "description": "杂交 v3 搜索 0.75 + n24",
+      "family": "hybrid",
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.75,
+      "sims": 16,
+      "c": 2.1,
+      "priorMix": 0.58,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h13",
+      "description": "杂交 v1.1 搜索 0.25 + n64",
+      "family": "hybrid",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.25,
+      "sims": 12,
+      "c": 1.25,
+      "priorMix": 0.5,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h14",
+      "description": "杂交 v1.1 搜索 0.45 + v3",
+      "family": "hybrid",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.45,
+      "sims": 10,
+      "c": 1.6,
+      "priorMix": 0.3,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h15",
+      "description": "杂交 v1.1 搜索 0.6 + v2",
+      "family": "hybrid",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.6,
+      "sims": 8,
+      "c": 1.1,
+      "priorMix": 0.22,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h16",
+      "description": "杂交 v1.1 搜索 0.75 + n24",
+      "family": "hybrid",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.75,
+      "sims": 16,
+      "c": 2.1,
+      "priorMix": 0.58,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

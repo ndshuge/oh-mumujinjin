@@ -1,0 +1,226 @@
+{
+  "schema": "mumu-hall-of-fame-v1",
+  "createdDate": "2026-10-14",
+  "incumbentId": "frozen-v11",
+  "incumbent": {
+    "id": "frozen-v11",
+    "engine": "strong-search-v1.1.js",
+    "depth": 2,
+    "role": "stable research reference, not newly certified from this file",
+    "status": "incumbent"
+  },
+  "entries": [
+    {
+      "name": "G0-6W",
+      "source": "initial generation 0: 6-0",
+      "originalId": "g0-h02",
+      "status": "candidate",
+      "genomeSha256": "6ea58c3e39e1db652b44cc08adf608cfa0dc3d8d566787f83326a06c3c640feb",
+      "genome": {
+        "id": "g0-h02",
+        "description": "混合搜索＋神经网络 n64",
+        "family": "hybrid",
+        "engine": "v2",
+        "depth": 2,
+        "searchShare": 0.5,
+        "models": [
+          {
+            "name": "n64",
+            "weight": 1
+          }
+        ],
+        "priorMix": 0.3,
+        "valueMix": 0.1,
+        "sims": 10,
+        "c": 1.6
+      },
+      "evidence": {
+        "games": 6,
+        "wins": 6,
+        "losses": 0,
+        "draws": 0,
+        "evaluation": "intra-population, 3 maps, 6 games"
+      }
+    },
+    {
+      "name": "G1-5W",
+      "source": "generation 1: 5-1",
+      "originalId": "g1-sv15",
+      "status": "candidate",
+      "genomeSha256": "e40bc387a8d825676839be148430b6c8e4e9005e36cad6d8d523ebb7d1fefecb",
+      "genome": {
+        "id": "g1-sv15",
+        "description": "G3 保留: g0-s07 ( 3/6 得分 )",
+        "family": "search",
+        "engine": "v3",
+        "depth": 2,
+        "parents": [
+          "g0-s07"
+        ],
+        "origin": "survivor",
+        "selectionReason": "ranked"
+      },
+      "evidence": {
+        "games": 6,
+        "wins": 5,
+        "losses": 1,
+        "draws": 0,
+        "evaluation": "intra-population, 3 maps, 6 games"
+      }
+    },
+    {
+      "name": "odd-hawks",
+      "source": "V1.1 challenge at 250ms × 4 paired maps",
+      "originalId": "odd-hawks",
+      "status": "candidate",
+      "genomeSha256": "e78f39707f414b8da8677a9cb3c3bfb1c020dca093e6a64c9eaaa2dee486dc8c",
+      "genome": {
+        "id": "odd-hawks",
+        "family": "hybrid",
+        "description": "激进神经：只有25%预算留给搜索",
+        "engine": "v3",
+        "depth": 2,
+        "searchShare": 0.25,
+        "sims": 12,
+        "c": 2.2,
+        "priorMix": 0.52,
+        "valueMix": 0.13,
+        "models": [
+          {
+            "name": "v3",
+            "weight": 1
+          }
+        ]
+      },
+      "evidence": {
+        "games": 8,
+        "wins": 8,
+        "losses": 0,
+        "draws": 0,
+        "pairedBootstrap95": [
+          1,
+          1
+        ],
+        "latencyP95Ms": 327,
+        "evaluation": "development; reused maps, cannot certify chess strength"
+      }
+    },
+    {
+      "name": "odd-tunnel",
+      "source": "V1.1 challenge at 250ms × 4 paired maps",
+      "originalId": "odd-tunnel",
+      "status": "candidate",
+      "genomeSha256": "57744b02a0f58f7d743de5c7d14cf3e0ca6bbcc3fe64e33c61ddfd2283af53cf",
+      "genome": {
+        "id": "odd-tunnel",
+        "family": "puct",
+        "description": "顽固路线：接近最小探索系数",
+        "sims": 18,
+        "c": 0.35,
+        "priorMix": 0,
+        "valueMix": 0,
+        "models": []
+      },
+      "evidence": {
+        "games": 8,
+        "wins": 6,
+        "losses": 2,
+        "draws": 0,
+        "pairedBootstrap95": [
+          0.5,
+          1
+        ],
+        "latencyP95Ms": 264,
+        "evaluation": "development; reused maps, cannot certify chess strength"
+      }
+    },
+    {
+      "name": "odd-tortoise",
+      "source": "V1.1 challenge at 250ms × 4 paired maps",
+      "originalId": "odd-tortoise",
+      "status": "candidate",
+      "genomeSha256": "06f443cac83647b36f54a824da8c71fea40fac5c887eb2f12e9b552b4a3cb11c",
+      "genome": {
+        "id": "odd-tortoise",
+        "family": "hybrid",
+        "description": "铁壁搜索：75%预算搜索，网络仅提供奇招",
+        "engine": "v1.1",
+        "depth": 2,
+        "searchShare": 0.75,
+        "sims": 10,
+        "c": 0.8,
+        "priorMix": 0.62,
+        "valueMix": 0.02,
+        "models": [
+          {
+            "name": "n64",
+            "weight": 1
+          }
+        ]
+      },
+      "evidence": {
+        "games": 8,
+        "wins": 6,
+        "losses": 2,
+        "draws": 0,
+        "pairedBootstrap95": [
+          0.5,
+          1
+        ],
+        "latencyP95Ms": 300,
+        "evaluation": "development; reused maps, cannot certify chess strength"
+      }
+    },
+    {
+      "name": "odd-dreamer",
+      "source": "V1.1 challenge at 250ms × 4 paired maps",
+      "originalId": "odd-dreamer",
+      "status": "candidate",
+      "genomeSha256": "f48fea3393d0d937818b0b22264d2dbe0c9bdd0e9fd4e5a270c636a0bd2199e9",
+      "genome": {
+        "id": "odd-dreamer",
+        "family": "hybrid",
+        "description": "大脑杂交：神经网络双头加搜",
+        "engine": "v2",
+        "depth": 2,
+        "searchShare": 0.33,
+        "sims": 18,
+        "c": 2.4,
+        "priorMix": 0.5,
+        "valueMix": 0.35,
+        "models": [
+          {
+            "name": "n24",
+            "weight": 0.35
+          },
+          {
+            "name": "n64",
+            "weight": 0.65
+          }
+        ]
+      },
+      "evidence": {
+        "games": 8,
+        "wins": 6,
+        "losses": 2,
+        "draws": 0,
+        "pairedBootstrap95": [
+          0.5,
+          1
+        ],
+        "latencyP95Ms": 295,
+        "evaluation": "development; reused maps, cannot certify chess strength"
+      }
+    }
+  ],
+  "promotionRules": {
+    "minPairs": 500,
+    "minGames": 1000,
+    "requireUnseenMaps": true,
+    "pairedBootstrapLowerBoundMin": 0.5,
+    "illegalAllowed": 0,
+    "requiresBrowserWorkerAcceptance": true,
+    "autoDeployment": false
+  },
+  "note": "No one here besides the frozen incumbent is authorized to replace the public game AI."
+}

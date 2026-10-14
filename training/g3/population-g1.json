@@ -1,0 +1,612 @@
+{
+  "schema": "mumu-g3-genome-v1",
+  "generation": 1,
+  "seed": 20261014,
+  "experimentOnly": true,
+  "previousPopulation": "population-g0.json",
+  "sourceRounds": 3,
+  "sourceGames": 96,
+  "note": "Strategy/hyperparameter evolution, pre-trained neural weights frozen. Not a newly trained NN.",
+  "promotionAllowed": false,
+  "agents": [
+    {
+      "id": "g1-sv01",
+      "description": "G3 保留: g0-h02 ( 6/6 得分 )",
+      "family": "hybrid",
+      "engine": "v2",
+      "depth": 2,
+      "searchShare": 0.5,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0.3,
+      "valueMix": 0.1,
+      "sims": 10,
+      "c": 1.6,
+      "parents": [
+        "g0-h02"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g1-sv02",
+      "description": "G3 保留: g0-s02 ( 5/6 得分 )",
+      "family": "search",
+      "engine": "v1.1",
+      "depth": 2,
+      "parents": [
+        "g0-s02"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g1-sv03",
+      "description": "G3 保留: g0-s06 ( 5/6 得分 )",
+      "family": "search",
+      "engine": "v3",
+      "depth": 1,
+      "parents": [
+        "g0-s06"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g1-sv04",
+      "description": "G3 保留: g0-p07 ( 5/6 得分 )",
+      "family": "puct",
+      "sims": 16,
+      "c": 0.95,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "parents": [
+        "g0-p07"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g1-sv05",
+      "description": "G3 保留: g0-n01 ( 4.5/6 得分 )",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.2,
+      "priorMix": 0.16,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ],
+      "parents": [
+        "g0-n01"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g1-sv06",
+      "description": "G3 保留: g0-h03 ( 4.5/6 得分 )",
+      "family": "hybrid",
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.45,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0.25,
+      "valueMix": 0,
+      "sims": 10,
+      "c": 1.2,
+      "parents": [
+        "g0-h03"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g1-sv07",
+      "description": "G3 保留: g0-p06 ( 4/6 得分 )",
+      "family": "puct",
+      "sims": 14,
+      "c": 2.1,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "parents": [
+        "g0-p06"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g1-sv08",
+      "description": "G3 保留: g0-s03 ( 4/6 得分 )",
+      "family": "search",
+      "engine": "v2",
+      "depth": 1,
+      "parents": [
+        "g0-s03"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g1-sv09",
+      "description": "G3 保留: g0-p03 ( 4/6 得分 )",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.35,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "parents": [
+        "g0-p03"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g1-sv10",
+      "description": "G3 保留: g0-p02 ( 4/6 得分 )",
+      "family": "puct",
+      "sims": 6,
+      "c": 1.15,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "parents": [
+        "g0-p02"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g1-sv11",
+      "description": "G3 保留: g0-p08 ( 3/6 得分 )",
+      "family": "puct",
+      "sims": 18,
+      "c": 1.55,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "parents": [
+        "g0-p08"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g1-sv12",
+      "description": "G3 保留: g0-n02 ( 3/6 得分 )",
+      "family": "puct",
+      "sims": 10,
+      "c": 1.6,
+      "priorMix": 0.32,
+      "valueMix": 0.1,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ],
+      "parents": [
+        "g0-n02"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g1-sv13",
+      "description": "G3 保留: g0-n07 ( 3/6 得分 )",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.2,
+      "priorMix": 0.16,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ],
+      "parents": [
+        "g0-n07"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g1-sv14",
+      "description": "G3 保留: g0-p05 ( 3/6 得分 )",
+      "family": "puct",
+      "sims": 12,
+      "c": 1.85,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "parents": [
+        "g0-p05"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g1-sv15",
+      "description": "G3 保留: g0-s07 ( 3/6 得分 )",
+      "family": "search",
+      "engine": "v3",
+      "depth": 2,
+      "parents": [
+        "g0-s07"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g1-sv16",
+      "description": "G3 保留: g0-p01 ( 3/6 得分 )",
+      "family": "puct",
+      "sims": 4,
+      "c": 0.75,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "parents": [
+        "g0-p01"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g1-ch01",
+      "family": "puct",
+      "description": "G3 生存淘汰后交叉＋有限变异",
+      "sims": 9,
+      "c": 1.128,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0,
+      "valueMix": 0,
+      "parents": [
+        "g0-n01",
+        "g0-p08"
+      ],
+      "origin": "crossover"
+    },
+    {
+      "id": "g1-ch02",
+      "family": "puct",
+      "description": "G3 生存淘汰后交叉＋有限变异",
+      "sims": 12,
+      "c": 1.316,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0,
+      "parents": [
+        "g0-p07",
+        "g0-p05"
+      ],
+      "origin": "crossover"
+    },
+    {
+      "id": "g1-ch03",
+      "family": "puct",
+      "description": "G3 生存淘汰后交叉＋有限变异",
+      "sims": 13,
+      "c": 1.481,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0.079,
+      "valueMix": 0,
+      "parents": [
+        "g0-p07",
+        "g0-n02"
+      ],
+      "origin": "crossover"
+    },
+    {
+      "id": "g1-ch04",
+      "family": "hybrid",
+      "description": "G3 生存淘汰后交叉＋有限变异",
+      "sims": 8,
+      "c": 1.104,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0.186,
+      "valueMix": 0.031,
+      "engine": "v2",
+      "depth": 2,
+      "searchShare": 0.543,
+      "parents": [
+        "g0-h02",
+        "g0-s02"
+      ],
+      "origin": "crossover"
+    },
+    {
+      "id": "g1-ch05",
+      "family": "hybrid",
+      "description": "G3 生存淘汰后交叉＋有限变异",
+      "sims": 10,
+      "c": 1.619,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0.082,
+      "valueMix": 0.078,
+      "engine": "v2",
+      "depth": 2,
+      "searchShare": 0.596,
+      "parents": [
+        "g0-h02",
+        "g0-p06"
+      ],
+      "origin": "crossover"
+    },
+    {
+      "id": "g1-ch06",
+      "family": "puct",
+      "description": "G3 生存淘汰后交叉＋有限变异",
+      "sims": 11,
+      "c": 1.279,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0,
+      "valueMix": 0,
+      "parents": [
+        "g0-n01",
+        "g0-p03"
+      ],
+      "origin": "crossover"
+    },
+    {
+      "id": "g1-ch07",
+      "family": "hybrid",
+      "description": "G3 生存淘汰后交叉＋有限变异",
+      "sims": 7,
+      "c": 1.12,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 0.5
+        },
+        {
+          "name": "v2",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.236,
+      "valueMix": 0,
+      "engine": "v2",
+      "depth": 2,
+      "searchShare": 0.535,
+      "parents": [
+        "g0-h02",
+        "g0-h03"
+      ],
+      "origin": "crossover"
+    },
+    {
+      "id": "g1-ch08",
+      "family": "hybrid",
+      "description": "G3 生存淘汰后交叉＋有限变异",
+      "sims": 13,
+      "c": 1.523,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0.248,
+      "valueMix": 0,
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.544,
+      "parents": [
+        "g0-h03",
+        "g0-s02"
+      ],
+      "origin": "crossover"
+    },
+    {
+      "id": "g1-ch09",
+      "family": "puct",
+      "description": "G3 生存淘汰后交叉＋有限变异",
+      "sims": 17,
+      "c": 1.159,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0.281,
+      "valueMix": 0.012,
+      "parents": [
+        "g0-p07",
+        "g0-n02"
+      ],
+      "origin": "crossover"
+    },
+    {
+      "id": "g1-ch10",
+      "family": "puct",
+      "description": "G3 生存淘汰后交叉＋有限变异",
+      "sims": 6,
+      "c": 1.114,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0,
+      "parents": [
+        "g0-s06",
+        "g0-p03"
+      ],
+      "origin": "crossover"
+    },
+    {
+      "id": "g1-ch11",
+      "family": "hybrid",
+      "description": "G3 生存淘汰后交叉＋有限变异",
+      "sims": 11,
+      "c": 1.164,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 0.5
+        },
+        {
+          "name": "n24",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.063,
+      "valueMix": 0.09,
+      "engine": "v3",
+      "depth": 1,
+      "searchShare": 0.395,
+      "parents": [
+        "g0-h03",
+        "g0-n01"
+      ],
+      "origin": "crossover"
+    },
+    {
+      "id": "g1-ch12",
+      "family": "hybrid",
+      "description": "G3 生存淘汰后交叉＋有限变异",
+      "sims": 10,
+      "c": 1.547,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0,
+      "valueMix": 0,
+      "engine": "v1.1",
+      "depth": 1,
+      "searchShare": 0.638,
+      "parents": [
+        "g0-s02",
+        "g0-n07"
+      ],
+      "origin": "crossover"
+    },
+    {
+      "id": "g1-ch13",
+      "family": "hybrid",
+      "description": "G3 生存淘汰后交叉＋有限变异",
+      "sims": 11,
+      "c": 1.738,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0,
+      "valueMix": 0.058,
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.592,
+      "parents": [
+        "g0-h03",
+        "g0-p06"
+      ],
+      "origin": "crossover"
+    },
+    {
+      "id": "g1-ch14",
+      "family": "puct",
+      "description": "G3 生存淘汰后交叉＋有限变异",
+      "sims": 9,
+      "c": 1.954,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0,
+      "parents": [
+        "g0-s03",
+        "g0-p06"
+      ],
+      "origin": "crossover"
+    },
+    {
+      "id": "g1-ch15",
+      "family": "hybrid",
+      "description": "G3 生存淘汰后交叉＋有限变异",
+      "sims": 8,
+      "c": 1.06,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0.152,
+      "valueMix": 0.004,
+      "engine": "v3",
+      "depth": 1,
+      "searchShare": 0.372,
+      "parents": [
+        "g0-h03",
+        "g0-s06"
+      ],
+      "origin": "crossover"
+    },
+    {
+      "id": "g1-ch16",
+      "family": "hybrid",
+      "description": "G3 生存淘汰后交叉＋有限变异",
+      "sims": 12,
+      "c": 1.576,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0.136,
+      "valueMix": 0,
+      "engine": "v3",
+      "depth": 1,
+      "searchShare": 0.45,
+      "parents": [
+        "g0-s06",
+        "g0-n01"
+      ],
+      "origin": "crossover"
+    }
+  ]
+}

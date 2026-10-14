@@ -1,0 +1,234 @@
+{
+  "schema": "mumu-g3-strange-v1",
+  "generation": 2,
+  "source": "population-g2.json",
+  "mode": "development-challenge",
+  "frozenWeights": true,
+  "promotionApproved": false,
+  "notes": "Models are existing pretrained networks, unusual mixtures alter search, not underlying rule mechanics.",
+  "agents": [
+    {
+      "id": "g2-sv01",
+      "description": "G3 保留: g1-sv15 ( 5/6 得分 )",
+      "family": "search",
+      "engine": "v3",
+      "depth": 2,
+      "parents": [
+        "g1-sv15"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g2-sv02",
+      "description": "G3 保留: g1-sv02 ( 5/6 得分 )",
+      "family": "search",
+      "engine": "v1.1",
+      "depth": 2,
+      "parents": [
+        "g1-sv02"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g2-sv03",
+      "family": "hybrid",
+      "description": "G3 保留: g1-ch13 ( 4/6 得分 )",
+      "sims": 11,
+      "c": 1.738,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0,
+      "valueMix": 0.058,
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.592,
+      "parents": [
+        "g1-ch13"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "g2-sv05",
+      "family": "hybrid",
+      "description": "G3 保留: g1-ch04 ( 4/6 得分 )",
+      "sims": 8,
+      "c": 1.104,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0.186,
+      "valueMix": 0.031,
+      "engine": "v2",
+      "depth": 2,
+      "searchShare": 0.543,
+      "parents": [
+        "g1-ch04"
+      ],
+      "origin": "survivor",
+      "selectionReason": "ranked"
+    },
+    {
+      "id": "odd-scout",
+      "family": "puct",
+      "description": "疯狂探索：接近最大 UCB 探索系数",
+      "sims": 18,
+      "c": 2.9,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "odd-tunnel",
+      "family": "puct",
+      "description": "顽固路线：接近最小探索系数",
+      "sims": 18,
+      "c": 0.35,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "odd-prophet",
+      "family": "puct",
+      "description": "偏执预言：非常高的 V3 策略先验",
+      "sims": 12,
+      "c": 1.1,
+      "priorMix": 0.65,
+      "valueMix": 0.05,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "odd-judge",
+      "family": "puct",
+      "description": "唯价值论：偏重 64 神经元价值评估",
+      "sims": 12,
+      "c": 1.45,
+      "priorMix": 0.05,
+      "valueMix": 0.62,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "odd-twins",
+      "family": "puct",
+      "description": "异形双胞胎：24+64 神经元相反规模组合",
+      "sims": 14,
+      "c": 1.6,
+      "priorMix": 0.55,
+      "valueMix": 0.15,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 0.85
+        },
+        {
+          "name": "n64",
+          "weight": 0.15
+        }
+      ]
+    },
+    {
+      "id": "odd-mutant",
+      "family": "puct",
+      "description": "混乱预言：V2+V3 网络高权重集成",
+      "sims": 16,
+      "c": 2.35,
+      "priorMix": 0.58,
+      "valueMix": 0.21,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 0.25
+        },
+        {
+          "name": "v3",
+          "weight": 0.75
+        }
+      ]
+    },
+    {
+      "id": "odd-hawks",
+      "family": "hybrid",
+      "description": "激进神经：只有25%预算留给搜索",
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.25,
+      "sims": 12,
+      "c": 2.2,
+      "priorMix": 0.52,
+      "valueMix": 0.13,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "odd-tortoise",
+      "family": "hybrid",
+      "description": "铁壁搜索：75%预算搜索，网络仅提供奇招",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.75,
+      "sims": 10,
+      "c": 0.8,
+      "priorMix": 0.62,
+      "valueMix": 0.02,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "odd-dreamer",
+      "family": "hybrid",
+      "description": "大脑杂交：神经网络双头加搜",
+      "engine": "v2",
+      "depth": 2,
+      "searchShare": 0.33,
+      "sims": 18,
+      "c": 2.4,
+      "priorMix": 0.5,
+      "valueMix": 0.35,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 0.35
+        },
+        {
+          "name": "n64",
+          "weight": 0.65
+        }
+      ]
+    },
+    {
+      "id": "odd-sentinel",
+      "family": "search",
+      "description": "纯搜索异常：V3 三层高优先威胁分析",
+      "engine": "v3",
+      "depth": 3
+    }
+  ]
+}

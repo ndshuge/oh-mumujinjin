@@ -1,0 +1,22 @@
+{
+  "schema": "mumu-reproducibility-v1",
+  "incumbent": "frozen-v11",
+  "timestamp": "2026-10-14",
+  "hallHash": "2f36bc9fba76dee7c191a603bc334a90b7385d545c2dac7842bb321a5d236e8f",
+  "deps": {
+    "strong-search-v1.1.js": "924ebadaa1d79d0478f77e9282a7bdb8b69d8f016fc22801e32d38af7c30ea66",
+    "strong-search-v2.js": "e060e099628d3887135d5e08c318163c8b5f792d3aa86ed3528e8d245d3afed5",
+    "strong-search-v3.js": "f13efea00a4ed0d1c749f53433e550f248999bf663d78adc47bb8e69eac83681",
+    "training/model-n24.cjs": "2e8d44ea4c9813a30355f75581c86f1813d28d84785cf3e65212e9c69630bd6c",
+    "training/model-v2.cjs": "da2e26cf0f73565bde0dc255e9c966d8546fc86a9dfcea454e532f2d872dcdb5",
+    "training/model-v3.cjs": "b43cbce3b03762d8217380892e158bf0eb6a4d211820c48080b3cd84d72a5538",
+    "training/model-n64.cjs": "da9599c16255db96c78a983232896d5d0480d448219ebc52475aef3fbb6282de",
+    "training/models/policy-value-n24.json": "89b5de78dca8a0f23f30a88483967d0a346829d43c812340bbf4d5b595cbe13e",
+    "training/models/policy-value-v2.json": "9d2c7a78310528f7e437e806ab55c9af97a9252a47d2d8202698c2bb8ff994dc",
+    "training/models/policy-value-v3-balanced.json": "1f32ef49065231bb59abab351b8f458ed2bd9450727b990e96ce1864cb8e3331",
+    "training/models/policy-value-n64.json": "faf85d68298b4faadb7d20c24f8e4fdad83273978556845ef71ebdf7c6efc707",
+    "game.js": "84b52c9f1f5b40ff477cd61489f44c2cafff139e593975d11ed210c626cba3b4"
+  },
+  "genomeCount": 6,
+  "productionSwitchAllowed": false
+}
