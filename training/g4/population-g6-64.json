@@ -1,0 +1,1307 @@
+{
+  "schema": "mumu-g4-population-v1",
+  "generation": 6,
+  "previousPopulation": "population-g5-64.json",
+  "sourceMaps": 3,
+  "sourceGames": 192,
+  "experimentOnly": true,
+  "families": {
+    "search": 16,
+    "rule-puct": 16,
+    "neural": 16,
+    "hybrid": 16
+  },
+  "agentCount": 64,
+  "note": "G4 selection; neural model weights remain fixed",
+  "agents": [
+    {
+      "id": "g6-ssv01",
+      "origin": "survivor",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g5-sch07"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v1.1",
+      "depth": 2
+    },
+    {
+      "id": "g6-ssv02",
+      "origin": "survivor",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g5-ssv03"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v2",
+      "depth": 2
+    },
+    {
+      "id": "g6-ssv03",
+      "origin": "survivor",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g5-sch02"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v3",
+      "depth": 3,
+      "mutation": "neural-obsession"
+    },
+    {
+      "id": "g6-ssv04",
+      "origin": "survivor",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g5-sch01"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v2",
+      "depth": 3,
+      "mutation": "maximal-exploration"
+    },
+    {
+      "id": "g6-ssv05",
+      "origin": "survivor",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g5-sch04"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v3",
+      "depth": 2
+    },
+    {
+      "id": "g6-ssv06",
+      "origin": "survivor",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g5-sch06"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v1.1",
+      "depth": 3
+    },
+    {
+      "id": "g6-ssv07",
+      "description": "搜索 v2 / 1 层",
+      "family": "search",
+      "engine": "v2",
+      "depth": 1,
+      "origin": "survivor",
+      "parents": [
+        "g5-ssv02"
+      ],
+      "specialty": "search"
+    },
+    {
+      "id": "g6-ssv08",
+      "origin": "survivor",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g5-ssv04"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v3",
+      "depth": 1
+    },
+    {
+      "id": "g6-psv01",
+      "origin": "survivor",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g5-psv01"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 14,
+      "c": 1.858,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0
+    },
+    {
+      "id": "g6-psv02",
+      "origin": "survivor",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g5-pch05"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 14,
+      "c": 1.144,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0,
+      "mutation": "neural-obsession"
+    },
+    {
+      "id": "g6-psv03",
+      "origin": "survivor",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g5-pch07"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 9,
+      "c": 0.866,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0,
+      "mutation": "search-obsession"
+    },
+    {
+      "id": "g6-psv04",
+      "origin": "survivor",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g5-psv06"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 13,
+      "c": 1.872,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0
+    },
+    {
+      "id": "g6-psv05",
+      "description": "纯 PUCT 8 模拟 / 探索 0.8",
+      "family": "puct",
+      "sims": 8,
+      "c": 0.8,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "origin": "survivor",
+      "parents": [
+        "g5-psv08"
+      ],
+      "specialty": "rule-puct"
+    },
+    {
+      "id": "g6-psv06",
+      "origin": "survivor",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g5-pch06"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 11,
+      "c": 2.95,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0,
+      "mutation": "maximal-exploration"
+    },
+    {
+      "id": "g6-psv07",
+      "origin": "survivor",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g5-psv03"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 12,
+      "c": 0.35,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0,
+      "mutation": "minimal-exploration"
+    },
+    {
+      "id": "g6-psv08",
+      "origin": "survivor",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g5-pch01"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 16,
+      "c": 1.043,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0
+    },
+    {
+      "id": "g6-nsv01",
+      "origin": "survivor",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g5-nsv01"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 10,
+      "c": 0.886,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 0.5
+        },
+        {
+          "name": "n64",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.475,
+      "valueMix": 0.08
+    },
+    {
+      "id": "g6-nsv02",
+      "origin": "survivor",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g5-nsv06"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 21,
+      "c": 1.007,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 0.5833333333333334
+        },
+        {
+          "name": "v2",
+          "weight": 0.4166666666666667
+        }
+      ],
+      "priorMix": 0.211,
+      "valueMix": 0.064
+    },
+    {
+      "id": "g6-nsv03",
+      "origin": "survivor",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g5-nch08"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 9,
+      "c": 2.006,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 0.5
+        },
+        {
+          "name": "n64",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.267,
+      "valueMix": 0.068
+    },
+    {
+      "id": "g6-nsv04",
+      "origin": "survivor",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g5-nsv04"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 10,
+      "c": 1.297,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 0.5
+        },
+        {
+          "name": "n24",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.235,
+      "valueMix": 0
+    },
+    {
+      "id": "g6-nsv05",
+      "origin": "survivor",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g5-nsv08"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 10,
+      "c": 1.588,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 0.6666666666666666
+        },
+        {
+          "name": "n24",
+          "weight": 0.3333333333333333
+        }
+      ],
+      "priorMix": 0.246,
+      "valueMix": 0
+    },
+    {
+      "id": "g6-nsv06",
+      "origin": "survivor",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g5-nch07"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 19,
+      "c": 1.003,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 0.5333333333333333
+        },
+        {
+          "name": "v3",
+          "weight": 0.4666666666666667
+        }
+      ],
+      "priorMix": 0.179,
+      "valueMix": 0
+    },
+    {
+      "id": "g6-nsv07",
+      "origin": "survivor",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g5-nsv05"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 24,
+      "c": 1.376,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 0.5833333333333334
+        },
+        {
+          "name": "v3",
+          "weight": 0.4166666666666667
+        }
+      ],
+      "priorMix": 0.051,
+      "valueMix": 0.175,
+      "mutation": "high-simulation"
+    },
+    {
+      "id": "g6-nsv08",
+      "origin": "survivor",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g5-nsv03"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 9,
+      "c": 1.626,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 0.6666666666666666
+        },
+        {
+          "name": "v3",
+          "weight": 0.3333333333333333
+        }
+      ],
+      "priorMix": 0.216,
+      "valueMix": 0
+    },
+    {
+      "id": "g6-hsv01",
+      "origin": "survivor",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g5-hsv06"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 9,
+      "c": 2.95,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 0.5
+        },
+        {
+          "name": "n64",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.397,
+      "valueMix": 0,
+      "engine": "v1.1",
+      "depth": 3,
+      "searchShare": 0.295,
+      "mutation": "maximal-exploration"
+    },
+    {
+      "id": "g6-hsv02",
+      "origin": "survivor",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g5-hsv03"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 15,
+      "c": 0.35,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 0.75
+        },
+        {
+          "name": "n64",
+          "weight": 0.25
+        }
+      ],
+      "priorMix": 0.523,
+      "valueMix": 0.008,
+      "engine": "v3",
+      "depth": 1,
+      "searchShare": 0.519,
+      "mutation": "minimal-exploration"
+    },
+    {
+      "id": "g6-hsv03",
+      "origin": "survivor",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g5-hch04"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 10,
+      "c": 1.004,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 0.625
+        },
+        {
+          "name": "n64",
+          "weight": 0.375
+        }
+      ],
+      "priorMix": 0.492,
+      "valueMix": 0.067,
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.45
+    },
+    {
+      "id": "g6-hsv04",
+      "description": "杂交 v1.1 搜索 0.25 + n64",
+      "family": "hybrid",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.25,
+      "sims": 12,
+      "c": 1.25,
+      "priorMix": 0.5,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ],
+      "origin": "survivor",
+      "parents": [
+        "g5-hsv04"
+      ],
+      "specialty": "hybrid"
+    },
+    {
+      "id": "g6-hsv05",
+      "origin": "survivor",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g5-hch02"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 9,
+      "c": 2.95,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 0.75
+        },
+        {
+          "name": "v3",
+          "weight": 0.25
+        }
+      ],
+      "priorMix": 0.422,
+      "valueMix": 0,
+      "engine": "v1.1",
+      "depth": 3,
+      "searchShare": 0.25,
+      "mutation": "maximal-exploration"
+    },
+    {
+      "id": "g6-hsv06",
+      "origin": "survivor",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g5-hsv07"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 8,
+      "c": 2.95,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 0.5
+        },
+        {
+          "name": "n64",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.436,
+      "valueMix": 0.044,
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.36,
+      "mutation": "maximal-exploration"
+    },
+    {
+      "id": "g6-hsv07",
+      "origin": "survivor",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g5-hsv01"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 10,
+      "c": 0.35,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 0.6842105263157895
+        },
+        {
+          "name": "v2",
+          "weight": 0.3157894736842105
+        }
+      ],
+      "priorMix": 0.282,
+      "valueMix": 0.135,
+      "engine": "v3",
+      "depth": 1,
+      "searchShare": 0.403,
+      "mutation": "minimal-exploration"
+    },
+    {
+      "id": "g6-hsv08",
+      "origin": "survivor",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g5-hch06"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 10,
+      "c": 0.79,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 0.5
+        },
+        {
+          "name": "n64",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.405,
+      "valueMix": 0.055,
+      "engine": "v3",
+      "depth": 1,
+      "searchShare": 0.652
+    },
+    {
+      "id": "g6-sch01",
+      "origin": "crossover",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g5-ssv03",
+        "g5-ssv04"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v2",
+      "depth": 1
+    },
+    {
+      "id": "g6-sch02",
+      "origin": "crossover",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g5-ssv03",
+        "g5-sch07"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v2",
+      "depth": 2
+    },
+    {
+      "id": "g6-sch03",
+      "origin": "crossover",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g5-sch07",
+        "g5-sch01"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v2",
+      "depth": 2
+    },
+    {
+      "id": "g6-sch04",
+      "origin": "crossover",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g5-ssv02",
+        "g5-sch04"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v2",
+      "depth": 3,
+      "mutation": "minimal-exploration"
+    },
+    {
+      "id": "g6-sch05",
+      "origin": "crossover",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g5-ssv04",
+        "g5-sch01"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v2",
+      "depth": 3,
+      "mutation": "minimal-exploration"
+    },
+    {
+      "id": "g6-sch06",
+      "origin": "crossover",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g5-ssv04",
+        "g5-sch07"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v3",
+      "depth": 1
+    },
+    {
+      "id": "g6-sch07",
+      "origin": "crossover",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g5-sch06",
+        "g5-ssv02"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v3",
+      "depth": 2
+    },
+    {
+      "id": "g6-sch08",
+      "origin": "crossover",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g5-sch02",
+        "g5-ssv02"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v2",
+      "depth": 3,
+      "mutation": "neural-obsession"
+    },
+    {
+      "id": "g6-pch01",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g5-pch06",
+        "g5-pch07"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 9,
+      "c": 2.238,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0
+    },
+    {
+      "id": "g6-pch02",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g5-pch01",
+        "g5-psv08"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 13,
+      "c": 1.143,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0
+    },
+    {
+      "id": "g6-pch03",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g5-pch01",
+        "g5-pch05"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 16,
+      "c": 1.337,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0
+    },
+    {
+      "id": "g6-pch04",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g5-psv06",
+        "g5-pch07"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 10,
+      "c": 1.266,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0
+    },
+    {
+      "id": "g6-pch05",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g5-pch05",
+        "g5-pch06"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 13,
+      "c": 2.112,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0
+    },
+    {
+      "id": "g6-pch06",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g5-psv03",
+        "g5-pch06"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 13,
+      "c": 2.059,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0,
+      "mutation": "neural-obsession"
+    },
+    {
+      "id": "g6-pch07",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g5-pch05",
+        "g5-psv01"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 16,
+      "c": 1.449,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0,
+      "mutation": "search-obsession"
+    },
+    {
+      "id": "g6-pch08",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g5-pch07",
+        "g5-psv06"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 12,
+      "c": 1.109,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0,
+      "mutation": "neural-obsession"
+    },
+    {
+      "id": "g6-nch01",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g5-nsv08",
+        "g5-nsv06"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 19,
+      "c": 1.688,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 0.5333333333333333
+        },
+        {
+          "name": "v3",
+          "weight": 0.4666666666666667
+        }
+      ],
+      "priorMix": 0.37,
+      "valueMix": 0.12
+    },
+    {
+      "id": "g6-nch02",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g5-nsv08",
+        "g5-hsv06"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 14,
+      "c": 1.827,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 0.7
+        },
+        {
+          "name": "v3",
+          "weight": 0.30000000000000004
+        }
+      ],
+      "priorMix": 0.233,
+      "valueMix": 0.025
+    },
+    {
+      "id": "g6-nch03",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g5-nsv08",
+        "g5-nsv04"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 7,
+      "c": 1.518,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 0.5833333333333334
+        },
+        {
+          "name": "n24",
+          "weight": 0.4166666666666667
+        }
+      ],
+      "priorMix": 0.366,
+      "valueMix": 0.031
+    },
+    {
+      "id": "g6-nch04",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g5-nsv04",
+        "g5-nsv03"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 11,
+      "c": 1.257,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 0.5714285714285715
+        },
+        {
+          "name": "n64",
+          "weight": 0.4285714285714286
+        }
+      ],
+      "priorMix": 0.225,
+      "valueMix": 0.043
+    },
+    {
+      "id": "g6-nch05",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g5-nsv03",
+        "g5-nsv08"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 7,
+      "c": 2.054,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 0.5
+        },
+        {
+          "name": "n64",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.145,
+      "valueMix": 0
+    },
+    {
+      "id": "g6-nch06",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g5-nsv03",
+        "g5-nch08"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 7,
+      "c": 2.001,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 0.7
+        },
+        {
+          "name": "n64",
+          "weight": 0.30000000000000004
+        }
+      ],
+      "priorMix": 0.113,
+      "valueMix": 0.058
+    },
+    {
+      "id": "g6-nch07",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g5-nsv03",
+        "g5-sch07"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 8,
+      "c": 1.396,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 0.6666666666666666
+        },
+        {
+          "name": "v3",
+          "weight": 0.3333333333333333
+        }
+      ],
+      "priorMix": 0.128,
+      "valueMix": 0.091
+    },
+    {
+      "id": "g6-nch08",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g5-nsv08",
+        "g5-nch08"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 6,
+      "c": 1.894,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 0.7
+        },
+        {
+          "name": "v2",
+          "weight": 0.30000000000000004
+        }
+      ],
+      "priorMix": 0.091,
+      "valueMix": 0.13
+    },
+    {
+      "id": "g6-hch01",
+      "origin": "crossover",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g5-hsv01",
+        "g5-hsv04"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 8,
+      "c": 1.069,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 0.59375
+        },
+        {
+          "name": "v3",
+          "weight": 0.40625000000000006
+        }
+      ],
+      "priorMix": 0.431,
+      "valueMix": 0.103,
+      "engine": "v3",
+      "depth": 1,
+      "searchShare": 0.436
+    },
+    {
+      "id": "g6-hch02",
+      "origin": "crossover",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g5-hsv01",
+        "g5-hch02"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 13,
+      "c": 0.35,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 0.5546875
+        },
+        {
+          "name": "n64",
+          "weight": 0.4453125
+        }
+      ],
+      "priorMix": 0.359,
+      "valueMix": 0.099,
+      "engine": "v3",
+      "depth": 1,
+      "searchShare": 0.308,
+      "mutation": "minimal-exploration"
+    },
+    {
+      "id": "g6-hch03",
+      "origin": "crossover",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g5-hch02",
+        "g5-nsv06"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 14,
+      "c": 1.733,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 0.5263157894736842
+        },
+        {
+          "name": "n64",
+          "weight": 0.47368421052631576
+        }
+      ],
+      "priorMix": 0.246,
+      "valueMix": 0,
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.347
+    },
+    {
+      "id": "g6-hch04",
+      "origin": "crossover",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g5-hsv01",
+        "g5-nch08"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 7,
+      "c": 1.579,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 0.543859649122807
+        },
+        {
+          "name": "v3",
+          "weight": 0.456140350877193
+        }
+      ],
+      "priorMix": 0.223,
+      "valueMix": 0.017,
+      "engine": "v3",
+      "depth": 1,
+      "searchShare": 0.541
+    },
+    {
+      "id": "g6-hch05",
+      "origin": "crossover",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g5-hsv04",
+        "g5-sch02"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 6,
+      "c": 0.954,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0.175,
+      "valueMix": 0,
+      "engine": "v1.1",
+      "depth": 1,
+      "searchShare": 0.25,
+      "mutation": "neural-obsession"
+    },
+    {
+      "id": "g6-hch06",
+      "origin": "crossover",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g5-hch02",
+        "g5-pch05"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 15,
+      "c": 1.806,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 0.75
+        },
+        {
+          "name": "v3",
+          "weight": 0.25
+        }
+      ],
+      "priorMix": 0.253,
+      "valueMix": 0.058,
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.25
+    },
+    {
+      "id": "g6-hch07",
+      "origin": "crossover",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g5-hsv07",
+        "g5-hch06"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 6,
+      "c": 2.29,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 0.5
+        },
+        {
+          "name": "n64",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.307,
+      "valueMix": 0.046,
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.575
+    },
+    {
+      "id": "g6-hch08",
+      "origin": "crossover",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g5-hch02",
+        "g5-nsv01"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 11,
+      "c": 1.919,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0.6,
+      "valueMix": 0,
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.25,
+      "mutation": "model-switch"
+    }
+  ]
+}

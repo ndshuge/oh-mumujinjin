@@ -1,0 +1,1215 @@
+{
+  "schema": "mumu-g4-population-v1",
+  "generation": 1,
+  "previousPopulation": "population-g0-64.json",
+  "sourceMaps": 6,
+  "sourceGames": 384,
+  "experimentOnly": true,
+  "families": {
+    "search": 16,
+    "rule-puct": 16,
+    "neural": 16,
+    "hybrid": 16
+  },
+  "agentCount": 64,
+  "note": "G4 selection; neural model weights remain fixed",
+  "agents": [
+    {
+      "id": "g1-ssv01",
+      "description": "搜索 v1.1 / 1 层",
+      "family": "search",
+      "engine": "v1.1",
+      "depth": 1,
+      "origin": "survivor",
+      "parents": [
+        "g4-s01"
+      ],
+      "specialty": "search"
+    },
+    {
+      "id": "g1-ssv02",
+      "description": "搜索 v2 / 4 层",
+      "family": "search",
+      "engine": "v2",
+      "depth": 4,
+      "origin": "survivor",
+      "parents": [
+        "g4-s08"
+      ],
+      "specialty": "search"
+    },
+    {
+      "id": "g1-ssv03",
+      "description": "搜索 v3 / 1 层",
+      "family": "search",
+      "engine": "v3",
+      "depth": 1,
+      "origin": "survivor",
+      "parents": [
+        "g4-s09"
+      ],
+      "specialty": "search"
+    },
+    {
+      "id": "g1-ssv04",
+      "description": "搜索 v3 / 4 层",
+      "family": "search",
+      "engine": "v3",
+      "depth": 4,
+      "origin": "survivor",
+      "parents": [
+        "g4-s12"
+      ],
+      "specialty": "search"
+    },
+    {
+      "id": "g1-ssv05",
+      "description": "搜索 v2 / 1 层",
+      "family": "search",
+      "engine": "v2",
+      "depth": 1,
+      "origin": "survivor",
+      "parents": [
+        "g4-s05"
+      ],
+      "specialty": "search"
+    },
+    {
+      "id": "g1-ssv06",
+      "description": "搜索 v1.1 / 3 层",
+      "family": "search",
+      "engine": "v1.1",
+      "depth": 3,
+      "origin": "survivor",
+      "parents": [
+        "g4-s03"
+      ],
+      "specialty": "search"
+    },
+    {
+      "id": "g1-ssv07",
+      "description": "保种搜索 v2 / 2 层",
+      "family": "search",
+      "engine": "v2",
+      "depth": 2,
+      "origin": "survivor",
+      "parents": [
+        "g4-s14"
+      ],
+      "specialty": "search"
+    },
+    {
+      "id": "g1-ssv08",
+      "description": "搜索 v3 / 2 层",
+      "family": "search",
+      "engine": "v3",
+      "depth": 2,
+      "origin": "survivor",
+      "parents": [
+        "g4-s10"
+      ],
+      "specialty": "search"
+    },
+    {
+      "id": "g1-psv01",
+      "description": "纯 PUCT 12 模拟 / 探索 0.8",
+      "family": "puct",
+      "sims": 12,
+      "c": 0.8,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "origin": "survivor",
+      "parents": [
+        "g4-p10"
+      ],
+      "specialty": "rule-puct"
+    },
+    {
+      "id": "g1-psv02",
+      "description": "纯 PUCT 8 模拟 / 探索 0.35",
+      "family": "puct",
+      "sims": 8,
+      "c": 0.35,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "origin": "survivor",
+      "parents": [
+        "g4-p05"
+      ],
+      "specialty": "rule-puct"
+    },
+    {
+      "id": "g1-psv03",
+      "description": "纯 PUCT 4 模拟 / 探索 0.35",
+      "family": "puct",
+      "sims": 4,
+      "c": 0.35,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "origin": "survivor",
+      "parents": [
+        "g4-p01"
+      ],
+      "specialty": "rule-puct"
+    },
+    {
+      "id": "g1-psv04",
+      "description": "纯 PUCT 12 模拟 / 探索 2.9",
+      "family": "puct",
+      "sims": 12,
+      "c": 2.9,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "origin": "survivor",
+      "parents": [
+        "g4-p12"
+      ],
+      "specialty": "rule-puct"
+    },
+    {
+      "id": "g1-psv05",
+      "description": "纯 PUCT 12 模拟 / 探索 0.35",
+      "family": "puct",
+      "sims": 12,
+      "c": 0.35,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "origin": "survivor",
+      "parents": [
+        "g4-p09"
+      ],
+      "specialty": "rule-puct"
+    },
+    {
+      "id": "g1-psv06",
+      "description": "纯 PUCT 8 模拟 / 探索 0.8",
+      "family": "puct",
+      "sims": 8,
+      "c": 0.8,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "origin": "survivor",
+      "parents": [
+        "g4-p06"
+      ],
+      "specialty": "rule-puct"
+    },
+    {
+      "id": "g1-psv07",
+      "description": "纯 PUCT 16 模拟 / 探索 1.5",
+      "family": "puct",
+      "sims": 16,
+      "c": 1.5,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "origin": "survivor",
+      "parents": [
+        "g4-p15"
+      ],
+      "specialty": "rule-puct"
+    },
+    {
+      "id": "g1-psv08",
+      "description": "纯 PUCT 16 模拟 / 探索 0.35",
+      "family": "puct",
+      "sims": 16,
+      "c": 0.35,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": [],
+      "origin": "survivor",
+      "parents": [
+        "g4-p13"
+      ],
+      "specialty": "rule-puct"
+    },
+    {
+      "id": "g1-nsv01",
+      "description": "神经元 v2 权重 0.13",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.3,
+      "priorMix": 0.13,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ],
+      "origin": "survivor",
+      "parents": [
+        "g4-n05"
+      ],
+      "specialty": "neural"
+    },
+    {
+      "id": "g1-nsv02",
+      "description": "神经元 n24 权重 0.13",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.3,
+      "priorMix": 0.13,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ],
+      "origin": "survivor",
+      "parents": [
+        "g4-n01"
+      ],
+      "specialty": "neural"
+    },
+    {
+      "id": "g1-nsv03",
+      "description": "神经元 n24 权重 0.3",
+      "family": "puct",
+      "sims": 12,
+      "c": 1.5,
+      "priorMix": 0.3,
+      "valueMix": 0.08,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ],
+      "origin": "survivor",
+      "parents": [
+        "g4-n02"
+      ],
+      "specialty": "neural"
+    },
+    {
+      "id": "g1-nsv04",
+      "description": "神经元 n64 权重 0.13",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.3,
+      "priorMix": 0.13,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ],
+      "origin": "survivor",
+      "parents": [
+        "g4-n13"
+      ],
+      "specialty": "neural"
+    },
+    {
+      "id": "g1-nsv05",
+      "description": "神经元 v2 权重 0.3",
+      "family": "puct",
+      "sims": 12,
+      "c": 1.5,
+      "priorMix": 0.3,
+      "valueMix": 0.08,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ],
+      "origin": "survivor",
+      "parents": [
+        "g4-n06"
+      ],
+      "specialty": "neural"
+    },
+    {
+      "id": "g1-nsv06",
+      "description": "神经元 v3 权重 0.13",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.3,
+      "priorMix": 0.13,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ],
+      "origin": "survivor",
+      "parents": [
+        "g4-n09"
+      ],
+      "specialty": "neural"
+    },
+    {
+      "id": "g1-nsv07",
+      "description": "神经元 v3 权重 0.3",
+      "family": "puct",
+      "sims": 12,
+      "c": 1.5,
+      "priorMix": 0.3,
+      "valueMix": 0.08,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ],
+      "origin": "survivor",
+      "parents": [
+        "g4-n10"
+      ],
+      "specialty": "neural"
+    },
+    {
+      "id": "g1-nsv08",
+      "description": "神经元 n64 权重 0.3",
+      "family": "puct",
+      "sims": 12,
+      "c": 1.5,
+      "priorMix": 0.3,
+      "valueMix": 0.08,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ],
+      "origin": "survivor",
+      "parents": [
+        "g4-n14"
+      ],
+      "specialty": "neural"
+    },
+    {
+      "id": "g1-hsv01",
+      "description": "杂交 v2 搜索 0.25 + n64",
+      "family": "hybrid",
+      "engine": "v2",
+      "depth": 2,
+      "searchShare": 0.25,
+      "sims": 12,
+      "c": 1.25,
+      "priorMix": 0.5,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ],
+      "origin": "survivor",
+      "parents": [
+        "g4-h05"
+      ],
+      "specialty": "hybrid"
+    },
+    {
+      "id": "g1-hsv02",
+      "description": "杂交 v3 搜索 0.25 + n64",
+      "family": "hybrid",
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.25,
+      "sims": 12,
+      "c": 1.25,
+      "priorMix": 0.5,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ],
+      "origin": "survivor",
+      "parents": [
+        "g4-h09"
+      ],
+      "specialty": "hybrid"
+    },
+    {
+      "id": "g1-hsv03",
+      "description": "杂交 v1.1 搜索 0.25 + n64",
+      "family": "hybrid",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.25,
+      "sims": 12,
+      "c": 1.25,
+      "priorMix": 0.5,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ],
+      "origin": "survivor",
+      "parents": [
+        "g4-h13"
+      ],
+      "specialty": "hybrid"
+    },
+    {
+      "id": "g1-hsv04",
+      "description": "杂交 v1.1 搜索 0.25 + n64",
+      "family": "hybrid",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.25,
+      "sims": 12,
+      "c": 1.25,
+      "priorMix": 0.5,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ],
+      "origin": "survivor",
+      "parents": [
+        "g4-h01"
+      ],
+      "specialty": "hybrid"
+    },
+    {
+      "id": "g1-hsv05",
+      "description": "杂交 v2 搜索 0.75 + n24",
+      "family": "hybrid",
+      "engine": "v2",
+      "depth": 2,
+      "searchShare": 0.75,
+      "sims": 16,
+      "c": 2.1,
+      "priorMix": 0.58,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ],
+      "origin": "survivor",
+      "parents": [
+        "g4-h08"
+      ],
+      "specialty": "hybrid"
+    },
+    {
+      "id": "g1-hsv06",
+      "description": "杂交 v1.1 搜索 0.6 + v2",
+      "family": "hybrid",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.6,
+      "sims": 8,
+      "c": 1.1,
+      "priorMix": 0.22,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ],
+      "origin": "survivor",
+      "parents": [
+        "g4-h15"
+      ],
+      "specialty": "hybrid"
+    },
+    {
+      "id": "g1-hsv07",
+      "description": "杂交 v1.1 搜索 0.45 + v3",
+      "family": "hybrid",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.45,
+      "sims": 10,
+      "c": 1.6,
+      "priorMix": 0.3,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ],
+      "origin": "survivor",
+      "parents": [
+        "g4-h02"
+      ],
+      "specialty": "hybrid"
+    },
+    {
+      "id": "g1-hsv08",
+      "description": "杂交 v3 搜索 0.45 + v3",
+      "family": "hybrid",
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.45,
+      "sims": 10,
+      "c": 1.6,
+      "priorMix": 0.3,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ],
+      "origin": "survivor",
+      "parents": [
+        "g4-h10"
+      ],
+      "specialty": "hybrid"
+    },
+    {
+      "id": "g1-sch01",
+      "origin": "crossover",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g4-s05",
+        "g4-s08"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v2",
+      "depth": 3
+    },
+    {
+      "id": "g1-sch02",
+      "origin": "crossover",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g4-s05",
+        "g4-s12"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v3",
+      "depth": 3
+    },
+    {
+      "id": "g1-sch03",
+      "origin": "crossover",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g4-s08",
+        "g4-s09"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v2",
+      "depth": 2
+    },
+    {
+      "id": "g1-sch04",
+      "origin": "crossover",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g4-s01",
+        "g4-s12"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v1.1",
+      "depth": 2
+    },
+    {
+      "id": "g1-sch05",
+      "origin": "crossover",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g4-s12",
+        "g4-s14"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v3",
+      "depth": 3
+    },
+    {
+      "id": "g1-sch06",
+      "origin": "crossover",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g4-s12",
+        "g4-s10"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v3",
+      "depth": 2
+    },
+    {
+      "id": "g1-sch07",
+      "origin": "crossover",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g4-s01",
+        "g4-s09"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v1.1",
+      "depth": 1
+    },
+    {
+      "id": "g1-sch08",
+      "origin": "crossover",
+      "family": "search",
+      "specialty": "search",
+      "parents": [
+        "g4-s05",
+        "g4-s03"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "engine": "v2",
+      "depth": 2
+    },
+    {
+      "id": "g1-pch01",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g4-p09",
+        "g4-p13"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 16,
+      "c": 0.748,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0
+    },
+    {
+      "id": "g1-pch02",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g4-p01",
+        "g4-p12"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 12,
+      "c": 1.501,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0
+    },
+    {
+      "id": "g1-pch03",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g4-p05",
+        "g4-p12"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 7,
+      "c": 1.615,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0
+    },
+    {
+      "id": "g1-pch04",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g4-p12",
+        "g4-p15"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 11,
+      "c": 2.495,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0
+    },
+    {
+      "id": "g1-pch05",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g4-p13",
+        "g4-p05"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 8,
+      "c": 0.539,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0
+    },
+    {
+      "id": "g1-pch06",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g4-p13",
+        "g4-p15"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 13,
+      "c": 1.274,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0
+    },
+    {
+      "id": "g1-pch07",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g4-p13",
+        "g4-p09"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 13,
+      "c": 0.3,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0
+    },
+    {
+      "id": "g1-pch08",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "rule-puct",
+      "parents": [
+        "g4-p05",
+        "g4-p13"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 11,
+      "c": 0.3,
+      "models": [],
+      "priorMix": 0,
+      "valueMix": 0
+    },
+    {
+      "id": "g1-nch01",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g4-n13",
+        "g4-h02"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 13,
+      "c": 1.524,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 0.5
+        },
+        {
+          "name": "v3",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.27,
+      "valueMix": 0
+    },
+    {
+      "id": "g1-nch02",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g4-n01",
+        "g4-h13"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 6,
+      "c": 1.344,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 0.5
+        },
+        {
+          "name": "n64",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.464,
+      "valueMix": 0.095
+    },
+    {
+      "id": "g1-nch03",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g4-n14",
+        "g4-n13"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 9,
+      "c": 1.139,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0.065,
+      "valueMix": 0.074
+    },
+    {
+      "id": "g1-nch04",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g4-n01",
+        "g4-h08"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 11,
+      "c": 1.267,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0.389,
+      "valueMix": 0
+    },
+    {
+      "id": "g1-nch05",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g4-n13",
+        "g4-n02"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 10,
+      "c": 1.297,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 0.5
+        },
+        {
+          "name": "n24",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.235,
+      "valueMix": 0
+    },
+    {
+      "id": "g1-nch06",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g4-n10",
+        "g4-h15"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 7,
+      "c": 1.311,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 0.5
+        },
+        {
+          "name": "v2",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.121,
+      "valueMix": 0.155
+    },
+    {
+      "id": "g1-nch07",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g4-n06",
+        "g4-n13"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 24,
+      "c": 1.593,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 0.5
+        },
+        {
+          "name": "n64",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.138,
+      "valueMix": 0.122,
+      "mutation": "high-simulation"
+    },
+    {
+      "id": "g1-nch08",
+      "origin": "crossover",
+      "family": "puct",
+      "specialty": "neural",
+      "parents": [
+        "g4-n14",
+        "g4-h13"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 8,
+      "c": 1.798,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0.442,
+      "valueMix": 0.161
+    },
+    {
+      "id": "g1-hch01",
+      "origin": "crossover",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g4-h02",
+        "g4-h09"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 7,
+      "c": 1.631,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 0.5
+        },
+        {
+          "name": "n64",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.454,
+      "valueMix": 0,
+      "engine": "v1.1",
+      "depth": 3,
+      "searchShare": 0.32
+    },
+    {
+      "id": "g1-hch02",
+      "origin": "crossover",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g4-h01",
+        "g4-h02"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 9,
+      "c": 1.38,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0.6,
+      "valueMix": 0.123,
+      "engine": "v1.1",
+      "depth": 3,
+      "searchShare": 0.282,
+      "mutation": "model-switch"
+    },
+    {
+      "id": "g1-hch03",
+      "origin": "crossover",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g4-h10",
+        "g4-h15"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 9,
+      "c": 0.974,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 0.5
+        },
+        {
+          "name": "v2",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.115,
+      "valueMix": 0.156,
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.25,
+      "mutation": "neural-obsession"
+    },
+    {
+      "id": "g1-hch04",
+      "origin": "crossover",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g4-h15",
+        "g4-h05"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 10,
+      "c": 0.737,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 0.5
+        },
+        {
+          "name": "n64",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.519,
+      "valueMix": 0.137,
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.601
+    },
+    {
+      "id": "g1-hch05",
+      "origin": "crossover",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g4-h08",
+        "g4-p10"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 13,
+      "c": 1.527,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0.27,
+      "valueMix": 0,
+      "engine": "v2",
+      "depth": 2,
+      "searchShare": 0.73
+    },
+    {
+      "id": "g1-hch06",
+      "origin": "crossover",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g4-h05",
+        "g4-s01"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 24,
+      "c": 1.335,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ],
+      "priorMix": 0.208,
+      "valueMix": 0.067,
+      "engine": "v2",
+      "depth": 2,
+      "searchShare": 0.319,
+      "mutation": "high-simulation"
+    },
+    {
+      "id": "g1-hch07",
+      "origin": "crossover",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g4-h01",
+        "g4-n02"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 12,
+      "c": 1.733,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 0.5
+        },
+        {
+          "name": "n24",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.355,
+      "valueMix": 0.003,
+      "engine": "v1.1",
+      "depth": 1,
+      "searchShare": 0.52
+    },
+    {
+      "id": "g1-hch08",
+      "origin": "crossover",
+      "family": "hybrid",
+      "specialty": "hybrid",
+      "parents": [
+        "g4-h10",
+        "g4-n05"
+      ],
+      "description": "Crossed real strategy genes, no neural parameter splice",
+      "sims": 6,
+      "c": 2.95,
+      "models": [
+        {
+          "name": "v3",
+          "weight": 0.5
+        },
+        {
+          "name": "v2",
+          "weight": 0.5
+        }
+      ],
+      "priorMix": 0.211,
+      "valueMix": 0,
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.581,
+      "mutation": "maximal-exploration"
+    }
+  ]
+}

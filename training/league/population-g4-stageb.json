@@ -1,0 +1,208 @@
+{
+  "schema": "g4-stageb-roster-v1",
+  "generation": 0,
+  "origin": "population-g0-64.json",
+  "experimentOnly": true,
+  "agents": [
+    {
+      "id": "g4-s01",
+      "description": "搜索 v1.1 / 1 层",
+      "family": "search",
+      "engine": "v1.1",
+      "depth": 1
+    },
+    {
+      "id": "g4-s04",
+      "description": "搜索 v1.1 / 4 层",
+      "family": "search",
+      "engine": "v1.1",
+      "depth": 4
+    },
+    {
+      "id": "g4-s09",
+      "description": "搜索 v3 / 1 层",
+      "family": "search",
+      "engine": "v3",
+      "depth": 1
+    },
+    {
+      "id": "g4-s12",
+      "description": "搜索 v3 / 4 层",
+      "family": "search",
+      "engine": "v3",
+      "depth": 4
+    },
+    {
+      "id": "g4-p05",
+      "description": "纯 PUCT 8 模拟 / 探索 0.35",
+      "family": "puct",
+      "sims": 8,
+      "c": 0.35,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-p10",
+      "description": "纯 PUCT 12 模拟 / 探索 0.8",
+      "family": "puct",
+      "sims": 12,
+      "c": 0.8,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-p12",
+      "description": "纯 PUCT 12 模拟 / 探索 2.9",
+      "family": "puct",
+      "sims": 12,
+      "c": 2.9,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-p15",
+      "description": "纯 PUCT 16 模拟 / 探索 1.5",
+      "family": "puct",
+      "sims": 16,
+      "c": 1.5,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-n01",
+      "description": "神经元 n24 权重 0.13",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.3,
+      "priorMix": 0.13,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-n02",
+      "description": "神经元 n24 权重 0.3",
+      "family": "puct",
+      "sims": 12,
+      "c": 1.5,
+      "priorMix": 0.3,
+      "valueMix": 0.08,
+      "models": [
+        {
+          "name": "n24",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-n05",
+      "description": "神经元 v2 权重 0.13",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.3,
+      "priorMix": 0.13,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "v2",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-n13",
+      "description": "神经元 n64 权重 0.13",
+      "family": "puct",
+      "sims": 8,
+      "c": 1.3,
+      "priorMix": 0.13,
+      "valueMix": 0,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h01",
+      "description": "杂交 v1.1 搜索 0.25 + n64",
+      "family": "hybrid",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.25,
+      "sims": 12,
+      "c": 1.25,
+      "priorMix": 0.5,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h05",
+      "description": "杂交 v2 搜索 0.25 + n64",
+      "family": "hybrid",
+      "engine": "v2",
+      "depth": 2,
+      "searchShare": 0.25,
+      "sims": 12,
+      "c": 1.25,
+      "priorMix": 0.5,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h09",
+      "description": "杂交 v3 搜索 0.25 + n64",
+      "family": "hybrid",
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.25,
+      "sims": 12,
+      "c": 1.25,
+      "priorMix": 0.5,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h13",
+      "description": "杂交 v1.1 搜索 0.25 + n64",
+      "family": "hybrid",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.25,
+      "sims": 12,
+      "c": 1.25,
+      "priorMix": 0.5,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}
