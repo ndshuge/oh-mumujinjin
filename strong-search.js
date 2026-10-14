@@ -41,9 +41,9 @@
       const afterOwn=distance(trial,who);
       const impact=afterTheir-beforeOpponent,ownLoss=afterOwn-beforeOwn;
       let merit= -Infinity;
-      if(impact>0&&Number.isFinite(afterTheir)&&Number.isFinite(afterOwn)&&impact>=ownLoss-0.1){
+      if(impact>0&&Number.isFinite(afterOwn)&&impact>=ownLoss-0.1){
         wallChecks++;
-        if(engine.hellWallAllowed(s,w,who))merit=5*impact-3*ownLoss-2.5;
+        if(engine.hellWallAllowed(s,w,who))merit=Number.isFinite(afterTheir)?5*impact-3*ownLoss-2.5:10000;
       }
       wallMemo.set(id,merit);
       return merit;
@@ -104,7 +104,8 @@
     }
     let best=null,bestScore=-Infinity,depthCompleted=0;
     // Fallback must be a verified legal movement if deadline already expired.
-    const fallback=engine.hellCandidates(state,side).find(a=>!a.wall)||null;
+    const safeActions=engine.hellCandidates(state,side);
+    const fallback=safeActions.find(a=>!a.wall)||safeActions[0]||null;
     best=fallback;
     function negamax(s,player,depth,alpha,beta,history){
       visited++;

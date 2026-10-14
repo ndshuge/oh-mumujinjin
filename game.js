@@ -560,7 +560,7 @@
   function xiaodiChooseAction(){
     if(!window.MumuXiaodi){throw Error("小迪引擎未加载，拒绝降级为其他难度");}
     var snapshot={players:state.players.map(function(p){return {x:p.x,y:p.y};}),dirs:state.slideDir.map(function(d){return d?{x:d.x,y:d.y}:null;}),walls:state.walls.map(function(w){return {x:w.x,y:w.y,o:w.o};}),left:state.left.slice()};
-    var engine={terrain:{CAMPS:CAMPS,PORTALS:PORTALS,ICE:ICE,BOOST:BOOST},setRocks:function(){},movementOptions:movementOptions,computerDistance:computerDistance,hellWallAllowed:hellWallAllowed,hellApply:hellApply,hellEvaluate:hellEvaluate,portal:portal};
+    var engine={terrain:{CAMPS:CAMPS,PORTALS:PORTALS,ICE:ICE,BOOST:BOOST},setRocks:function(){},movementOptions:movementOptions,computerDistance:computerDistance,hellWallAllowed:hellWallAllowed,hellApply:hellApply,hellEvaluate:hellEvaluate,hellCandidates:hellCandidates,portal:portal};
     return window.MumuXiaodi.choose(engine,snapshot,1,{rocks:ROCKS},260);
   }
   function computerTakeTurn(){
