@@ -14,9 +14,13 @@ const records={
 let md="# 木木金金棋 · G4 AI 进化实时战报\n\n";
 md+="本报告仅整理 **AI 对局结果、种群、晋级和实时进度**，不保存每步走棋。\n\n";
 const p=records.generation;
+const actuallyCompletedRounds=p?Array.from({length:p.targetRounds},(_,i)=>i).filter(i=>{
+ const receipt=read(path.join(g4,"gen"+p.generation+"-round"+i+"-b"+p.budgetPerMoveMs+"-s20261014.report.json"));
+ return receipt?.complete===true&&receipt.matches===64&&receipt.illegal===0;
+}).length:0;
 md+="## 64 AI 进化联赛\n\n";
 if(p)md+="状态：**"+p.state+"**；已完成 **"+p.completedGames+" / "+p.plannedGames+"** 局；"+
- "当前完整比赛日 **"+p.completedRounds+" / "+p.targetRounds+"**；"+
+ "当前完整比赛日 **"+actuallyCompletedRounds+" / "+p.targetRounds+"**；"+
  "计算上限 **"+p.budgetPerMoveMs+" ms/步**；每人计划 **"+p.perAgentPlannedGames+" 局**。\n\n";
 else md+="尚未获得 G4 状态。\n\n";
 if(roster)md+="初代各家族：搜索 "+roster.families.search+"、PUCT "+roster.families["rule-puct"]+
@@ -59,5 +63,5 @@ fs.mkdirSync(g4,{recursive:true});
 const file=path.join(g4,"LIVE_RESULTS.md");
 fs.writeFileSync(file,md);
 console.log("G4_STATUS",JSON.stringify({g4:p?{state:p.state,played:p.completedGames,target:p.plannedGames,
-  rounds:p.completedRounds}:null,champions:summary,selfplay:records.selfplay?.completedGames||0,
+  rounds:actuallyCompletedRounds}:null,champions:summary,selfplay:records.selfplay?.completedGames||0,
  report:file}));
