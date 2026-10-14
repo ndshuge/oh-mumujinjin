@@ -1,0 +1,67 @@
+{
+  "schema": "mumu-g4-selection-v2",
+  "purpose": "Efficient staged selection; all scores are development-only until a locked, fresh-map gate",
+  "initialPopulation": 64,
+  "protectedFamilies": {
+    "search": 4,
+    "rule-puct": 4,
+    "neural": 4,
+    "hybrid": 4
+  },
+  "shortlistPerFamily": {
+    "strongOverall": 3,
+    "novelCounterStyle": 1
+  },
+  "stageA": {
+    "name": "population_screen",
+    "maps": 6,
+    "gamesPerAgent": 12,
+    "selectionSize": 16,
+    "method": "same-map seat swap, map-density stratification, opponent-adjusted score and paired uncertainty",
+    "budgetPerMoveMs": 260
+  },
+  "stageB": {
+    "name": "common_reference_screen",
+    "contenders": 16,
+    "mapsPerContender": 12,
+    "gamesPerContender": 24,
+    "totalGames": 384,
+    "sameReference": "frozen-v11",
+    "requiredFamilyCoverage": true,
+    "dataset": "development-only; maps excluded from sealed final set"
+  },
+  "stageC": {
+    "name": "finalist_hall_challenge",
+    "contenders": 4,
+    "mapsPerContender": 50,
+    "gamesPerContender": 100,
+    "totalGames": 400,
+    "opponents": ["frozen-v11", "historical champions", "targeted exploiters"],
+    "note": "Main reference comparison is V1.1; exploiters receive their own separate matchup budgets",
+    "promoteOnThisStage": false
+  },
+  "stageD": {
+    "name": "sealed_new_map_final",
+    "contendersMax": 2,
+    "mapsPerContender": 500,
+    "gamesPerContender": 1000,
+    "bootstrap95LowerBoundMustExceed": 0.5,
+    "illegalActions": 0,
+    "requireComplexMapNoCollapse": true,
+    "requireBrowserWorkerAcceptance": true,
+    "promoteOnlyAfterFrozenGenomeHash": true
+  },
+  "diversity": {
+    "historicalChampionArchive": true,
+    "mutationExploreProportion": 0.2,
+    "specialistPlacesPerFamily": 1,
+    "neverDirectlyCrossUnalignedNeuralWeights": true
+  },
+  "fitnessNotes": [
+    "Use paired win/draw results with side swapping; two sides on one map are correlated",
+    "Separate performance against population, frozen V1.1, historical snapshots, and exploiters",
+    "Do not optimize across or peek at sealed final-test maps",
+    "Model growth, neuron width, or Elo estimates alone never authorize a promotion",
+    "Actual neural learning requires updated weights, not just strategy-parameter crossover"
+  ]
+}
