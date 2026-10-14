@@ -16,7 +16,7 @@ if(fs.existsSync(reportFile))throw Error("Completed run already exists: "+report
 const CHUNK=20,parts=[];
 for(let j=0;j<games;j+=CHUNK)
  parts.push({start:start+j,count:Math.min(CHUNK,games-j),seed:seed+j});
-let launched=0,complete=0,failed=false;
+let launched=0,complete=0,failed=false,finalized=false;
 const running=new Map(),results=[],begin=Date.now();
 function progress(status){
  const summary={
@@ -63,7 +63,26 @@ function launch(){
  while(!failed&&running.size<workers&&launched<parts.length){
   const p=parts[launched++],idpart=split+"-"+p.start+"-"+p.count+"-b"+budget+"-s"+p.seed;
   const report=path.join(root,idpart+".report.json");
-  if(fs.existsSync(report)){failed=true;throw Error("Existing shard output, stop rather than silently overwrite "+idpart);}
+  if(fs.existsSync(report)){
+   // Resume: accept only complete, verified shards from the same experiment.
+   const r=JSON.parse(fs.readFileSync(report,"utf8"));
+   if(r.id!==idpart||r.completed!==p.count||r.invalid!==0||!r.files?.length||
+      !r.files.every(name=>fs.existsSync(path.join(root,name))))throw Error("Corrupted existing shard: "+idpart);
+   results.push(r);complete++;
+   continue;
+  }
+  // A killed worker can leave result streams without the final report.
+  // Preserve such incomplete artifacts instead of deleting any user data.
+  for(const suffix of [".jsonl",".samples.jsonl"]){
+   const unfinished=path.join(root,idpart+suffix);
+   if(fs.existsSync(unfinished)){
+    const backupDir=path.join(root,"interrupted");
+    fs.mkdirSync(backupDir,{recursive:true});
+    const backup=path.join(backupDir,idpart+"-"+Date.now()+"-"+process.pid+suffix);
+    fs.renameSync(unfinished,backup);
+    console.log("PRESERVED_INTERRUPTED_SHARD",path.basename(backup));
+   }
+  }
   const args=[path.join(__dirname,"lab-selfplay.cjs"),split,String(p.start),String(p.count),String(budget),String(p.seed)];
   const child=spawn(process.execPath,args,{cwd:path.resolve(__dirname,".."),windowsHide:true,stdio:["ignore","pipe","pipe"]});
   running.set(idpart,child);
@@ -83,10 +102,13 @@ function launch(){
     results.push(r);complete++;
     console.log("BATCH_CHECKPOINT",JSON.stringify(progress("running")));
     launch();
-    if(!running.size&&launched===parts.length)completeAll();
+    // launch() finalizes once all resumed and newly completed shards exist.
    }catch(e){failed=true;console.error("LAB_BATCH_INVALID",String(e));process.exitCode=1;}
   });
   child.on("error",e=>{failed=true;console.error("LAB_BATCH_SPAWN",e);process.exitCode=1;});
+ }
+ if(!failed&&running.size===0&&launched===parts.length&&!finalized){
+  finalized=true;completeAll();
  }
 }
 progress("running");console.log("BATCH_START",JSON.stringify({id,games,workers,shards:parts.length,budget,split}));

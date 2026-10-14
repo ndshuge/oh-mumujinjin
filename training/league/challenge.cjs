@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 // Candidate-vs-frozen-champion paired gate. Never deploys game.js.
 // For formal blind promotion new maps must be generated after the genome is frozen.
 const fs=require("fs"),path=require("path"),{engine}=require("../train.cjs"),agent=require("./agent.cjs");
@@ -54,6 +54,7 @@ for(const [i,map] of maps.entries()){
    const count=(seen.get(k)||0)+1;seen.set(k,count);if(count===3){ending="repetition";break;}
   }
   results.push({map:map.name,seat,winner:winner===null?null:players[winner].id,ending,plies});
+  console.log("CHALLENGE_GAME",JSON.stringify({candidate:candidateId,map:i+1,seat,completed:results.length,total:mapCount*2,plies,ending}));
   if((i+1)%5===0&&seat===1)console.log("CHALLENGE_PROGRESS",i+1,"/",mapCount);
  }
 }
@@ -77,3 +78,4 @@ const out=path.join(__dirname,"..","output","lab","challenge-"+candidateId+"-"+o
 if(fs.existsSync(out))throw Error("Refuse overwrite existing challenge result");
 fs.writeFileSync(out,JSON.stringify(summary,null,2));
 console.log("CHALLENGE_DONE",JSON.stringify({...summary,matches:undefined}));
+

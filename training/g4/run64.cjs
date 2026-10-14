@@ -18,7 +18,7 @@ const id="g4-run-"+roster.generation+"-"+rounds+"r-b"+budget+"-s"+seed,
  progressFile=path.join(lab,id+".progress.json"),doneFile=path.join(lab,id+".final.json"),
  start=Date.now();
 if(fs.existsSync(doneFile))throw Error("Already finished: "+doneFile);
-let inFlight=0,nextRound=1,error=null,complete=new Set();
+let inFlight=0,nextRound=0,error=null,complete=new Set();
 const reportFor=i=>path.join(lab,"gen"+roster.generation+"-round"+i+"-b"+budget+"-s"+seed+".report.json"),
  resultsFor=i=>path.join(lab,"gen"+roster.generation+"-round"+i+"-b"+budget+"-s"+seed+".results.jsonl");
 function refresh(){
@@ -86,15 +86,8 @@ function pump(){
   p.on("error",e=>{error=e;refresh();clearInterval(interval);process.exitCode=1;});
  }
  if(nextRound===rounds&&inFlight===0){
-  if(!accepted(0)){
-   log("G4_WAIT_EXTERNAL_ROUND0",{status:"Running independently; waiting for its acceptance receipt"});
-   const waiter=setInterval(()=>{
-    if(error){clearInterval(waiter);return;}
-    try{
-     if(accepted(0)){clearInterval(waiter);refresh();done();}
-    }catch(e){clearInterval(waiter);error=e;refresh();process.exitCode=1;}
-   },5000);
-  }else done();
+  if(complete.size!==rounds)throw Error("Incomplete rounds despite zero active workers");
+  done();
  }
 }
 log("G4_LEAGUE_START",{roster:rosterName,rounds,plannedGames:rounds*64,workers,

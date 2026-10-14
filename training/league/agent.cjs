@@ -10,7 +10,8 @@ const puct=require("../puct.cjs"),models={
  "v2":{net:require("../model-v2.cjs"),path:path.join(__dirname,"..","models","policy-value-v2.json")},
  "v3":{net:require("../model-v3.cjs"),path:path.join(__dirname,"..","models","policy-value-v3-balanced.json")},
  "n24":{net:require("../model-n24.cjs"),path:path.join(__dirname,"..","models","policy-value-n24.json")},
- "n64":{net:require("../model-n64.cjs"),path:path.join(__dirname,"..","models","policy-value-n64.json")}
+ "n64":{net:require("../model-n64.cjs"),path:path.join(__dirname,"..","models","policy-value-n64.json")},
+ "g5fine":{net:require("../model-n64.cjs"),path:path.join(__dirname,"..","output","lab","g5","policy-value-g5-finetune-v1.json")}
 };
 const cache=new Map();
 function check(p){

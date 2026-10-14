@@ -35,6 +35,8 @@ function baseline(s,player){
  }
  return best;
 }
+module.exports={baseline};
+if(require.main===module){
 const games=[],stats={strong:{wins:0,losses:0,draws:0},baseline:{wins:0,losses:0,draws:0},illegal:0,repetitions:0,goal:0,cap:0,turns:0,strongMs:[],strongDepth:[]};
 const start=Date.now();
 for(let i=0;i<count;i++){
@@ -75,3 +77,4 @@ const report={maps:count,games:games.length,searchDepth,searchBudget,outcomes:st
 const out=path.join(__dirname,"output","strong-v1-arena-"+offset+"-d"+searchDepth+".json");
 fs.writeFileSync(out,JSON.stringify(report,null,2));
 console.log("RESULT",JSON.stringify({games:report.games,strong:stats.strong,baseline:stats.baseline,illegal:stats.illegal,latency:report.latency,elapsedMs:report.elapsedMs}));
+}
