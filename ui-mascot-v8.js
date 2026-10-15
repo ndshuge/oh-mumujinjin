@@ -63,19 +63,29 @@
       emotion=reactiveMood;
       if(reactiveText)message=reactiveText;
     }
-    const newRole=isAI?"木木 · AI 对手":"木木 · 棋局向导";
+    const persona=window.MMJJPersona;
+    const xiaodi=!!(isAI&&persona?.isXiaodi());
+    if(xiaodi){
+      message=persona.currentLine();
+      expandedText=message;
+      emotion=persona.currentMood();
+      face.dataset.photo=String(persona.currentPhoto());
+    }
+    face.dataset.persona=xiaodi?"xiaodi":"mumu";
+    const newRole=xiaodi?(persona.displayName()+" · AI 对手"):isAI?"木木 · 小白":"木木 · 棋局向导";
     if(role.textContent!==newRole)role.textContent=newRole;
     if(face.dataset.emotion!==emotion)face.dataset.emotion=emotion;
     if(moodLabel&&moodLabel.textContent!==moodNames[emotion])moodLabel.textContent=moodNames[emotion];
     if(speech.textContent!==message)speech.textContent=message;
     if(detail.textContent!==expandedText)detail.textContent=expandedText;
     guide.classList.toggle("mascot-ai-mode",isAI);
+    guide.classList.toggle("mascot-xiaodi",xiaodi);
   };
   function requestUpdate(){
     if(updateQueued)return;
     updateQueued=true;requestAnimationFrame(update);
   }
-  const sourceIds=["phaseInfo","wallSlot","aiBanterText","aiBanter","winModal","winTitle","playAI","playLocal","mascotMessage"];
+  const sourceIds=["phaseInfo","wallSlot","aiBanterText","aiBanter","winModal","winTitle","playAI","playLocal","ai-xiaodi","ai-hell","mascotMessage"];
   const watch=new MutationObserver(records=>{
     for(const record of records){
       if(record.target===byId("aiBanterText")){
@@ -98,6 +108,12 @@
   };
   face.addEventListener("click",()=>{
     if(open){show(false);return;}
+    if(window.MMJJPersona?.isXiaodi()){
+      const line=window.MMJJPersona.nextLine();
+      react(window.MMJJPersona.currentMood(),line,2000);
+      show(true);
+      return;
+    }
     clickCount++;
     const messages=[
       ["happy","嘿嘿，我正在认真陪你下棋呢！"],

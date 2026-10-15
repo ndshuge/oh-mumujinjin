@@ -22,8 +22,8 @@
     <div class="topbar-center"><span class="topbar-rule"></span><span>THE ART OF EVERY MOVE</span><span class="topbar-rule"></span></div>
     <nav class="header-right" aria-label="游戏工具">
       <span class="connection-tag"><span class="connection-light"></span>无需联网</span>
-      <button class="icon-btn help-button" id="helpTop" title="查看玩法" aria-label="查看玩法"><span aria-hidden="true">?</span><span class="nav-button-label">玩法</span></button>
-      <button class="icon-btn mobile-settings-button" id="mobileSettingsBtn" type="button" aria-label="打开游戏设置" aria-expanded="false" aria-controls="mobileSettingsPanel"><span aria-hidden="true">☷</span><span class="nav-button-label">设置</span></button>
+      <button class="icon-btn help-button" id="helpTop" title="查看玩法" aria-label="查看玩法"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.5 2.5 0 0 1 4.8.8c0 2-2.5 2.1-2.5 4"/><path d="M12 17h.01"/></svg><span class="nav-button-label">玩法</span></button>
+      <button class="icon-btn mobile-settings-button" id="mobileSettingsBtn" type="button" aria-label="打开游戏设置" aria-expanded="false" aria-controls="mobileSettingsPanel"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="5"/><path d="M8.5 9h7M8.5 13h7M8.5 17h4"/></svg><span class="nav-button-label">设置</span></button>
     </nav>
   </header>
 
@@ -62,7 +62,7 @@
         </div>
           <div class="mascot-guide mascot-v8" aria-label="木木，棋局向导">
             <button class="mascot-face mascot-avatar" id="mascotTap" type="button" aria-label="和木木互动，查看详细对话" aria-expanded="false" aria-controls="mascotExpanded" data-emotion="calm">
-              <svg class="mumu-character" viewBox="0 0 120 124" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <span class="xiaodi-photo" aria-hidden="true"></span><svg class="mumu-character" viewBox="0 0 120 124" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <defs><linearGradient id="mumuBody" x1="0" y1="0" x2=".95" y2="1"><stop offset="0" stop-color="#B9EDC9"/><stop offset=".58" stop-color="#88D5AA"/><stop offset="1" stop-color="#57B990"/></linearGradient><linearGradient id="mumuBelly" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#F5FFF0"/><stop offset="1" stop-color="#E0F8DB"/></linearGradient></defs>
               <ellipse class="mumu-ground" cx="61" cy="113" rx="38" ry="7" fill="#38885D" opacity=".16"/>
               <g class="mumu-creature"><g class="mumu-sprout"><path d="M58 20Q51 4 36 8Q38 23 58 25Z" fill="#55B47B"/><path d="M63 21Q65 7 80 5Q82 21 62 27Z" fill="#75CC88"/><path d="M58 29Q60 23 63 18" fill="none" stroke="#428E65" stroke-width="3.5" stroke-linecap="round"/></g>
@@ -165,14 +165,14 @@
           <div id="aiDifficulty" class="ai-difficulty" hidden>
             <div class="difficulty-label">电脑难度 <span>无需联网，手机本地计算</span></div>
             <div class="ai-levels" role="group" aria-label="人机难度">
-              <button class="ai-level" id="ai-easy" type="button">入门</button>
-              <button class="ai-level selected" id="ai-normal" type="button">策略</button>
-              <button class="ai-level" id="ai-hard" type="button">挑战</button><button class="ai-level hell-level" id="ai-hell" type="button">地狱</button><button class="ai-level hell-level" id="ai-xiaodi" type="button" title="G4-h13 冻结冠军 · 本地运行">小迪</button>
+              <button class="ai-level" id="ai-easy" type="button" hidden aria-hidden="true" tabindex="-1">入门</button>
+              <button class="ai-level" id="ai-normal" type="button" hidden aria-hidden="true" tabindex="-1">策略</button>
+              <button class="ai-level" id="ai-hard" type="button" hidden aria-hidden="true" tabindex="-1">挑战</button><button class="ai-level hell-level" id="ai-hell" type="button">小白</button><button class="ai-level hell-level" id="ai-xiaodi" type="button" title="G4-h13 冻结冠军 · 本地运行">小迪</button>
             </div>
           </div>
           </div><p class="settings-foot">切换玩法或对手会重置当前棋局。所有原有规则保持不变。</p>
         </section>
-        <button class="setup-launch" id="openSettingsInline" type="button"><span class="setup-launch-icon">⚙</span><span>玩法与对手设置<small>CLASSIC / ADVANCED / AI</small></span><span class="setup-arrow">↗</span></button>
+        <button class="setup-launch" id="openSettingsInline" type="button"><span class="setup-launch-icon">☷</span><span>玩法与对手设置<small>CLASSIC / ADVANCED / AI</small></span><span class="setup-arrow">↗</span></button>
         <button id="guideBtn" class="guide-link" type="button"><span>▧</span> 游戏玩法 & 操作指南 <span class="guide-arrow">↗</span></button>
       </aside>
     </section>
@@ -221,12 +221,14 @@
 <link rel="stylesheet" href="./ui-focus-v6.css?v=20261015">
 <link rel="stylesheet" href="./ui-wall-split-v7.css?v=20261015">
 <link rel="stylesheet" href="./ui-mascot-v8.css?v=20261015">
+<link rel="stylesheet" href="./ui-ai-v9.css?v=20261015">
 <script defer src="./ui-touch-v6.js?v=20261015"></script>
 <script defer src="./board-skin.js?v=ui-v5-20261015"></script>
 <script defer src="./xiaodi-engine.js?v=g4-h13-20261014"></script>
 <script defer src="./game.js?v=s0-s3-rules-20261014"></script>
 <script defer src="./mobile.js?v=ui-playful-v5-20261015"></script>
 <script defer src="./ui-wall-split-v7.js?v=20261015"></script>
+<script defer src="./ui-ai-presets-v9.js?v=20261015"></script>
 <script defer src="./ui-mascot-v8.js?v=20261015"></script>
 </body>
 </html>
