@@ -119,3 +119,70 @@
   .board-frame{min-height:300px}
   .shell>main{min-height:430px}
 }
+
+/* Phone landscape: 761–950 CSS pixels must not inherit the tall tablet layout. */
+@media(min-width:761px) and (max-width:950px) and (orientation:landscape) and (max-height:480px){
+  html,body{width:100%;height:100%;overflow:hidden}
+  .shell{width:100%;max-width:none;height:100dvh;padding:0 9px;display:flex;flex-direction:column}
+  .topbar{height:45px;min-height:45px;gap:8px}
+  .brand{gap:8px}
+  .brand-sigil{width:33px;height:33px;border-radius:9px;font-size:15px}
+  .brand-sigil i{font-size:6px}
+  .brand-caption b{font-size:10px;letter-spacing:1px}
+  .brand-caption small{display:none}
+  .topbar-center,.connection-tag,.nav-button-label,.intro,.footer,.under-board,.board-footer,.arena-rail,.board-corner{display:none}
+  .icon-btn{min-width:35px;width:35px;height:33px;padding:0;border-radius:9px}
+  .shell>main{flex:1;display:flex;flex-direction:column;min-height:0}
+  .game-layout{flex:1;display:grid;min-height:0;grid-template-columns:minmax(0,1fr) 244px;gap:9px;align-items:stretch}
+  .play-section{min-height:0;display:flex;flex-direction:column;overflow:hidden}
+  .mobile-status{display:block;flex:0 0 39px;min-height:0;border-bottom:1px solid #d9d8ca;padding:3px 4px}
+  .mobile-status-top{display:flex;gap:8px;align-items:center}
+  .mobile-status-top strong{color:#285b4a;font-size:12px}
+  .mobile-status-top span{color:#829384;font-size:9px}
+  .mobile-walls{margin-left:auto}
+  .mobile-status p{margin:1px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;color:#778679}
+  .board-head{height:25px;flex:0 0 25px;margin:0}
+  .board-heading{gap:8px}
+  .board-kicker{display:none}
+  .board-heading strong{font-size:14px}
+  .board-index{font-size:9px}
+  .board-version{padding:4px 7px;font-size:9px}
+  .board-frame{flex:1;display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;border-radius:12px;padding:3px}
+  .board-frame::before{inset:4px}
+  .board-wrap{flex:1;width:100%;height:100%;min-width:0;min-height:0;max-width:none;display:flex;align-items:center;justify-content:center;padding:0}
+  .board-wrap canvas{width:auto;height:auto;max-width:100%;max-height:100%;filter:none}
+  .ai-banter{display:none}
+  .sidebar{min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:6px}
+  .sidebar .turn-panel{flex:0 0 auto;padding:8px 10px;border-radius:11px}
+  .turn-panel .panel-overline{font-size:9px}
+  .phase-info{font-size:16px;margin-top:5px}
+  .turn-desc{font-size:9px;line-height:1.25;min-height:0;margin:3px 0 5px}
+  .players{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+  .player-card{min-width:0;padding:5px;border-radius:8px;gap:5px}
+  .player-avatar{width:24px;height:24px;flex:0 0 24px;border-radius:6px;font-size:15px}
+  .player-details b{font-size:10px}
+  .player-details b span,.player-details small,.player-right{display:none}
+  .sidebar .actions{flex:1 1 auto;min-height:0;padding:8px 10px;border-radius:11px;display:flex;flex-direction:column;gap:5px}
+  .actions>.panel-overline{font-size:9px}
+  .action-lead{display:none}
+  .action-tabs{flex:1;min-height:0;gap:5px}
+  .action-tab{min-height:0;padding:7px;gap:2px;border-radius:9px}
+  .action-symbol{width:23px;height:23px;font-size:16px}
+  .action-tab b{font-size:11px}
+  .action-tab small{display:none}
+  .tool-footer{margin-top:2px;padding-top:3px}
+  .small-tool{padding:3px}
+  .small-tool span{font-size:9px}
+  .wall-tools{margin-top:2px;padding-top:4px}
+  .wall-tools-caption{font-size:10px}
+  .wall-tools-caption span,.wall-hint{display:none}
+  .orientation-control{margin-top:2px}
+  .orientation-btn{padding:4px;font-size:9px}
+  .sidebar>.setup-launch,.sidebar>.guide-link{display:none}
+  .sidebar .settings-panel{position:fixed;z-index:100;right:0;top:0;bottom:0;width:min(440px,100vw);max-height:100dvh;overflow-y:auto}
+  .map-editor{position:fixed;z-index:65;left:10px;right:255px;top:45px;bottom:8px;overflow-y:auto;margin:0;padding:7px}
+  .modal-dialog{max-height:90dvh;padding:15px 20px}
+  .modal-dialog h2{font-size:25px}
+  .rules-grid{gap:8px;margin:10px 0}
+  .rules-grid article{padding-top:5px}
+}
