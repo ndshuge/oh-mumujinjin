@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f4f0e7">
+  <meta name="theme-color" content="#f6faf5">
   <meta name="description" content="哦，木木金金棋——从一张手绘地图诞生的双人路线争夺策略棋。走棋、筑墙、传送、滑冰与加速，先抵达对方营地者获胜。">
   <title>哦，木木金金棋 · 步步为营</title>
   <link rel="stylesheet" href="./style.css?v=ui-studio-v4-20261014">
   <link rel="stylesheet" href="./mobile.css?v=ui-playful-v5-20261015">
+  <link rel="icon" type="image/svg+xml" href="./brand-mark-v8.svg">
 </head>
 <body>
 <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
@@ -15,7 +16,7 @@
 <div class="shell">
   <header class="topbar">
     <a class="brand" href="./" aria-label="哦，木木金金棋首页">
-      <span class="brand-sigil" aria-hidden="true"><span>木</span><i>✣</i><span>金</span></span>
+      <span class="brand-sigil brand-sigil-v8" aria-hidden="true"><svg class="brand-mark" viewBox="0 0 76 76" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="72" height="72" rx="23" fill="#E6F5E9"/><circle cx="30" cy="30" r="17" fill="#6CBE8A"/><circle cx="48" cy="47" r="17" fill="#F5C46F"/><path d="M25 23h10M30 19v19M26 30l4 4 5-6" stroke="#FFFDF5" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M41 41l8-5 8 6M49 36v16M42 48h15" stroke="#865923" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M55 17l2.2 6 6 2-6 2-2.2 6-2.1-6-5.8-2 5.8-2z" fill="#EEC66B"/></svg></span>
       <span class="brand-caption"><b>MUMU · JINJIN</b><small>原创策略棋 / BOARD GAME</small></span>
     </a>
     <div class="topbar-center"><span class="topbar-rule"></span><span>THE ART OF EVERY MOVE</span><span class="topbar-rule"></span></div>
@@ -59,9 +60,29 @@
           <div class="board-heading"><span class="board-kicker">01 / THE ARENA</span><strong>棋局</strong><span class="board-index">09 × 13</span></div>
           <div class="board-version"><span class="tiny-dot"></span><span id="boardVersion">经典战场</span></div>
         </div>
-          <div class="mascot-guide" aria-label="木木，棋局向导">
-            <div class="mascot-face" aria-hidden="true"><span class="mascot-sprout">✦</span><span class="mascot-eye eye-left"></span><span class="mascot-eye eye-right"></span><span class="mascot-smile"></span><span class="mascot-cheek cheek-left"></span><span class="mascot-cheek cheek-right"></span></div>
-            <div class="mascot-speech"><strong>木木 · 棋局向导</strong><p id="mascotMessage">轮到你啦！试试移动或筑墙。</p></div>
+          <div class="mascot-guide mascot-v8" aria-label="木木，棋局向导">
+            <button class="mascot-face mascot-avatar" id="mascotTap" type="button" aria-label="和木木互动，查看详细对话" aria-expanded="false" aria-controls="mascotExpanded" data-emotion="calm">
+              <svg class="mumu-character" viewBox="0 0 120 124" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs><linearGradient id="mumuBody" x1="0" y1="0" x2=".95" y2="1"><stop offset="0" stop-color="#B9EDC9"/><stop offset=".58" stop-color="#88D5AA"/><stop offset="1" stop-color="#57B990"/></linearGradient><linearGradient id="mumuBelly" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#F5FFF0"/><stop offset="1" stop-color="#E0F8DB"/></linearGradient></defs>
+              <ellipse class="mumu-ground" cx="61" cy="113" rx="38" ry="7" fill="#38885D" opacity=".16"/>
+              <g class="mumu-creature"><g class="mumu-sprout"><path d="M58 20Q51 4 36 8Q38 23 58 25Z" fill="#55B47B"/><path d="M63 21Q65 7 80 5Q82 21 62 27Z" fill="#75CC88"/><path d="M58 29Q60 23 63 18" fill="none" stroke="#428E65" stroke-width="3.5" stroke-linecap="round"/></g>
+              <path class="mumu-body" d="M22 57C22 32 39 25 59 27C82 19 101 40 102 65C105 92 89 107 62 109C38 112 18 99 19 77Q19 66 22 57Z" fill="url(#mumuBody)" stroke="#438C6A" stroke-opacity=".15" stroke-width="1.5"/>
+              <path d="M38 39Q47 32 61 34" stroke="#E9FFF0" stroke-width="5" opacity=".6" stroke-linecap="round" fill="none"/>
+              <ellipse cx="62" cy="90" rx="26" ry="13" fill="url(#mumuBelly)" opacity=".6"/>
+              <g class="mumu-arms"><path d="M21 68Q10 66 13 83Q15 92 25 89" stroke="#6FBF93" stroke-width="12" stroke-linecap="round" fill="none"/><path d="M100 68Q111 63 111 78Q109 86 99 85" stroke="#6FBF93" stroke-width="12" stroke-linecap="round" fill="none"/></g>
+              <g class="mumu-brows"><path class="mumu-brow mumu-brow-left" d="M37 54Q43 50 49 53" fill="none" stroke="#316B55" stroke-width="3" stroke-linecap="round"/><path class="mumu-brow mumu-brow-right" d="M73 53Q79 50 85 54" fill="none" stroke="#316B55" stroke-width="3" stroke-linecap="round"/></g>
+              <g class="mumu-eyes"><ellipse class="mumu-eye left" cx="44" cy="65" rx="5.7" ry="7.5" fill="#275748"/><ellipse class="mumu-eye right" cx="79" cy="65" rx="5.7" ry="7.5" fill="#275748"/><circle class="mumu-glint" cx="42.5" cy="62.5" r="1.7" fill="#FFFDF5"/><circle class="mumu-glint" cx="77.5" cy="62.5" r="1.7" fill="#FFFDF5"/></g>
+              <ellipse cx="30" cy="79" rx="9" ry="5" fill="#F5A4A4" opacity=".57"/><ellipse cx="92" cy="79" rx="9" ry="5" fill="#F5A4A4" opacity=".57"/>
+              <path class="mumu-mouth mumu-mouth-smile" d="M52 81Q61 91 71 81" fill="none" stroke="#286F55" stroke-width="4.3" stroke-linecap="round"/>
+              <path class="mumu-mouth mumu-mouth-o" d="M61 80C69 80 69 91 61 91C53 91 53 80 61 80Z" fill="#386D58"/>
+              <path class="mumu-mouth mumu-mouth-sad" d="M53 87Q61 78 70 87" fill="none" stroke="#286F55" stroke-width="4" stroke-linecap="round"/>
+              <path class="mumu-mouth mumu-mouth-smug" d="M54 84Q66 90 73 79" fill="none" stroke="#286F55" stroke-width="4" stroke-linecap="round"/>
+              <ellipse class="mumu-sweat" cx="96" cy="47" rx="4" ry="7.5" transform="rotate(-24 96 47)" fill="#63B8E3"/>
+              <path class="mumu-spark" d="M102 15l2.3 6.7 6.6 2.4-6.6 2.1-2.3 6.9-2.5-6.9-6.3-2.1 6.3-2.4Z" fill="#F2C569"/>
+              </g></svg>
+            </button>
+            <div class="mascot-speech"><div class="mascot-speech-top"><strong id="mascotRole">木木 · 棋局向导</strong><span id="mascotEmotion" class="mascot-emotion">准备好了</span></div><p id="mascotMessage">轮到你啦！试试移动或筑墙。</p></div>
+            <div id="mascotExpanded" class="mascot-expanded" hidden><div class="mascot-expanded-title">木木的小心思 <button id="mascotDismiss" type="button" aria-label="收起角色对话">×</button></div><p id="mascotDetail">和木木下一局，它会告诉你它在想什么。</p></div>
           </div>
           <div id="aiBanter" class="ai-banter" hidden aria-live="polite">
             <div class="ai-banter-head"><span>木 · 电脑对手</span><button id="aiQuiet" type="button" aria-label="切换对话声音">静音</button></div>
@@ -129,13 +150,13 @@
         </section>
 
         <section class="side-panel settings-panel" id="mobileSettingsPanel" aria-label="游戏设置">
-          <div class="settings-heading"><div><small>CONFIGURATION</small><h2>对局设置<span>。</span></h2></div><button id="settingsCloseBtn" class="settings-close" type="button" aria-label="关闭设置">×</button></div>
-          <div class="panel-overline">游戏模式 <span>GAME MODE</span></div>
+          <div class="settings-heading"><div><small>YOUR GAME · PLAY YOUR WAY</small><h2>对局设置<span>。</span></h2><p class="settings-lead">玩法、对手，都由你决定。</p></div><button id="settingsCloseBtn" class="settings-close" type="button" aria-label="关闭设置">×</button></div><nav class="settings-jump" aria-label="快速查看设置"><a href="#settingsGameGroup">棋局玩法</a><a href="#settingsOpponentGroup">对弈伙伴</a><button id="settingsHelp" type="button">玩法说明 ↗</button></nav>
+          <div class="settings-choice-group" id="settingsGameGroup"><div class="settings-group-intro"><span class="settings-index">01</span><div><h3>棋局玩法</h3><p>从经典棋局开始，或试试进阶地图。</p></div></div><div class="panel-overline">游戏模式 <span>GAME MODE</span></div>
           <div class="mode-options"><button class="mode-button selected" id="modeClassic" type="button"><span class="mode-marker">01</span><span class="mode-label"><b>经典策略</b><small>筑墙 · 障碍 · 传送</small></span><span class="mode-check">✓</span></button>
           <button class="mode-button" id="modeAdvanced" type="button"><span class="mode-marker">02</span><span class="mode-label"><b>跑道挑战 · 测试版</b><small>冰面惯性与加速带</small></span><span class="mode-check">✓</span></button></div>
           <button id="mapEditorButton" class="mode-button workshop-entry" type="button">▧ 地图工坊 · 编辑障碍物 ↗</button>
           <div class="map-active">当前地图：<span id="mapNameActive">经典地图</span></div>
-          <div class="settings-divider"></div>
+          </div><div class="settings-divider"></div><div class="settings-choice-group" id="settingsOpponentGroup"><div class="settings-group-intro"><span class="settings-index">02</span><div><h3>选择对手</h3><p>和朋友面对面，或者挑战木木。</p></div></div>
           <div class="panel-overline">选择对手 <span>OPPONENT</span></div>
           <div class="mode-options match-options">
             <button class="mode-button selected" id="playLocal" type="button"><span class="mode-marker">2P</span><span class="mode-label"><b>本地双人</b><small>两个人轮流操作</small></span><span class="mode-check">✓</span></button>
@@ -149,7 +170,7 @@
               <button class="ai-level" id="ai-hard" type="button">挑战</button><button class="ai-level hell-level" id="ai-hell" type="button">地狱</button><button class="ai-level hell-level" id="ai-xiaodi" type="button" title="G4-h13 冻结冠军 · 本地运行">小迪</button>
             </div>
           </div>
-          <p class="settings-foot">经典模式适合正式对局。跑道挑战仍在测试；切换玩法或对手会重置当前对局。</p>
+          </div><p class="settings-foot">切换玩法或对手会重置当前棋局。所有原有规则保持不变。</p>
         </section>
         <button class="setup-launch" id="openSettingsInline" type="button"><span class="setup-launch-icon">⚙</span><span>玩法与对手设置<small>CLASSIC / ADVANCED / AI</small></span><span class="setup-arrow">↗</span></button>
         <button id="guideBtn" class="guide-link" type="button"><span>▧</span> 游戏玩法 & 操作指南 <span class="guide-arrow">↗</span></button>
@@ -163,7 +184,7 @@
 <div class="modal-cover" id="guideModal" hidden>
   <div class="modal-dialog guide-dialog" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
     <button class="modal-close" data-close="guideModal" type="button" aria-label="关闭">×</button>
-    <span class="modal-kicker">HOW TO PLAY</span><h2 id="guideTitle">步步为营<span>。</span></h2>
+    <span class="modal-kicker">THE PLAYBOOK · 游戏指南</span><h2 id="guideTitle">一步一步，<span>玩出好棋。</span></h2><div class="guide-hero"><span class="guide-hero-icon">✳</span><div><b>先抵达对方营地，就算获胜！</b><p>走棋、筑墙、传送，发现自己的路线。</p></div></div>
     <p class="modal-lead">这不是比谁走得快的游戏，而是比谁更会规划下一步。</p>
     <div class="rules-grid">
       <article><span class="rule-num">01</span><h3>选择营地</h3><p>金方先选右下角 3 个出生格之一，再由木方选择左上角 3 个出生格之一。金方先手。</p></article>
@@ -199,11 +220,13 @@
 </div>
 <link rel="stylesheet" href="./ui-focus-v6.css?v=20261015">
 <link rel="stylesheet" href="./ui-wall-split-v7.css?v=20261015">
+<link rel="stylesheet" href="./ui-mascot-v8.css?v=20261015">
 <script defer src="./ui-touch-v6.js?v=20261015"></script>
 <script defer src="./board-skin.js?v=ui-v5-20261015"></script>
 <script defer src="./xiaodi-engine.js?v=g4-h13-20261014"></script>
 <script defer src="./game.js?v=s0-s3-rules-20261014"></script>
 <script defer src="./mobile.js?v=ui-playful-v5-20261015"></script>
 <script defer src="./ui-wall-split-v7.js?v=20261015"></script>
+<script defer src="./ui-mascot-v8.js?v=20261015"></script>
 </body>
 </html>
