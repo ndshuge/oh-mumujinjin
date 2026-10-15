@@ -1,0 +1,65 @@
+/* V6 focused board + spring tactile system. Presentation only. */
+:root{--spring-in:cubic-bezier(.2,.74,.28,1);--spring-out:cubic-bezier(.18,1.45,.33,1)}
+.topbar-center,.intro-edition,.footer,.board-footer-center,.under-board,.arena-rail,.board-corner{display:none!important}
+.intro{padding:12px 2px 13px}.intro h1{font-size:clamp(29px,3.1vw,46px);margin:2px 0}.intro .eyebrow,.intro p{display:none}
+.topbar{height:61px}.brand-sigil{width:43px;height:43px;font-size:19px}
+.board-heading .board-kicker,.board-index{display:none}.board-head{height:33px;margin-bottom:5px}
+.game-layout{grid-template-columns:minmax(0,1fr) 308px;gap:16px}.sidebar{gap:10px}
+.sidebar .turn-panel{padding:13px 15px;border-radius:17px}
+.phase-info{font-size:22px;margin-top:5px}.turn-desc{margin:2px 0 7px;min-height:0;font-size:11px}
+.player-card{padding:7px}.player-avatar{height:31px;width:31px;flex-basis:31px;font-size:18px}
+.player-details small,.player-right small{display:none}.player-right .wall-count{font-size:9px}
+.sidebar .actions{padding:13px;border-radius:17px}
+.sidebar .actions>.panel-overline,.sidebar .actions>.action-lead{display:none}
+.action-tab{min-height:94px}.action-symbol{width:29px;height:29px;font-size:17px}
+.action-tab small{display:none}.setup-launch{min-height:47px;padding:8px 11px}.setup-launch-icon{height:31px;width:31px}.setup-launch small{display:none}
+.guide-link{display:none}
+.board-frame{padding:5px 5px 0;border-width:5px}
+.board-wrap{max-width:min(630px,calc((100dvh - 176px)*.73469));padding:0 2px 6px}
+.board-footer{padding:6px 8px;font-size:9px}
+.mascot-guide{min-height:49px;gap:9px;margin:0 0 5px;padding:0}
+.mascot-face{width:43px;height:43px;flex-basis:43px;border-radius:16px;animation:none}
+.mascot-sprout{top:-7px;left:17px;font-size:16px}
+.mascot-eye{top:16px;width:5px;height:7px}.eye-left{left:12px}.eye-right{right:12px}
+.mascot-smile{top:25px;left:16px;width:11px;height:6px;border-bottom-width:3px}
+.mascot-cheek{top:24px;width:7px;height:4px}.cheek-left{left:7px}.cheek-right{right:7px}
+.mascot-speech{padding:7px 12px;border-radius:13px;box-shadow:0 3px 0 #deeadf}
+.mascot-speech strong{font-size:9px}.mascot-speech p{margin:2px 0 0;font-size:11px}
+.ai-banter{padding:7px 10px;gap:5px}
+.wall-tools{margin-top:8px;padding-top:8px}.wall-tools-caption span,.wall-hint{display:none}
+.orientation-btn{min-height:44px;font-weight:800}
+@keyframes mmjj-spring-return{0%{transform:translateY(4px) scale(.957)}35%{transform:translateY(-1.7px) scale(1.018)}60%{transform:translateY(.6px) scale(.996)}83%{transform:translateY(-.3px) scale(1.003)}100%{transform:translateY(0) scale(1)}}
+:is(.action-tab,.orientation-btn,.small-tool,.icon-btn,.mode-button,.ai-level,.primary-btn,.secondary-btn,.setup-launch,.settings-close,.guide-link).mmjj-down{transform:translateY(4px) scale(.957)!important;filter:brightness(.96);transition:transform 165ms var(--spring-in),filter 165ms!important}
+:is(.action-tab,.orientation-btn,.small-tool,.icon-btn,.mode-button,.ai-level,.primary-btn,.secondary-btn,.setup-launch,.settings-close,.guide-link).mmjj-return{animation:mmjj-spring-return 780ms linear both!important}
+.action-tab.mmjj-down{box-shadow:0 1px 0 #3d8750!important}
+.orientation-btn.selected{background:#e1f4e8;color:#25734f;border:2px solid #63ad7f;box-shadow:0 3px 0 #b3d9be}
+@media(max-width:760px){
+ .topbar{height:44px;flex-basis:44px}
+ .brand-sigil{height:31px;width:31px;border-radius:10px;font-size:14px}
+ .brand-caption small,.mobile-status p{display:none}
+ .mobile-status{min-height:31px;padding:4px 4px;flex-basis:31px;border:0}
+ .mobile-status-top strong{font-size:13px}
+ .board-head{height:23px;flex-basis:23px}
+ .board-heading strong{font-size:12px}
+ .mascot-guide{min-height:37px;flex-basis:37px;margin:1px 0 3px}
+ .mascot-face{height:34px;width:34px;flex-basis:34px;border-radius:13px}
+ .mascot-sprout{left:14px;font-size:12px}
+ .mascot-eye{top:12px;width:4px;height:5px}.eye-left{left:9px}.eye-right{right:9px}
+ .mascot-smile{top:19px;left:12px;width:9px;height:5px;border-bottom-width:2px}
+ .mascot-cheek{top:19px}.cheek-left{left:5px}.cheek-right{right:5px}
+ .mascot-speech{padding:5px 9px}.mascot-speech strong{display:none}.mascot-speech p{font-size:11px;margin:0}
+ .board-frame{border-width:3px;padding:2px 0}.board-wrap{max-width:none}
+ .sidebar .actions{padding:6px 10px calc(7px + env(safe-area-inset-bottom,0px))}
+ .sidebar .actions .action-tab{min-height:49px;height:49px}
+ .sidebar .actions .small-tool{height:47px}
+ body{--mobile-dock:calc(69px + env(safe-area-inset-bottom,0px))}
+ body.mobile-wall-open{--mobile-dock:calc(114px + env(safe-area-inset-bottom,0px))}
+ .sidebar .actions .wall-tools{margin:0;padding:0}
+ .sidebar .actions .orientation-btn{min-height:39px}
+}
+@media(min-width:761px) and (max-width:950px) and (orientation:landscape) and (max-height:480px){
+ .intro,.mascot-guide{display:none}.topbar{height:43px}
+ .game-layout{grid-template-columns:minmax(0,1fr) 244px}
+ .board-wrap{max-width:none}.sidebar .actions .action-tab{min-height:0}
+}
+@media(prefers-reduced-motion:reduce){.mmjj-return{animation:none!important}.mmjj-down{transition:none!important}}
