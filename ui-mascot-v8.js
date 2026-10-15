@@ -80,6 +80,7 @@
     if(detail.textContent!==expandedText)detail.textContent=expandedText;
     guide.classList.toggle("mascot-ai-mode",isAI);
     guide.classList.toggle("mascot-xiaodi",xiaodi);
+    guide.hidden=!isAI;
   };
   function requestUpdate(){
     if(updateQueued)return;

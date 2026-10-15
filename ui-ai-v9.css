@@ -1,4 +1,5 @@
 /* V9: crisp entrances, one-screen settings, XiaoDi photo expressions. */
+.mascot-guide[hidden]{display:none!important}
 .ai-level[hidden]{display:none!important}
 .icon-btn.help-button,.icon-btn.mobile-settings-button{
   border-radius:15px!important;border:1px solid #d4e4d7!important;background:linear-gradient(155deg,#fffefa,#f3faf1)!important;

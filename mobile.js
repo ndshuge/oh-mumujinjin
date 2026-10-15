@@ -74,7 +74,7 @@
   document.addEventListener("keydown", event => {
     if (event.key === "Escape") closeSettings();
   });
-  ["modeClassic","modeAdvanced","playLocal","playAI","ai-easy","ai-normal","ai-hard","ai-hell","ai-xiaodi","mapEditorButton"].forEach(id => {
+  ["mapEditorButton"].forEach(id => {
     el(id).addEventListener("click", closeSettings);
   });
 

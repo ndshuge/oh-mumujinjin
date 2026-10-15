@@ -145,7 +145,7 @@
   var boost = function(p){return state.variant==="advanced" && has(BOOST,p);};
   var portal = function(p){return PORTALS.find(function(g){return same(g.a,p)||same(g.b,p);}) || null;};
   function newGame(variant){
-    return {variant:variant||"classic",playMode:"local",aiLevel:"normal",phase:"pick-attack",players:[null,null],turn:0,
+    return {variant:variant||"classic",playMode:"cpu",aiLevel:"xiaodi",phase:"pick-attack",players:[null,null],turn:0,
       walls:[],left:[5,5],moves:0,history:[],action:"move",orientation:"h",
       hover:null,slideDir:[null,null],pending:null,winner:null,repetitions:{},notice:""};
   }
@@ -878,7 +878,7 @@
   state.hover=null;state.notice=state.notice||"";
   try{aiDialogueDisabled=localStorage.getItem("mumujinjin-ai-quiet")==="1";}catch(e){}
   state.playMode=state.playMode==="cpu"?"cpu":"local";
-  state.aiLevel=["easy","normal","hard","hell","xiaodi"].indexOf(state.aiLevel)>=0?state.aiLevel:"normal";
+  state.aiLevel=["easy","normal","hard","hell","xiaodi"].indexOf(state.aiLevel)>=0?state.aiLevel:"xiaodi";
   bindEvents();drawUI();drawBoard();
   if(state.playMode==="cpu"&&state.phase==="play")showAIQuote("opening",true);
   if(state.phase==="finished"&&state.winner!==null){
