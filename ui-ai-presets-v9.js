@@ -34,11 +34,12 @@
   // Older game versions default to 'normal'. Keep engine node/handlers for compatibility,
   // but select the retained hell algorithm ('小白') when starting a fresh AI game.
   $("playAI")?.addEventListener("click",()=>{
-    if($("playAI")?.classList.contains("selected")&&!$("ai-hell")?.classList.contains("selected")&&!$("ai-xiaodi")?.classList.contains("selected"))$("ai-hell")?.click();
+    if($("playAI")?.classList.contains("selected")&&!$("ai-hell")?.classList.contains("selected")&&!$("ai-xiaodi")?.classList.contains("selected")&&!$("ai-zhongdi")?.classList.contains("selected"))$("ai-hell")?.click();
   });
   $("ai-xiaodi")?.addEventListener("click",()=>{
     if(isXiaodi()){current="哦哦哦";counter=1;const e=$("aiBanterText");if(e)e.textContent=current}
   });
+  $("ai-zhongdi")?.addEventListener("click",()=>{if(isXiaodi()){current=quotes[0];counter=1;const text=$("aiBanterText");if(text)text.textContent=current;}});
   const banter=$("aiBanterText");
   if(banter && isXiaodi() && !quotes.includes(banter.textContent?.trim()))banter.textContent=current;
   if(banter){

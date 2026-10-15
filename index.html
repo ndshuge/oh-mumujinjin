@@ -57,7 +57,7 @@
           <p id="mobileMessage">点击金色营地格子开始对弈</p>
         </div>
         <div class="board-head">
-          <div class="board-heading"><span class="board-kicker">01 / THE ARENA</span><strong>棋局</strong><span class="board-index">09 × 13</span></div>
+          <div class="board-heading"><span class="board-kicker">01 / THE ARENA</span><strong>棋局</strong><span class="ai-opponent-label" id="aiOpponentNameBadge">中迪</span><span class="board-index">09 × 13</span></div>
           <div class="board-version"><span class="tiny-dot"></span><span id="boardVersion">经典战场</span></div>
         </div>
           <div class="mascot-guide mascot-v8" aria-label="木木，棋局向导">
@@ -85,7 +85,7 @@
             <div id="mascotExpanded" class="mascot-expanded" hidden><div class="mascot-expanded-title">木木的小心思 <button id="mascotDismiss" type="button" aria-label="收起角色对话">×</button></div><p id="mascotDetail">和木木下一局，它会告诉你它在想什么。</p></div>
           </div>
           <div id="aiBanter" class="ai-banter" hidden aria-live="polite">
-            <div class="ai-banter-head"><span>木 · 电脑对手</span><button id="aiQuiet" type="button" aria-label="切换对话声音">静音</button></div>
+            <div class="ai-banter-head"><span id="aiOpponentChatName">中迪 · 电脑对手</span><button id="aiQuiet" type="button" aria-label="切换对话声音">静音</button></div>
             <p id="aiBanterText">准备好迎战了吗？</p>
             <div id="aiReplies" class="ai-replies" hidden>
               <button type="button" data-reply="来吧，见招拆招。">来吧</button>
@@ -159,15 +159,15 @@
           </div><div class="settings-divider"></div><div class="settings-choice-group" id="settingsOpponentGroup"><div class="settings-group-intro"><span class="settings-index">02</span><div><h3>选择对手</h3><p>和朋友面对面，或者挑战木木。</p></div></div>
           <div class="panel-overline">选择对手 <span>OPPONENT</span></div>
           <div class="mode-options match-options">
-            <button class="mode-button selected" id="playLocal" type="button"><span class="mode-marker">2P</span><span class="mode-label"><b>本地双人</b><small>两个人轮流操作</small></span><span class="mode-check">✓</span></button>
-            <button class="mode-button" id="playAI" type="button"><span class="mode-marker">AI</span><span class="mode-label"><b>人机对战</b><small>金方玩家 vs 木方电脑</small></span><span class="mode-check">✓</span></button>
+            <button class="mode-button" id="playLocal" type="button"><span class="mode-marker">2P</span><span class="mode-label"><b>本地双人</b><small>两个人轮流操作</small></span><span class="mode-check">✓</span></button>
+            <button class="mode-button selected" id="playAI" type="button"><span class="mode-marker">AI</span><span class="mode-label"><b>人机对战</b><small>金方玩家 vs 木方电脑</small></span><span class="mode-check">✓</span></button>
           </div>
-          <div id="aiDifficulty" class="ai-difficulty" hidden>
+          <div id="aiDifficulty" class="ai-difficulty">
             <div class="difficulty-label">电脑难度 <span>无需联网，手机本地计算</span></div>
             <div class="ai-levels" role="group" aria-label="人机难度">
               <button class="ai-level" id="ai-easy" type="button" hidden aria-hidden="true" tabindex="-1">入门</button>
               <button class="ai-level" id="ai-normal" type="button" hidden aria-hidden="true" tabindex="-1">策略</button>
-              <button class="ai-level" id="ai-hard" type="button" hidden aria-hidden="true" tabindex="-1">挑战</button><button class="ai-level hell-level" id="ai-hell" type="button">小白</button><button class="ai-level hell-level" id="ai-xiaodi" type="button" title="G4-h13 冻结冠军 · 本地运行">小迪</button>
+              <button class="ai-level" id="ai-hard" type="button" hidden aria-hidden="true" tabindex="-1">挑战</button><button class="ai-level hell-level" id="ai-hell" type="button">小白</button><button class="ai-level hell-level" id="ai-xiaodi" type="button" title="G4-h13 冻结冠军 · 本地运行">小迪</button><button class="ai-level hell-level selected" id="ai-zhongdi" type="button" title="G5 phase-defense · 训练谱系挑战者，离线运行">中迪</button>
             </div>
           </div>
           </div><p class="settings-foot">切换玩法或对手会重置当前棋局。所有原有规则保持不变。</p>
@@ -222,13 +222,15 @@
 <link rel="stylesheet" href="./ui-wall-split-v7.css?v=20261015">
 <link rel="stylesheet" href="./ui-mascot-v8.css?v=20261015">
 <link rel="stylesheet" href="./ui-ai-v9.css?v=mode-visibility-v10-20261015">
+<link rel="stylesheet" href="./zhongdi-ui.css?v=20261015">
 <script defer src="./ui-touch-v6.js?v=20261015"></script>
 <script defer src="./board-skin.js?v=ui-v5-20261015"></script>
 <script defer src="./xiaodi-engine.js?v=g4-h13-20261014"></script>
-<script defer src="./game.js?v=ui-default-cpu-v10-20261015"></script>
-<script defer src="./mobile.js?v=ui-mode-flow-v10-20261015"></script>
+<script defer src="./zhongdi-engine.js?v=g5-phase-defense-20261015"></script>
+<script defer src="./game.js?v=zhongdi-default-20261015"></script>
+<script defer src="./mobile.js?v=zhongdi-20261015"></script>
 <script defer src="./ui-wall-split-v7.js?v=20261015"></script>
-<script defer src="./ui-ai-presets-v9.js?v=20261015-fix2"></script>
-<script defer src="./ui-mascot-v8.js?v=ui-mode-visibility-v10-20261015"></script>
+<script defer src="./ui-ai-presets-v9.js?v=zhongdi-20261015"></script>
+<script defer src="./ui-mascot-v8.js?v=zhongdi-20261015"></script>
 </body>
 </html>

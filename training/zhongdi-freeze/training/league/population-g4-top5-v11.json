@@ -1,0 +1,91 @@
+{
+  "schema": "g4-top5-development-v1",
+  "generation": 0,
+  "created": "2026-10-14",
+  "agentCount": 5,
+  "experimentOnly": true,
+  "agents": [
+    {
+      "id": "g4-h05",
+      "description": "杂交 v2 搜索 0.25 + n64",
+      "family": "hybrid",
+      "engine": "v2",
+      "depth": 2,
+      "searchShare": 0.25,
+      "sims": 12,
+      "c": 1.25,
+      "priorMix": 0.5,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h09",
+      "description": "杂交 v3 搜索 0.25 + n64",
+      "family": "hybrid",
+      "engine": "v3",
+      "depth": 2,
+      "searchShare": 0.25,
+      "sims": 12,
+      "c": 1.25,
+      "priorMix": 0.5,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-p10",
+      "description": "纯 PUCT 12 模拟 / 探索 0.8",
+      "family": "puct",
+      "sims": 12,
+      "c": 0.8,
+      "priorMix": 0,
+      "valueMix": 0,
+      "models": []
+    },
+    {
+      "id": "g4-h13",
+      "description": "杂交 v1.1 搜索 0.25 + n64",
+      "family": "hybrid",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.25,
+      "sims": 12,
+      "c": 1.25,
+      "priorMix": 0.5,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "g4-h01",
+      "description": "杂交 v1.1 搜索 0.25 + n64",
+      "family": "hybrid",
+      "engine": "v1.1",
+      "depth": 2,
+      "searchShare": 0.25,
+      "sims": 12,
+      "c": 1.25,
+      "priorMix": 0.5,
+      "valueMix": 0.06,
+      "models": [
+        {
+          "name": "n64",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

@@ -39,6 +39,7 @@
     $("aiBanterText").textContent=list[aiBanterTurns++%list.length];
     box.hidden=false;$("aiReplies").hidden=true;
   }
+  function aiOpponentName(){return state.aiLevel==="zhongdi"?"中迪":state.aiLevel==="xiaodi"?"小迪":state.aiLevel==="hell"?"小白":state.aiLevel==="normal"?"中级":"AI";}
   function refreshAIBanter(){
     var box=$("aiBanter");if(!box)return;
     box.hidden=state.playMode!=="cpu"||editing||aiDialogueDisabled;
@@ -145,7 +146,7 @@
   var boost = function(p){return state.variant==="advanced" && has(BOOST,p);};
   var portal = function(p){return PORTALS.find(function(g){return same(g.a,p)||same(g.b,p);}) || null;};
   function newGame(variant){
-    return {variant:variant||"classic",playMode:"cpu",aiLevel:"xiaodi",phase:"pick-attack",players:[null,null],turn:0,
+    return {variant:variant||"classic",playMode:"cpu",aiLevel:"zhongdi",phase:"pick-attack",players:[null,null],turn:0,
       walls:[],left:[5,5],moves:0,history:[],action:"move",orientation:"h",
       hover:null,slideDir:[null,null],pending:null,winner:null,repetitions:{},notice:""};
   }
@@ -553,10 +554,16 @@
     var engine={terrain:{CAMPS:CAMPS,PORTALS:PORTALS,ICE:ICE,BOOST:BOOST},setRocks:function(){},movementOptions:movementOptions,computerDistance:computerDistance,hellWallAllowed:hellWallAllowed,hellApply:hellApply,hellEvaluate:hellEvaluate,hellCandidates:hellCandidates,portal:portal};
     return window.MumuXiaodi.choose(engine,snapshot,1,{rocks:ROCKS},260);
   }
+  function zhongdiChooseAction(){
+    if(!window.MumuZhongdi)throw Error("中迪引擎未加载，不会自动降级");
+    var snapshot={players:state.players.map(function(p){return{x:p.x,y:p.y};}),dirs:state.slideDir.map(function(d){return d?{x:d.x,y:d.y}:null;}),walls:state.walls.map(function(w){return{x:w.x,y:w.y,o:w.o};}),left:state.left.slice()};
+    var engine={terrain:{CAMPS:CAMPS,PORTALS:PORTALS,ICE:ICE,BOOST:BOOST},setRocks:function(){},movementOptions:movementOptions,computerDistance:computerDistance,hellWallAllowed:hellWallAllowed,hellApply:hellApply,hellEvaluate:hellEvaluate,hellCandidates:hellCandidates,portal:portal};
+    return window.MumuZhongdi.choose(engine,snapshot,1,{rocks:ROCKS});
+  }
   function computerTakeTurn(){
     if(state.playMode!=="cpu"||state.phase!=="play"||state.turn!==1||state.pending)return;
-    var level=state.aiLevel||"normal";
-    var tactical=level==="xiaodi"?xiaodiChooseAction():level==="hell"?hellChooseAction():null;
+    var level=state.aiLevel||"zhongdi";
+    var tactical=level==="zhongdi"?zhongdiChooseAction():level==="xiaodi"?xiaodiChooseAction():level==="hell"?hellChooseAction():null;
     var wall=tactical?tactical.wall:computerWallChoice(level);
     if(wall){placeWall(wall);return;}
     var move=tactical?tactical.move:computerMoveChoice(level);
@@ -593,7 +600,9 @@
   function setAILevel(level){
     if(state.playMode==="cpu"&&state.aiLevel===level)return;
     if(state.moves>0&&!window.confirm("切换人机难度会重置当前对局。确定继续？"))return;
-    state.playMode="cpu";state.aiLevel=level;resetGame(state.variant);
+    state.playMode="cpu";state.aiLevel=level;
+    try{localStorage.setItem("mumujinjin-ai-choice-explicit-v1",level);}catch(e){}
+    resetGame(state.variant);
   }
   function setAction(a){
     if(editing||state.phase!=="play"||(state.playMode==="cpu"&&state.turn===1))return;
@@ -648,11 +657,15 @@
     $("modeClassic").classList.toggle("selected",state.variant==="classic");
     $("modeAdvanced").classList.toggle("selected",state.variant==="advanced");
     $("boardVersion").textContent=state.variant==="classic"?"经典战场":"跑道挑战";
+    $("aiOpponentNameBadge").hidden=state.playMode!=="cpu";
+    $("aiOpponentNameBadge").textContent=aiOpponentName();
+    $("aiOpponentChatName").textContent=aiOpponentName()+" · 电脑对手";
     if(state.playMode==="cpu")$("player1Label").textContent=state.phase==="play"&&state.turn===1?"电脑思考中":"电脑执木方";
+    if(state.playMode==="cpu")$("player1Label").textContent=aiOpponentName()+(state.phase==="play"&&state.turn===1?"思考中":"执木方");
     $("playLocal").classList.toggle("selected",state.playMode!=="cpu");
     $("playAI").classList.toggle("selected",state.playMode==="cpu");
     $("aiDifficulty").hidden=state.playMode!=="cpu";
-    ["easy","normal","hard","hell","xiaodi"].forEach(function(level){
+    ["easy","normal","hard","hell","xiaodi","zhongdi"].forEach(function(level){
       $("ai-"+level).classList.toggle("selected",state.aiLevel===level);
       if(typeof $("ai-"+level).setAttribute==="function")$("ai-"+level).setAttribute("aria-pressed",state.aiLevel===level?"true":"false");
     });
@@ -837,7 +850,7 @@
         $("aiReplies").hidden=true;
       });
     });
-    ["easy","normal","hard","hell","xiaodi"].forEach(function(level){
+    ["easy","normal","hard","hell","xiaodi","zhongdi"].forEach(function(level){
       $("ai-"+level).addEventListener("click",function(){setAILevel(level);});
     });
     $("undoBtn").addEventListener("click",undo);
@@ -874,11 +887,12 @@
     });
   }
   state=load()||newGame("classic");
+  try{if(state.aiLevel==="xiaodi"&&!localStorage.getItem("mumujinjin-ai-choice-explicit-v1"))state.aiLevel="zhongdi";}catch(e){}
   initMap();refreshMapSelect();
   state.hover=null;state.notice=state.notice||"";
   try{aiDialogueDisabled=localStorage.getItem("mumujinjin-ai-quiet")==="1";}catch(e){}
   state.playMode=state.playMode==="cpu"?"cpu":"local";
-  state.aiLevel=["easy","normal","hard","hell","xiaodi"].indexOf(state.aiLevel)>=0?state.aiLevel:"xiaodi";
+  state.aiLevel=["easy","normal","hard","hell","xiaodi","zhongdi"].indexOf(state.aiLevel)>=0?state.aiLevel:"zhongdi";
   bindEvents();drawUI();drawBoard();
   if(state.playMode==="cpu"&&state.phase==="play")showAIQuote("opening",true);
   if(state.phase==="finished"&&state.winner!==null){

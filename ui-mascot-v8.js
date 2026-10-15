@@ -86,7 +86,7 @@
     if(updateQueued)return;
     updateQueued=true;requestAnimationFrame(update);
   }
-  const sourceIds=["phaseInfo","wallSlot","aiBanterText","aiBanter","winModal","winTitle","playAI","playLocal","ai-xiaodi","ai-hell","mascotMessage"];
+  const sourceIds=["phaseInfo","wallSlot","aiBanterText","aiBanter","winModal","winTitle","playAI","playLocal","ai-xiaodi","ai-zhongdi","ai-hell","mascotMessage"];
   const watch=new MutationObserver(records=>{
     for(const record of records){
       if(record.target===byId("aiBanterText")){
