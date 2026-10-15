@@ -1,0 +1,34 @@
+{
+  "schema": "mmjj-experimental-strong-baseline-v1",
+  "id": "zhongdi-g5-phase-defense",
+  "name": "中迪",
+  "status": "EXPERIMENTAL_STRONG_BASELINE",
+  "algorithm": "G5 phase-defense with frozen G4-h13 hybrid and N64 weights",
+  "strategySHA256": "1f76b549ee790ae1d5fc6d138971c3eae6122031ee21870b32b87e7f4747656f",
+  "arena": {
+    "testClass": "open-training-development",
+    "maps": 10,
+    "mirroredSeats": true,
+    "searchMaxNodes": 100,
+    "dataFile": "training/output/lab/g6/G5_MUTANTS_zhongdi20.json",
+    "opponents": {
+      "g4-h13": {
+        "wins": 16,
+        "losses": 4
+      },
+      "g4-h05": {
+        "wins": 16,
+        "losses": 4
+      },
+      "g4-h09": {
+        "wins": 16,
+        "losses": 4
+      }
+    }
+  },
+  "browserBuild": "training/build-zhongdi-browser-20261015.cjs",
+  "browserBundle": "zhongdi-engine.js",
+  "frozenSources": "training/zhongdi-freeze/",
+  "notChampion": true,
+  "humanOrSealedCertified": false
+}
