@@ -12,7 +12,7 @@
   const isXiaodi=()=>!!($("playAI")?.classList.contains("selected")&&selectedDidi());
   const displayName=()=>({xiaodi:"小迪",zhongdi:"中迪",dadi:"大迪"})[selectedDidi()]||"小迪";
   const isXiaobai=()=>$("playAI")?.classList.contains("selected")&&$("ai-hell")?.classList.contains("selected");
-  let current=quotes[0],counter=0;
+  let current=quotes[0],counter=1;
   const setLine=q=>{
     if(!quotes.includes(q))return;
     current=q;
@@ -23,7 +23,7 @@
     // Keep replies strictly from the eight supplied phrases; map genuine game events only.
     if(/你赢了|这一局你赢/.test(source))return "输了要艾草哦";
     if(/将军|下次再来挑战/.test(source))return "基本";
-    if(/墙|近路/.test(source))return "布什";
+    if(/墙|近路/.test(source))return quotes[(counter++)%quotes.length];
     if(/危险|认真/.test(source))return "柠檬";
     const q=quotes[counter%quotes.length];counter++;return q;
   };
@@ -37,7 +37,7 @@
     if($("playAI")?.classList.contains("selected")&&!$("ai-hell")?.classList.contains("selected")&&!$("ai-xiaodi")?.classList.contains("selected"))$("ai-hell")?.click();
   });
   $("ai-xiaodi")?.addEventListener("click",()=>{
-    if(isXiaodi()){current="哦哦哦";counter=0;const e=$("aiBanterText");if(e)e.textContent=current}
+    if(isXiaodi()){current="哦哦哦";counter=1;const e=$("aiBanterText");if(e)e.textContent=current}
   });
   const banter=$("aiBanterText");
   if(banter && isXiaodi() && !quotes.includes(banter.textContent?.trim()))banter.textContent=current;
@@ -55,6 +55,18 @@
     observer.observe(banter,{subtree:true,childList:true,characterData:true});
   }
   // The old difficulties must stay in DOM for the unchanged game's click listeners.
+  const phaseNode=$("phaseInfo");
+  if(phaseNode){
+    let previous=phaseNode.textContent||"";
+    new MutationObserver(()=>{
+      const value=phaseNode.textContent||"";
+      if(value===previous)return;
+      const wasAI=/木方|电脑/.test(previous);
+      const nowHuman=/金方/.test(value);
+      previous=value;
+      if(isXiaodi()&&wasAI&&nowHuman)nextLine();
+    }).observe(phaseNode,{subtree:true,childList:true,characterData:true});
+  }
   ["ai-easy","ai-normal","ai-hard"].forEach(id=>{
     const e=$(id);if(e){e.hidden=true;e.tabIndex=-1;e.setAttribute("aria-hidden","true")}
   });
