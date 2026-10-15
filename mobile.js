@@ -28,6 +28,17 @@
     const count = id => (el(id).textContent.match(/✦/g) || []).length;
     el("mobileWalls").textContent = "金 " + count("walls0") + " · 木 " + count("walls1");
     document.body.classList.toggle("mobile-wall-open", !wallTools.hidden);
+    const mascotMessage = el("mascotMessage");
+    if (mascotMessage) {
+      const phase = statusSource.textContent;
+      let hint = "轮到你啦！试试移动或筑墙。";
+      if (phase.includes("起点") || phase.includes("营地")) hint = "选择营地，准备开启这场冒险！";
+      else if (phase.includes("木方") || phase.includes("电脑")) hint = "木木正在想下一步……";
+      else if (phase.includes("获胜") || phase.includes("胜利")) hint = "太精彩啦！再来一局吧！";
+      else if (!wallTools.hidden) hint = "来筑一道墙，换条新路线！";
+      else if (phase.includes("回合")) hint = "轮到你啦！寻找前进的道路。";
+      if (mascotMessage.textContent !== hint) mascotMessage.textContent = hint;
+    }
   };
 
   const observeText = id => {

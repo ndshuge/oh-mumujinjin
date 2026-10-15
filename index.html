@@ -7,7 +7,7 @@
   <meta name="description" content="哦，木木金金棋——从一张手绘地图诞生的双人路线争夺策略棋。走棋、筑墙、传送、滑冰与加速，先抵达对方营地者获胜。">
   <title>哦，木木金金棋 · 步步为营</title>
   <link rel="stylesheet" href="./style.css?v=ui-studio-v4-20261014">
-  <link rel="stylesheet" href="./mobile.css?v=ui-studio-v4-20261014">
+  <link rel="stylesheet" href="./mobile.css?v=ui-playful-v5-20261015">
 </head>
 <body>
 <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
@@ -59,6 +59,10 @@
           <div class="board-heading"><span class="board-kicker">01 / THE ARENA</span><strong>棋局</strong><span class="board-index">09 × 13</span></div>
           <div class="board-version"><span class="tiny-dot"></span><span id="boardVersion">经典战场</span></div>
         </div>
+          <div class="mascot-guide" aria-label="木木，棋局向导">
+            <div class="mascot-face" aria-hidden="true"><span class="mascot-sprout">✦</span><span class="mascot-eye eye-left"></span><span class="mascot-eye eye-right"></span><span class="mascot-smile"></span><span class="mascot-cheek cheek-left"></span><span class="mascot-cheek cheek-right"></span></div>
+            <div class="mascot-speech"><strong>木木 · 棋局向导</strong><p id="mascotMessage">轮到你啦！试试移动或筑墙。</p></div>
+          </div>
           <div id="aiBanter" class="ai-banter" hidden aria-live="polite">
             <div class="ai-banter-head"><span>木 · 电脑对手</span><button id="aiQuiet" type="button" aria-label="切换对话声音">静音</button></div>
             <p id="aiBanterText">准备好迎战了吗？</p>
@@ -192,6 +196,6 @@
 </div>
 <script defer src="./xiaodi-engine.js?v=g4-h13-20261014"></script>
 <script defer src="./game.js?v=s0-s3-rules-20261014"></script>
-<script defer src="./mobile.js?v=ui-studio-v4-20261014"></script>
+<script defer src="./mobile.js?v=ui-playful-v5-20261015"></script>
 </body>
 </html>
