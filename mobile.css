@@ -250,3 +250,14 @@ body{background:linear-gradient(160deg,#f9faf7,#eef5ed);color:#30483d}
   .mascot-guide{display:none}
 }
 @media(prefers-reduced-motion:reduce){.mascot-face{animation:none}}
+.mascot-face.mascot-thinking .mascot-smile{width:11px;height:8px;left:35px;border:3px solid #397e60;border-top:0;border-radius:0 0 50% 50%}
+.mascot-face.mascot-celebrate{animation:mascot-cheer .55s ease-in-out infinite alternate}
+.mascot-face.mascot-celebrate .mascot-eye{height:5px;border-radius:5px}
+@keyframes mascot-cheer{from{transform:rotate(-7deg) translateY(1px)}to{transform:rotate(6deg) translateY(-8px)}}
+.win-dialog{background:radial-gradient(ellipse at 50% 0%,#e7f7e7,#fffdf5 65%);border:3px solid #cce8d5;box-shadow:0 10px 0 #7dbc8b,0 28px 80px #0b1e1e7a}
+.win-laurel{color:#f0b44f;font-size:37px;letter-spacing:14px;animation:win-stars 1.5s ease-in-out infinite alternate}
+.win-dialog h2{color:#429b63;font-weight:900}
+.win-dialog .primary-btn{background:#69bb79;border:0;border-bottom:5px solid #408c4d;border-radius:15px;font-weight:900;font-size:16px}
+@keyframes win-stars{from{transform:scale(.95) rotate(-3deg);opacity:.8}to{transform:scale(1.08) rotate(3deg);opacity:1}}
+@media(max-width:760px){.mascot-face.mascot-thinking .mascot-smile{width:7px;height:5px;left:20px;border-width:2px}}
+@media(prefers-reduced-motion:reduce){.mascot-face.mascot-celebrate,.win-laurel{animation:none}}

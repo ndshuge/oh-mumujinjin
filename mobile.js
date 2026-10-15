@@ -37,6 +37,11 @@
       else if (phase.includes("获胜") || phase.includes("胜利")) hint = "太精彩啦！再来一局吧！";
       else if (!wallTools.hidden) hint = "来筑一道墙，换条新路线！";
       else if (phase.includes("回合")) hint = "轮到你啦！寻找前进的道路。";
+      const face = document.querySelector(".mascot-face");
+      if (face) {
+        face.classList.toggle("mascot-thinking", phase.includes("木方") || phase.includes("电脑"));
+        face.classList.toggle("mascot-celebrate", phase.includes("获胜") || phase.includes("胜利"));
+      }
       if (mascotMessage.textContent !== hint) mascotMessage.textContent = hint;
     }
   };
