@@ -115,12 +115,15 @@
           <div class="panel-overline"><span class="status-ornament">✦</span> 你的行动 <span>CHOOSE AN ACTION</span></div><p class="action-lead">选择行动，掌控下一步。</p>
           <div class="action-tabs" role="group" aria-label="操作选择">
             <button id="moveMode" class="action-tab selected" type="button"><span class="action-symbol">↗</span><b>移动</b><small>前进一步</small></button>
-            <button id="wallMode" class="action-tab" type="button"><span class="action-symbol">┇</span><b>筑墙</b><small>封锁道路</small></button>
-          </div>
-          <div class="wall-tools" id="wallTools" hidden>
-            <div class="wall-tools-caption">筑墙方向 <span>每次占据连续 2 段边线</span></div>
-            <div class="orientation-control"><button id="wallH" class="orientation-btn selected" type="button"><span>━━</span> 横向墙</button><button id="wallV" class="orientation-btn" type="button"><span>┃</span> 纵向墙</button></div>
-            <small class="wall-hint">点击棋盘预览位置；不能封死任意一方所有去路。</small>
+            <div id="wallSlot" class="wall-slot" data-open="false" data-direction="none">
+              <button id="wallMode" class="action-tab" type="button" aria-expanded="false" aria-controls="wallTools"><span class="action-symbol">┇</span><b>筑墙</b><small>选择筑墙方向</small></button>
+              <div class="wall-tools" id="wallTools" hidden>
+                <div class="orientation-control" role="group" aria-label="选择筑墙方向">
+                  <button id="wallH" class="orientation-btn" type="button" aria-pressed="false"><span aria-hidden="true">━━</span>横向</button>
+                  <button id="wallV" class="orientation-btn" type="button" aria-pressed="false"><span aria-hidden="true">┃</span>纵向</button>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="tool-footer"><button id="undoBtn" class="small-tool" type="button">↶ <span>悔棋</span></button><span class="tool-line"></span><button id="restartBtn" class="small-tool" type="button">⟳ <span>重新开始</span></button></div>
         </section>
@@ -195,10 +198,12 @@
   </div>
 </div>
 <link rel="stylesheet" href="./ui-focus-v6.css?v=20261015">
+<link rel="stylesheet" href="./ui-wall-split-v7.css?v=20261015">
 <script defer src="./ui-touch-v6.js?v=20261015"></script>
 <script defer src="./board-skin.js?v=ui-v5-20261015"></script>
 <script defer src="./xiaodi-engine.js?v=g4-h13-20261014"></script>
 <script defer src="./game.js?v=s0-s3-rules-20261014"></script>
 <script defer src="./mobile.js?v=ui-playful-v5-20261015"></script>
+<script defer src="./ui-wall-split-v7.js?v=20261015"></script>
 </body>
 </html>
