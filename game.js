@@ -46,8 +46,8 @@
     $("aiQuiet").textContent=aiDialogueDisabled?"开启对话":"安静模式";
     $("aiReplyToggle").hidden=aiDialogueDisabled;
   }
-  var editing=false,editorTool="add",editorName="我的地图",editorRocks=null;
-  var MAP_KEY="mumujinjin-custom-maps-v1", ACTIVE_KEY="mumujinjin-active-map-v1";
+  var editing=false,editorTool="add",editorName="我的地图",editorRocks=null,sharedMapAtBoot=false;
+  var MAP_KEY="mumujinjin-custom-maps-v1", ACTIVE_KEY="mumujinjin-active-map-v1", RANDOM_KEY="mumujinjin-random-last-v1";
   function fixedTile(t){return CAMPS.some(function(arr){return has(arr,t);})||PORTALS.some(function(g){return same(g.a,t)||same(g.b,t);})||has(ICE,t)||has(BOOST,t);}
   function cleanMap(input){
     if(!input||input.version!==1||!Array.isArray(input.rocks)||input.rocks.length>100||typeof input.name!=="string")return null;
@@ -67,7 +67,7 @@
     var valid=cleanMap(map);if(!valid)return false;
     ROCKS=valid.rocks.map(function(t){return {x:t.x,y:t.y};});
     editorName=valid.name;try{localStorage.setItem(ACTIVE_KEY,JSON.stringify(valid));}catch(e){}
-    resetGame(state.variant);return true;
+    resetGame(state.variant,true);return true;
   }
   function mapCurrent(){return {version:1,name:editorName,rocks:ROCKS.map(function(t){return{x:t.x,y:t.y};})};}
   function mapDraft(){return {version:1,name:editorName,rocks:editorRocks.map(function(t){return{x:t.x,y:t.y};})};}
@@ -129,10 +129,22 @@
       if(value.length>5000)return;
       var binary=atob(value.replace(/-/g,"+").replace(/_/g,"/")),bytes=Uint8Array.from(binary,function(s){return s.charCodeAt(0);});
       var map=cleanMap(JSON.parse(new TextDecoder().decode(bytes)));
-      if(map){ROCKS=map.rocks;editorName=map.name;localStorage.setItem(ACTIVE_KEY,JSON.stringify(map));}
+      if(map){ROCKS=map.rocks;editorName=map.name;sharedMapAtBoot=true;localStorage.setItem(ACTIVE_KEY,JSON.stringify(map));}
     }catch(e){}
   }
+  function randomizeInitialMap(){
+    if(!window.MumuRandomMap)return null; // Compatibility with legacy isolated rule-test harnesses; production loads random-map.js first.
+    var previous=window.MumuRandomMap.signature(ROCKS),seed=(Math.random()*4294967296)>>>0;
+    var generated=window.MumuRandomMap.generate({seed:seed,width:W,height:H,count:10,previous:previous,
+      blocked:fixedTile,fallback:DEFAULT_ROCKS,
+      validate:function(rocks){return !!cleanMap({version:1,name:"随机棋盘",rocks:rocks});}});
+    ROCKS=generated.rocks.map(function(p){return{x:p.x,y:p.y};});
+    editorName="随机棋盘";
+    try{localStorage.removeItem(ACTIVE_KEY);localStorage.setItem(RANDOM_KEY,JSON.stringify({version:1,name:editorName,rocks:ROCKS}));}catch(e){}
+    return generated;
+  }
   function initMap(){
+    try{var random=cleanMap(JSON.parse(localStorage.getItem(RANDOM_KEY)));if(random){ROCKS=random.rocks;editorName=random.name;}}catch(e){}
     try{var active=cleanMap(JSON.parse(localStorage.getItem(ACTIVE_KEY)));if(active){ROCKS=active.rocks;editorName=active.name;}}catch(e){}
     loadShare();
   }
@@ -176,7 +188,8 @@
   }
   function notice(text){state.notice=text;drawUI();}
   function commit(){state.notice="";save();drawUI();drawBoard();scheduleComputerTurn();}
-  function resetGame(variant){
+  function resetGame(variant,preserveSelectedMap){
+    if(!preserveSelectedMap)randomizeInitialMap();
     var playMode=state.playMode||"local",aiLevel=state.aiLevel||"normal";
     state=newGame(variant||state.variant);
     state.playMode=playMode;state.aiLevel=aiLevel;
@@ -886,9 +899,11 @@
       m.addEventListener("click",function(e){if(e.target===m&&m.id==="guideModal")m.hidden=true;});
     });
   }
-  state=load()||newGame("classic");
+  var loadedAtBoot=load();state=load()||newGame("classic");
   try{if(state.aiLevel==="xiaodi"&&!localStorage.getItem("mumujinjin-ai-choice-explicit-v1"))state.aiLevel="zhongdi";}catch(e){}
-  initMap();refreshMapSelect();
+  initMap();
+  if(!sharedMapAtBoot&&(!loadedAtBoot || state.phase==="pick-attack"&&state.moves===0))randomizeInitialMap();
+  refreshMapSelect();
   state.hover=null;state.notice=state.notice||"";
   try{aiDialogueDisabled=localStorage.getItem("mumujinjin-ai-quiet")==="1";}catch(e){}
   state.playMode=state.playMode==="cpu"?"cpu":"local";
