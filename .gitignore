@@ -1,3 +1,20 @@
 preview.png
 node_modules/
 .DS_Store
+
+# Local secrets and outputs (tracked research models stay versioned)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.log
+*.tmp
+*.bak
+.cache/
+coverage/
+training/runs/
+training/tmp/
+training/checkpoints/
