@@ -310,3 +310,89 @@ body.mobile-settings-open .settings-scrim{display:block!important}
 .mobile-workshop-button{display:none!important}
 .map-v2-mode-picker button.selected{background:#3b503d;color:#e6ffd8;border-color:#8fc9a3}
 @media(max-width:760px){.mobile-workshop-button{display:grid!important;font-size:14px;letter-spacing:0}}
+
+/* Map V2: persistent tool controls beside the board while editing on phones. */
+.mobile-map-dock { display:none; }
+@media (max-width:760px) {
+  body.map-workshop-active { --mobile-dock:calc(116px + env(safe-area-inset-bottom,0px)); }
+  body.map-workshop-active .sidebar .actions { display:none!important; }
+  body.map-workshop-active .mobile-map-dock {
+    display:grid;position:fixed;bottom:0;left:0;right:0;z-index:20;
+    grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;
+    padding:7px 12px calc(7px + env(safe-area-inset-bottom,0px));
+    background:#101e2ced;border-top:1px solid #567082;
+    box-shadow:0 -6px 24px #040b15b8;
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  }
+  .mobile-map-dock button {
+    min-width:0;min-height:42px;border:1px solid #49687a;
+    border-radius:5px;background:#213b4b;color:#ddeaf2;
+    font:600 12px system-ui,-apple-system,sans-serif;
+    touch-action:manipulation;
+  }
+  .mobile-map-dock button.selected {
+    border-color:#e8b170;color:#ffe2bd;background:#334333;
+  }
+  .mobile-map-dock button:focus-visible {outline:2px solid #8fffd9;outline-offset:2px}
+}
+
+
+
+/* Map V2 editor cockpit: keep board adjacent to tool palette on desktop. */
+.map-v2-quicktools[hidden]{display:none!important}
+.map-v2-quicktools{display:flex;align-items:stretch;gap:6px;padding:7px 8px;margin:6px 0 8px;
+background:#142738;border:1px solid #476077;position:sticky;top:0;z-index:8;overflow-x:auto;
+overscroll-behavior-inline:contain;scrollbar-width:thin}
+.map-v2-quicktools button{appearance:none;background:#243b4d;color:#dfeef0;border:1px solid #476378;
+padding:10px 13px;min-height:44px;min-width:61px;white-space:nowrap;font:600 12px system-ui;cursor:pointer}
+.map-v2-quicktools button.selected{background:#5b462e;border-color:#efb777;color:#ffe4b8}
+.map-v2-quicktools button:focus-visible{outline:2px solid #9ff5e0;outline-offset:2px}
+@media(min-width:761px){
+ body.map-workshop-active main{display:grid!important;grid-template-columns:minmax(310px,350px) minmax(0,1fr);
+ align-items:start;column-gap:20px}
+ body.map-workshop-active .intro{display:none!important}
+ body.map-workshop-active #mapEditor{grid-column:1;grid-row:1;position:sticky;top:12px;
+ max-height:calc(100dvh - 25px);overflow-y:auto;overscroll-behavior:contain}
+ body.map-workshop-active .game-layout{grid-column:2;grid-row:1;display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;min-width:0!important}
+ body.map-workshop-active .game-layout .sidebar{display:none!important}
+ body.map-workshop-active .board-wrap{max-width:550px}
+ body.map-workshop-active .map-v2-quicktools{top:0}
+}
+@media(max-width:760px){
+ body.map-workshop-active .intro{display:none!important}
+ body.map-workshop-active #mapEditor:not(.expanded) .map-v2-advanced,
+ body.map-workshop-active #mapEditor:not(.expanded) #editorRandom,
+ body.map-workshop-active #mapEditor:not(.expanded) #editorName,
+ body.map-workshop-active #mapEditor:not(.expanded) #savedMaps,
+ body.map-workshop-active #mapEditor:not(.expanded) #mapImportData,
+ body.map-workshop-active #mapEditor:not(.expanded) #mapShareLink,
+ body.map-workshop-active #mapEditor:not(.expanded) #editorDefault,
+ body.map-workshop-active #mapEditor:not(.expanded) #editorUseDefault,
+ body.map-workshop-active #mapEditor:not(.expanded) .map-editor-tools:has(#editorPlay),
+ body.map-workshop-active #mapEditor:not(.expanded) .map-editor-tools:has(#editorImport)
+ {display:none!important}
+ body.map-workshop-active .map-v2-quicktools{margin:0 0 7px;top:0}
+ body.map-workshop-active .map-v2-quicktools button{font-size:12px;min-height:46px}
+ body.map-workshop-active #mapEditor{margin-bottom:9px!important}
+ body.map-workshop-active .game-layout{margin-top:0}
+ body.map-workshop-active .game-layout .sidebar{display:none!important}
+ body.map-workshop-active .game-layout .mobile-status{display:none!important}
+ body.map-workshop-active .board-wrap{padding:0!important}
+}
+
+/* Constrain workshop's mobile flex items to viewport width; canvas must never crop columns H/I. */
+@media(max-width:760px){
+ body.map-workshop-active .shell,
+ body.map-workshop-active main,
+ body.map-workshop-active .game-layout,
+ body.map-workshop-active .play-section,
+ body.map-workshop-active .board-frame,
+ body.map-workshop-active .board-wrap {width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;}
+ body.map-workshop-active .board-frame{overflow:hidden!important;margin-left:0!important;margin-right:0!important}
+ body.map-workshop-active .board-wrap {display:flex!important;align-items:flex-start!important;justify-content:center!important;flex:initial!important;height:auto!important;padding:0!important;overflow:hidden!important}
+ body.map-workshop-active .board-wrap canvas {width:100%!important;max-width:100%!important;height:auto!important;max-height:none!important;display:block!important;flex:none!important;aspect-ratio:720/980;object-fit:contain!important}
+ body.map-workshop-active #mapEditor:not(.expanded) .map-v2-toolrow{display:none!important}
+}
+
+@media(max-width:760px){body.map-workshop-active .map-v2-quicktools{display:none!important}}

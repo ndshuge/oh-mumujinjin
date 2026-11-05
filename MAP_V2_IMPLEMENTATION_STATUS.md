@@ -33,4 +33,6 @@
 
 **未完成的人机终验**：iPhone Safari 与 iPad 实机地图编辑；真实玩家体验/公平性；冻结 G5 与 B/C/GPT 的独立兼容对照。此处不宣称 FINAL ACCEPTED。
 
+**UI 后续修复（2026-11-05）**：另开隔离分支 `feature/map-v2-ui-20261105`，基于 `c3291c5`。桌面编辑区与棋盘并排，手机 390×844 完整显示 9×13 棋盘并保留底部工具坞；修复手机溢出；已在新工作树重跑 12 组回归。证据 `docs/map-v2-previews/workshop-desktop-review.png`、`docs/map-v2-previews/workshop-mobile-compact-review.png`；未真机验收，未合并主分支。
+
 **下一条可执行动作**：在真实 iPhone Safari 打开本地可访问的测试地址，验证触摸绘图/拖动、键盘收起、面板折叠及 13 行棋盘滚动，再针对真实失效修复。正式发布与合并另行授权。

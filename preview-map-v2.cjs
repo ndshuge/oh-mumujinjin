@@ -9,4 +9,4 @@ http.createServer((req,res)=>{
     if(err){res.writeHead(404);res.end('Not found');return;}
     res.writeHead(200,{'Content-Type':mime[path.extname(file)]||'application/octet-stream','Cache-Control':'no-store'});res.end(data);
   });
-}).listen(49153,'127.0.0.1',()=>console.log('MAP_V2_PREVIEW_READY http://127.0.0.1:49153/'));
+}).listen(Number(process.argv[2]||process.env.MAP_V2_PORT||49153),'127.0.0.1',()=>console.log('MAP_V2_PREVIEW_READY http://127.0.0.1:'+Number(process.argv[2]||process.env.MAP_V2_PORT||49153)+'/'));
