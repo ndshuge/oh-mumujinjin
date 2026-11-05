@@ -248,9 +248,10 @@
         var gate=editorMap.portals[editorPendingPortal];
         if(gate&&gate.b===null){editorCheckpoint();gate.b=copy(t);editorPendingPortal=null;return true;}
       }
-      editorCheckpoint();var stamp=Date.now().toString(36),serial=editorMap.portals.length+1;
-      var id="portal-"+stamp+"-"+serial;
-      while(editorMap.portals.some(function(g){return g.id===id;}))id="portal-"+stamp+"-"+(++serial);
+      editorCheckpoint();
+      var taken=new Set(editorMap.portals.map(function(g){return g.id;})),serial=1;
+      while(taken.has("portal-"+serial))serial++;
+      var id="portal-"+serial;
       editorMap.portals.push({id:id,a:copy(t),b:null});
       editorPendingPortal=editorMap.portals.length-1;
       editorMessage("已放置传送门第一个端点，请点击第二个端点完成配对。");return true;
