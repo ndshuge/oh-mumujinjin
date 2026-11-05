@@ -1,0 +1,85 @@
+{
+  "maps": 1,
+  "modes": [
+    "classic",
+    "advanced"
+  ],
+  "matches": [
+    {
+      "seed": 26660,
+      "variant": "classic",
+      "seat": [
+        "search",
+        "g5"
+      ],
+      "winnerSide": 0,
+      "winnerAgent": "search",
+      "end": "goal",
+      "plies": 59,
+      "portals": 0,
+      "boosts": 0,
+      "iceArrivals": 0
+    },
+    {
+      "seed": 26660,
+      "variant": "classic",
+      "seat": [
+        "g5",
+        "search"
+      ],
+      "winnerSide": 1,
+      "winnerAgent": "search",
+      "end": "goal",
+      "plies": 66,
+      "portals": 2,
+      "boosts": 0,
+      "iceArrivals": 5
+    },
+    {
+      "seed": 26660,
+      "variant": "advanced",
+      "seat": [
+        "search",
+        "g5"
+      ],
+      "winnerSide": 0,
+      "winnerAgent": "search",
+      "end": "goal",
+      "plies": 59,
+      "portals": 1,
+      "boosts": 3,
+      "iceArrivals": 4
+    },
+    {
+      "seed": 26660,
+      "variant": "advanced",
+      "seat": [
+        "g5",
+        "search"
+      ],
+      "winnerSide": null,
+      "winnerAgent": null,
+      "end": "repetition",
+      "plies": 43,
+      "portals": 0,
+      "boosts": 2,
+      "iceArrivals": 0
+    }
+  ],
+  "invalid": 0,
+  "bySide": [
+    2,
+    1
+  ],
+  "draws": 1,
+  "terminal": 3,
+  "turnCap": 0,
+  "repetition": 1,
+  "agentWins": {
+    "search": 3,
+    "neural": 0,
+    "xiaodi": 0,
+    "g5": 0
+  },
+  "totalTurns": 227
+}

@@ -27,7 +27,14 @@ const train=number('train',700),validation=number('validation',150),holdout=numb
 const seed=number('seed',20261105),count=train+validation+holdout;
 if(count===0||count>10000)throw Error('Total must be in 1..10000');
 const out=arg('out',null),accepted=[],seen=new Set(),rejected={};
-const profiles=[
+const balanced=argv.includes('--balanced');
+const profiles=balanced?[
+ {rocks:6,portals:1,ice:5,boost:4,iceContinuity:0.35},
+ {rocks:10,portals:3,ice:5,boost:4,iceContinuity:0.76},
+ {rocks:16,portals:4,ice:8,boost:6,iceContinuity:0.9},
+ {rocks:8,portals:0,ice:6,boost:4,iceContinuity:0.85},
+ {rocks:14,portals:2,ice:7,boost:4,iceContinuity:0.45}
+]:[
  {rocks:5,portals:1,ice:3,boost:2,iceContinuity:0.35},
  {rocks:10,portals:3,ice:5,boost:4,iceContinuity:0.76},
  {rocks:15,portals:4,ice:8,boost:5,iceContinuity:0.9},
@@ -38,7 +45,7 @@ const t0=Date.now(),retryLimit=count*8;
 for(let i=0,attempt=0;i<count&&attempt<retryLimit;attempt++){
   const id=(seed+Math.imul(0x9e3779b9,attempt))>>>0;
   let map;
-  try{map=api.generate(id,profiles[i%profiles.length]);}
+  try{map=(balanced?api.generateBalanced:api.generate)(id,profiles[i%profiles.length]);}
   catch(e){rejected[e.message]=(rejected[e.message]||0)+1;continue;}
   const result=api.validate(map);
   assert(result.ok,'Generator accepted illegal map seed '+id+': '+result.reason);
@@ -60,7 +67,7 @@ for(let i=0,attempt=0;i<count&&attempt<retryLimit;attempt++){
   if(i%100===0)console.log('checked',i+'/'+count,'elapsed_ms',Date.now()-t0);
 }
 assert.equal(accepted.length,count,'Did not produce required unique valid maps');
-const manifest={schema:'map-v2-dataset-1',rulesVersion:api.rulesVersion,generatorVersion:api.generatorVersion,
+const manifest={schema:'map-v2-dataset-1',rulesVersion:api.rulesVersion,generatorVersion:balanced?'mapgen-v2-r2':api.generatorVersion,mode:balanced?'balanced':'legacy',
   baseSeed:seed,counts:{train,validation,holdout},profiles:profiles,fingerprints:accepted.map(x=>x.fingerprint),
   uniqueCount:seen.size,elapsedMs:Date.now()-t0,rejections:rejected};
 if(out){

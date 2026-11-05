@@ -1,0 +1,384 @@
+{
+  "maps": 3,
+  "modes": [
+    "classic",
+    "advanced"
+  ],
+  "matches": [
+    {
+      "seed": 26660,
+      "variant": "classic",
+      "seat": [
+        "search",
+        "neural"
+      ],
+      "winnerSide": 0,
+      "winnerAgent": "search",
+      "end": "goal",
+      "plies": 63,
+      "portals": 3,
+      "boosts": 0,
+      "iceArrivals": 1
+    },
+    {
+      "seed": 26660,
+      "variant": "classic",
+      "seat": [
+        "neural",
+        "search"
+      ],
+      "winnerSide": 1,
+      "winnerAgent": "search",
+      "end": "goal",
+      "plies": 66,
+      "portals": 3,
+      "boosts": 0,
+      "iceArrivals": 4
+    },
+    {
+      "seed": 26660,
+      "variant": "classic",
+      "seat": [
+        "search",
+        "xiaodi"
+      ],
+      "winnerSide": 1,
+      "winnerAgent": "xiaodi",
+      "end": "goal",
+      "plies": 62,
+      "portals": 2,
+      "boosts": 0,
+      "iceArrivals": 1
+    },
+    {
+      "seed": 26660,
+      "variant": "classic",
+      "seat": [
+        "xiaodi",
+        "search"
+      ],
+      "winnerSide": 0,
+      "winnerAgent": "xiaodi",
+      "end": "goal",
+      "plies": 59,
+      "portals": 0,
+      "boosts": 0,
+      "iceArrivals": 5
+    },
+    {
+      "seed": 26660,
+      "variant": "advanced",
+      "seat": [
+        "search",
+        "neural"
+      ],
+      "winnerSide": 0,
+      "winnerAgent": "search",
+      "end": "goal",
+      "plies": 59,
+      "portals": 1,
+      "boosts": 3,
+      "iceArrivals": 4
+    },
+    {
+      "seed": 26660,
+      "variant": "advanced",
+      "seat": [
+        "neural",
+        "search"
+      ],
+      "winnerSide": 1,
+      "winnerAgent": "search",
+      "end": "goal",
+      "plies": 64,
+      "portals": 2,
+      "boosts": 5,
+      "iceArrivals": 0
+    },
+    {
+      "seed": 26660,
+      "variant": "advanced",
+      "seat": [
+        "search",
+        "xiaodi"
+      ],
+      "winnerSide": 1,
+      "winnerAgent": "xiaodi",
+      "end": "goal",
+      "plies": 60,
+      "portals": 2,
+      "boosts": 4,
+      "iceArrivals": 2
+    },
+    {
+      "seed": 26660,
+      "variant": "advanced",
+      "seat": [
+        "xiaodi",
+        "search"
+      ],
+      "winnerSide": 0,
+      "winnerAgent": "xiaodi",
+      "end": "goal",
+      "plies": 71,
+      "portals": 3,
+      "boosts": 3,
+      "iceArrivals": 2
+    },
+    {
+      "seed": 28389,
+      "variant": "classic",
+      "seat": [
+        "search",
+        "neural"
+      ],
+      "winnerSide": 1,
+      "winnerAgent": "neural",
+      "end": "goal",
+      "plies": 72,
+      "portals": 1,
+      "boosts": 0,
+      "iceArrivals": 1
+    },
+    {
+      "seed": 28389,
+      "variant": "classic",
+      "seat": [
+        "neural",
+        "search"
+      ],
+      "winnerSide": 0,
+      "winnerAgent": "neural",
+      "end": "goal",
+      "plies": 61,
+      "portals": 2,
+      "boosts": 0,
+      "iceArrivals": 3
+    },
+    {
+      "seed": 28389,
+      "variant": "classic",
+      "seat": [
+        "search",
+        "xiaodi"
+      ],
+      "winnerSide": 1,
+      "winnerAgent": "xiaodi",
+      "end": "goal",
+      "plies": 68,
+      "portals": 0,
+      "boosts": 0,
+      "iceArrivals": 2
+    },
+    {
+      "seed": 28389,
+      "variant": "classic",
+      "seat": [
+        "xiaodi",
+        "search"
+      ],
+      "winnerSide": 0,
+      "winnerAgent": "xiaodi",
+      "end": "goal",
+      "plies": 71,
+      "portals": 1,
+      "boosts": 0,
+      "iceArrivals": 2
+    },
+    {
+      "seed": 28389,
+      "variant": "advanced",
+      "seat": [
+        "search",
+        "neural"
+      ],
+      "winnerSide": 1,
+      "winnerAgent": "neural",
+      "end": "goal",
+      "plies": 70,
+      "portals": 4,
+      "boosts": 1,
+      "iceArrivals": 3
+    },
+    {
+      "seed": 28389,
+      "variant": "advanced",
+      "seat": [
+        "neural",
+        "search"
+      ],
+      "winnerSide": 0,
+      "winnerAgent": "neural",
+      "end": "goal",
+      "plies": 53,
+      "portals": 1,
+      "boosts": 1,
+      "iceArrivals": 2
+    },
+    {
+      "seed": 28389,
+      "variant": "advanced",
+      "seat": [
+        "search",
+        "xiaodi"
+      ],
+      "winnerSide": 1,
+      "winnerAgent": "xiaodi",
+      "end": "goal",
+      "plies": 64,
+      "portals": 0,
+      "boosts": 1,
+      "iceArrivals": 1
+    },
+    {
+      "seed": 28389,
+      "variant": "advanced",
+      "seat": [
+        "xiaodi",
+        "search"
+      ],
+      "winnerSide": 0,
+      "winnerAgent": "xiaodi",
+      "end": "goal",
+      "plies": 67,
+      "portals": 0,
+      "boosts": 1,
+      "iceArrivals": 1
+    },
+    {
+      "seed": 30118,
+      "variant": "classic",
+      "seat": [
+        "search",
+        "neural"
+      ],
+      "winnerSide": 1,
+      "winnerAgent": "neural",
+      "end": "goal",
+      "plies": 62,
+      "portals": 4,
+      "boosts": 0,
+      "iceArrivals": 1
+    },
+    {
+      "seed": 30118,
+      "variant": "classic",
+      "seat": [
+        "neural",
+        "search"
+      ],
+      "winnerSide": 0,
+      "winnerAgent": "neural",
+      "end": "goal",
+      "plies": 51,
+      "portals": 1,
+      "boosts": 0,
+      "iceArrivals": 1
+    },
+    {
+      "seed": 30118,
+      "variant": "classic",
+      "seat": [
+        "search",
+        "xiaodi"
+      ],
+      "winnerSide": 0,
+      "winnerAgent": "search",
+      "end": "goal",
+      "plies": 57,
+      "portals": 2,
+      "boosts": 0,
+      "iceArrivals": 1
+    },
+    {
+      "seed": 30118,
+      "variant": "classic",
+      "seat": [
+        "xiaodi",
+        "search"
+      ],
+      "winnerSide": 0,
+      "winnerAgent": "xiaodi",
+      "end": "goal",
+      "plies": 61,
+      "portals": 2,
+      "boosts": 0,
+      "iceArrivals": 1
+    },
+    {
+      "seed": 30118,
+      "variant": "advanced",
+      "seat": [
+        "search",
+        "neural"
+      ],
+      "winnerSide": 1,
+      "winnerAgent": "neural",
+      "end": "goal",
+      "plies": 40,
+      "portals": 1,
+      "boosts": 0,
+      "iceArrivals": 1
+    },
+    {
+      "seed": 30118,
+      "variant": "advanced",
+      "seat": [
+        "neural",
+        "search"
+      ],
+      "winnerSide": 0,
+      "winnerAgent": "neural",
+      "end": "goal",
+      "plies": 53,
+      "portals": 1,
+      "boosts": 2,
+      "iceArrivals": 1
+    },
+    {
+      "seed": 30118,
+      "variant": "advanced",
+      "seat": [
+        "search",
+        "xiaodi"
+      ],
+      "winnerSide": 1,
+      "winnerAgent": "xiaodi",
+      "end": "goal",
+      "plies": 42,
+      "portals": 4,
+      "boosts": 0,
+      "iceArrivals": 0
+    },
+    {
+      "seed": 30118,
+      "variant": "advanced",
+      "seat": [
+        "xiaodi",
+        "search"
+      ],
+      "winnerSide": 0,
+      "winnerAgent": "xiaodi",
+      "end": "goal",
+      "plies": 51,
+      "portals": 1,
+      "boosts": 3,
+      "iceArrivals": 1
+    }
+  ],
+  "invalid": 0,
+  "bySide": [
+    13,
+    11
+  ],
+  "draws": 0,
+  "terminal": 24,
+  "turnCap": 0,
+  "repetition": 0,
+  "agentWins": {
+    "search": 5,
+    "neural": 8,
+    "xiaodi": 11
+  },
+  "totalTurns": 1447
+}

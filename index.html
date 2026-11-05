@@ -50,6 +50,10 @@
       </div>
       <details class="map-v2-advanced"><summary>随机地图 · 高级设置</summary>
         <div class="map-v2-grid">
+          <label>生成方式<select id="editorMapStyle" aria-label="地图生成方式">
+            <option value="balanced" selected>竞技均衡 · 180°对称</option>
+            <option value="free">自由随机 · 仅检查合法性</option>
+          </select></label>
           <label>种子 <input id="editorSeed" inputmode="numeric" type="number" min="0" max="4294967295" placeholder="自动生成"></label>
           <label>障碍 <input id="editorRocksCount" type="number" min="0" max="45" value="10"></label>
           <label>传送门对数 <input id="editorPortalsCount" type="number" min="0" max="8" value="3"></label>
@@ -58,7 +62,7 @@
           <label>冰面连续性 <input id="editorIceContinuity" type="number" min="0" max="1" step="0.1" value="0.8"></label>
         </div>
       </details>
-      <div class="map-editor-tools"><button id="editorRandom" class="primary-btn" type="button">🎲 一键生成全随机战场</button></div>
+      <div class="map-editor-tools"><button id="editorRandom" class="primary-btn" type="button">🎲 一键生成均衡战场</button></div>
       <input id="editorName" maxlength="40" placeholder="地图名称" value="我的地图">
       <div class="map-editor-tools"><button id="editorPlay" class="primary-btn" type="button">▶ 试玩地图</button><button id="editorSave" type="button">保存地图</button><button id="editorShare" type="button">生成分享链接</button></div>
       <select id="savedMaps" aria-label="已保存地图"><option value="">选择已保存地图</option></select>
