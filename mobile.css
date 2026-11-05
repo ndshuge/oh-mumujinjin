@@ -173,3 +173,15 @@
   .shell>main{min-height:310px}
   .board-frame{min-height:240px}
 }
+
+/* Map workshop restores scroll and readable board size while active. */
+@media (max-width:760px){
+html:has(body.map-workshop-active),body.map-workshop-active{height:auto!important;min-height:100%;overflow:auto!important;overscroll-behavior:auto}
+body.map-workshop-active .shell{height:auto!important;min-height:100dvh!important}
+body.map-workshop-active .shell>main{flex:initial!important;min-height:0!important;display:block!important;padding-bottom:calc(var(--mobile-dock) + 20px)!important}
+body.map-workshop-active .game-layout{display:flex!important;flex:initial!important;min-height:0!important}
+body.map-workshop-active .play-section{flex:initial!important;min-height:0!important}
+body.map-workshop-active .board-frame{flex:initial!important;min-height:0!important;height:auto!important;overflow:visible!important}
+body.map-workshop-active .board-wrap{height:auto!important;max-width:none!important;display:block!important;margin:0!important}
+body.map-workshop-active .board-wrap canvas{width:100%!important;height:auto!important;max-width:100%!important;max-height:none!important;touch-action:none!important}
+}

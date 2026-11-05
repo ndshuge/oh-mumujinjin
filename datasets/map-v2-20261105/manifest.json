@@ -1,0 +1,51 @@
+{
+  "schema": "map-v2-dataset-1",
+  "rulesVersion": "map-v2-r1",
+  "generatorVersion": "mapgen-v2-r1",
+  "baseSeed": 20261105,
+  "counts": {
+    "train": 700,
+    "validation": 150,
+    "holdout": 150
+  },
+  "profiles": [
+    {
+      "rocks": 5,
+      "portals": 1,
+      "ice": 3,
+      "boost": 2,
+      "iceContinuity": 0.35
+    },
+    {
+      "rocks": 10,
+      "portals": 3,
+      "ice": 5,
+      "boost": 4,
+      "iceContinuity": 0.76
+    },
+    {
+      "rocks": 15,
+      "portals": 4,
+      "ice": 8,
+      "boost": 5,
+      "iceContinuity": 0.9
+    },
+    {
+      "rocks": 9,
+      "portals": 0,
+      "ice": 6,
+      "boost": 4,
+      "iceContinuity": 0.85
+    },
+    {
+      "rocks": 13,
+      "portals": 2,
+      "ice": 7,
+      "boost": 3,
+      "iceContinuity": 0.45
+    }
+  ],
+  "uniqueCount": 1000,
+  "elapsedMs": 19321,
+  "rejections": {}
+}
