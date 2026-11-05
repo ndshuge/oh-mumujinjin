@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#f6faf5">
   <meta name="description" content="哦，木木金金棋——从一张手绘地图诞生的双人路线争夺策略棋。走棋、筑墙、传送、滑冰与加速，先抵达对方营地者获胜。">
   <title>哦，木木金金棋 · 步步为营</title>
-  <link rel="stylesheet" href="./style.css?v=ui-studio-v4-20261014">
+  <link rel="stylesheet" href="./style.css?v=rps-20261105">
   <link rel="stylesheet" href="./mobile.css?v=ui-playful-v5-20261015">
   <link rel="icon" type="image/svg+xml" href="./brand-mark-v8.svg">
 </head>
@@ -160,7 +160,7 @@
           <div class="panel-overline">选择对手 <span>OPPONENT</span></div>
           <div class="mode-options match-options">
             <button class="mode-button" id="playLocal" type="button"><span class="mode-marker">2P</span><span class="mode-label"><b>本地双人</b><small>两个人轮流操作</small></span><span class="mode-check">✓</span></button>
-            <button class="mode-button selected" id="playAI" type="button"><span class="mode-marker">AI</span><span class="mode-label"><b>人机对战</b><small>金方玩家 vs 木方电脑</small></span><span class="mode-check">✓</span></button>
+            <button class="mode-button selected" id="playAI" type="button"><span class="mode-marker">AI</span><span class="mode-label"><b>人机对战</b><small>猜拳决定谁先手</small></span><span class="mode-check">✓</span></button>
           </div>
           <div id="aiDifficulty" class="ai-difficulty">
             <div class="difficulty-label">电脑难度 <span>无需联网，手机本地计算</span></div>
@@ -200,6 +200,19 @@
   </div>
 </div>
 
+<div class="modal-cover" id="rpsModal" hidden>
+  <div class="modal-dialog prompt-dialog" role="dialog" aria-modal="true" aria-labelledby="rpsTitle">
+    <span class="modal-kicker">WHO GOES FIRST?</span>
+    <h2 id="rpsTitle">猜拳决定先后手</h2>
+    <p id="rpsResult" aria-live="polite">选择石头、剪刀或布。平局重新猜拳。</p>
+    <div class="rps-choices" id="rpsChoices">
+      <button id="rps-rock" type="button">石头</button><button id="rps-scissors" type="button">剪刀</button><button id="rps-paper" type="button">布</button>
+    </div>
+    <div class="rps-choices" id="rpsSideChoices" hidden>
+      <button id="rpsFirst" type="button">我先手 · 金方</button><button id="rpsSecond" type="button">我后手 · 木方</button>
+    </div>
+  </div>
+</div>
 <div class="modal-cover" id="portalModal" hidden>
   <div class="modal-dialog prompt-dialog" role="dialog" aria-modal="true" aria-labelledby="portalTitle">
     <span class="portal-icon" id="portalIcon">△</span>
@@ -228,7 +241,7 @@
 <script defer src="./xiaodi-engine.js?v=g4-h13-20261014"></script>
 <script defer src="./random-map.js?v=verified-random-20261016"></script>
 <script defer src="./zhongdi-engine.js?v=g5-phase-defense-20261015"></script>
-<script defer src="./game.js?v=random-map-guard-20261016"></script>
+<script defer src="./game.js?v=rps-live-20261105"></script>
 <script defer src="./mobile.js?v=zhongdi-20261015"></script>
 <script defer src="./ui-wall-split-v7.js?v=20261015"></script>
 <script defer src="./ui-ai-presets-v9.js?v=zhongdi-20261015"></script>

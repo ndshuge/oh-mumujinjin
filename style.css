@@ -256,3 +256,6 @@ body.mobile-settings-open .settings-scrim{display:block!important}
  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
  html{scroll-behavior:auto}
 }
+
+
+.rps-choices{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0 8px}.rps-choices[hidden]{display:none}.rps-choices button{flex:1;min-width:90px;min-height:52px;padding:12px;background:#20384d;border:1px solid #8aabb5;color:#e3f0ef;font:600 15px system-ui;cursor:pointer}
