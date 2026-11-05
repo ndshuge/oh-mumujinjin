@@ -433,11 +433,125 @@
     var err=Error("Unable to generate legal map in "+attempts+" attempts: "+JSON.stringify(failures));
     err.rejections=failures;throw err;
   }
+  // Competitive generator r2. The 180-degree transform swaps the fixed camps exactly.
+  // It mirrors portal LINKS as well as endpoint locations, unlike a position-only balance check.
+  function generateBalancedMap(seed,opts){
+    var options=opts||{},base=seed===undefined?Date.now()>>>0:Number(seed);
+    if(!Number.isInteger(base)||base<0||base>4294967295)throw Error("Invalid seed");
+    function count(v,d,max,label){
+      if(v===undefined)return d;
+      if(!Number.isInteger(v)||v<0||v>max)throw Error("Invalid "+label+" count");
+      return v;
+    }
+    var rocks=count(options.rocks,10,45,"rocks"),iceCount=count(options.ice,5,45,"ice"),
+      boostCount=count(options.boost,4,45,"boost"),portalCount=count(options.portals,3,8,"portals");
+    var odd=(rocks%2)+(iceCount%2)+(boostCount%2);
+    if(odd>1)throw Error("Only one of rocks/ice/boost may have an odd count: there is only one 180° center cell.");
+    var requested=rocks+iceCount+boostCount+portalCount*2;
+    if(requested>111)throw Error("Terrain count exceeds available non-camp cells");
+    var continuity=options.iceContinuity===undefined?.76:Number(options.iceContinuity);
+    if(!Number.isFinite(continuity)||continuity<0||continuity>1)throw Error("Invalid ice continuity");
+    var attempts=options.attempts===undefined?140:count(options.attempts,140,300,"attempts");
+    var timeLimit=options.timeLimitMs===undefined?2500:Number(options.timeLimitMs);
+    if(attempts===0||!Number.isFinite(timeLimit)||timeLimit<=0||timeLimit>10000)throw Error("Invalid balanced generation bounds");
+    var started=Date.now(),failures={},parameters={rocks:rocks,portals:portalCount,ice:iceCount,
+      boost:boostCount,iceContinuity:continuity};
+    function flip(p){return {x:W-1-p.x,y:H-1-p.y};}
+    function adjacent(a,b){return Math.abs(a.x-b.x)+Math.abs(a.y-b.y)===1;}
+    var fixedCamp=new Set();
+    CAMPS.forEach(function(c){c.forEach(function(p){fixedCamp.add(posKey(p));});});
+    var sites=[];
+    for(var y=0;y<H;y++)for(var x=0;x<W;x++){
+      var p={x:x,y:y},q=flip(p);
+      if(posKey(p)>=posKey(q)||fixedCamp.has(posKey(p))||fixedCamp.has(posKey(q)))continue;
+      sites.push([p,q]);
+    }
+    var center={x:(W-1)/2,y:(H-1)/2};
+    function toPoints(pair){return [copy(pair[0]),copy(pair[1])];}
+    for(var attempt=0;attempt<attempts;attempt++){
+      if(Date.now()-started>timeLimit)throw Error("Balanced map generation time limit: "+JSON.stringify(failures));
+      var rand=seededRandom((base+Math.imul(attempt,0x9e3779b9))>>>0);
+      var remaining=sites.slice();
+      function choosePair(predicate){
+        var eligible=[];
+        for(var i=0;i<remaining.length;i++)if(!predicate||predicate(remaining[i]))eligible.push(i);
+        if(!eligible.length)return null;
+        return remaining.splice(eligible[Math.floor(rand()*eligible.length)],1)[0];
+      }
+      var m={version:2,rulesVersion:RULES_VERSION,generatorVersion:"mapgen-v2-r2",
+        name:"均衡随机战场",seed:base,rocks:[],portals:[],ice:[],boost:[]};
+      var ok=true;
+      // One special pair can be its own 180-degree mirror; the others occur as mirrored pair pairs.
+      if(portalCount%2){
+        var middle=choosePair();
+        if(!middle){ok=false;}else m.portals.push({id:"portal-1",a:copy(middle[0]),b:copy(middle[1])});
+      }
+      for(var j=0;j<Math.floor(portalCount/2)&&ok;j++){
+        var lhs=choosePair(),rhs=choosePair();
+        if(!lhs||!rhs){ok=false;break;}
+        var idx=m.portals.length+1;
+        m.portals.push({id:"portal-"+idx,a:copy(lhs[0]),b:copy(rhs[0])});
+        m.portals.push({id:"portal-"+(idx+1),a:copy(lhs[1]),b:copy(rhs[1])});
+      }
+      if(!ok){failures.space=(failures.space||0)+1;continue;}
+      if(iceCount%2)m.ice.push(copy(center));
+      for(var i=0;i<Math.floor(iceCount/2);i++){
+        var chosen=null;
+        if(m.ice.length&&rand()<continuity){
+          chosen=choosePair(function(pair){
+            return pair.some(function(p){return m.ice.some(function(ice){return adjacent(p,ice);});});
+          });
+        }
+        if(!chosen)chosen=choosePair();
+        if(!chosen){ok=false;break;}
+        m.ice.push.apply(m.ice,toPoints(chosen));
+      }
+      if(!ok){failures.space=(failures.space||0)+1;continue;}
+      if(boostCount%2)m.boost.push(copy(center));
+      for(var i=0;i<Math.floor(boostCount/2);i++){
+        var pair=choosePair();if(!pair){ok=false;break;}
+        m.boost.push.apply(m.boost,toPoints(pair));
+      }
+      if(!ok){failures.space=(failures.space||0)+1;continue;}
+      if(rocks%2)m.rocks.push(copy(center));
+      for(var i=0;i<Math.floor(rocks/2);i++){
+        var pair=choosePair();if(!pair){ok=false;break;}
+        m.rocks.push.apply(m.rocks,toPoints(pair));
+      }
+      if(!ok){failures.space=(failures.space||0)+1;continue;}
+      var validity=validateMap(m);
+      if(!validity.ok){failures[validity.code]=(failures[validity.code]||0)+1;continue;}
+      var metrics=mapMetrics(m);
+      if(metrics.classicDistances[0]!==metrics.classicDistances[1]||
+         metrics.advancedDistances[0]!==metrics.advancedDistances[1]||
+         metrics.openingMobility[0][0]!==metrics.openingMobility[0][1]||
+         metrics.openingMobility[1][0]!==metrics.openingMobility[1][1]){
+        failures.notSymmetric=(failures.notSymmetric||0)+1;continue;
+      }
+      if(boostCount&&metrics.usableBoostTiles<Math.ceil(boostCount*.6)){
+        failures.boostUnusable=(failures.boostUnusable||0)+1;continue;
+      }
+      // The six opening locations must all offer at least one immediate move.
+      if(metrics.openingMobility.some(function(row){return row.some(function(value){return value<3;});})){
+        failures.weakOpenings=(failures.weakOpenings||0)+1;continue;
+      }
+      m.generation={type:"balanced-r2",parameters:parameters,attempt:attempt};
+      m.quality=metrics;
+      return m;
+    }
+    var err=Error("Unable to generate balanced playable map: "+JSON.stringify(failures));
+    err.rejections=failures;throw err;
+  }
   function reproduceMap(input){
     var m=normalizeMap(input);
-    if(!m||m.generatorVersion!==GENERATOR_VERSION||!m.generation||!m.generation.parameters||m.seed===null)
+    if(!m||!m.generation||!m.generation.parameters||m.seed===null)
       throw Error("Missing or incompatible seeded map generation information");
-    var out=m.generation.type==="random-rocks"?randomRocks(m.seed):randomMap(m.seed,m.generation.parameters);
+    var out;
+    if(m.generatorVersion==="mapgen-v2-r2"&&m.generation.type==="balanced-r2")
+      out=generateBalancedMap(m.seed,m.generation.parameters);
+    else if(m.generatorVersion===GENERATOR_VERSION)
+      out=m.generation.type==="random-rocks"?randomRocks(m.seed):randomMap(m.seed,m.generation.parameters);
+    else throw Error("Unsupported historical map generator version");
     if(mapFingerprint(out)!==mapFingerprint(m))throw Error("Map generator does not reproduce original map fingerprint");
     return out;
   }
@@ -1248,7 +1362,7 @@
       try{
         if(mode==="default")map=defaultMap();
         else if(mode==="random-rocks")map=randomRocks(Date.now()>>>0);
-        else if(mode==="random-battle")map=randomMap(Date.now()>>>0);
+        else if(mode==="random-battle")map=generateBalancedMap(Date.now()>>>0);
         else throw Error("Unknown map layout mode");
         if(!installMap(map))throw Error("地图未通过合法性验证");
         editing=false;editorMap=null;editorRocks=null;editorSelection=null;editorPendingPortal=null;
@@ -1299,7 +1413,7 @@
         var opts={rocks:Number($("editorRocksCount").value),portals:Number($("editorPortalsCount").value),
           ice:Number($("editorIceCount").value),boost:Number($("editorBoostCount").value),
           iceContinuity:Number($("editorIceContinuity").value)};
-        var map=randomMap(seed,opts);
+        var map=$("editorMapStyle").value==="free"?randomMap(seed,opts):generateBalancedMap(seed,opts);
         editorCheckpoint();editorMap=copy(map);editorRocks=editorMap.rocks;editorPendingPortal=null;
         editorName=map.name;editorDraw();
         $("editorSeed").value=String(seed);editorMessage("随机生成成功 · "+mapFingerprint(map).slice(0,12)+
@@ -1411,7 +1525,7 @@
   window.MumuMapV2=Object.freeze({
     rulesVersion:RULES_VERSION,generatorVersion:GENERATOR_VERSION,
     get:getMap,normalize:normalizeMap,validate:validateMap,
-    generate:randomMap,generateRandomRocks:randomRocks,
+    generate:randomMap,generateBalanced:generateBalancedMap,generateRandomRocks:randomRocks,
     metrics:mapMetrics,fingerprint:mapFingerprint,reproduce:reproduceMap
   });
   state.hover=null;state.notice=state.notice||"";

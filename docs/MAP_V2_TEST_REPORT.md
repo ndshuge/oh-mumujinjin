@@ -24,6 +24,17 @@
 - 在此独立分支重新执行全部 12 组回归：PASS。原正式版和其他训练工作树均未修改。
 - 当前屏幕证据来自 Edge 的移动视口模拟，**不等同 iPhone Safari / iPad 真机实测**。
 
+## 均衡生成器 / AI 兼容（独立分支）
+
+- `node map-v2-fairness-regression.cjs`：180°旋转地形与传送配对镜像、经典/进阶路径、同种子与旧版复现；PASS。
+- `node map-v2-fair-stress.cjs 1000`：1000张完全去重、全部规则合法、两玩法距离差0；PASS。结果 `docs/MAP_V2_FAIR_STRESS_RESULT.json`。
+- `node map-v2-fair-wall-regression.cjs`：均衡地图上3060候选、60次实际筑墙；PASS。
+- `node map-v2-ai-integration-smoke.cjs`：五类公开可用推理接口共40动作、0非法；PASS；若缺冻结G5权重显式跳过其8个样本。
+- `node map-v2-ai-arena.cjs 3 76`：24局1447手，全部行动合法、0卡死、0超时。
+- `node map-v2-g5-compat-arena.cjs 1 76`：冻结 G5 权重推理适配4局227手，0非法，1局策略重复平局。
+- `node map-v2-fair-dataset-regression.cjs`：训练/验证/封存15张互不重复、r2种子复现通过；历史数据脚本默认r1保持不变，`--balanced` 启用r2。
+- 同策略无筑墙120局金120胜，提示先手优势；**不宣称地图生成可保证50%胜率**。
+
 ## 边界与未验收
 
 - **真机 Safari、iPad 触摸/性能**：目前仅有浏览器视口截图与真实 `PointerEvent` 监听器自动模拟，尚未在物理设备验收。

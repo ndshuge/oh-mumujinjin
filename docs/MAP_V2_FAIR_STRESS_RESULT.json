@@ -1,0 +1,17 @@
+{
+  "sample": 1000,
+  "generated": 1000,
+  "rejectSeeds": 0,
+  "distinct": true,
+  "maxDistancesDifference": {
+    "classicMax": 0,
+    "advancedMax": 0
+  },
+  "meanRetries": 0,
+  "meanUsableBoosts": 4,
+  "meanDirectionalIce": 4.989,
+  "meanPortalShortcuts": 6.434,
+  "maxGenerationAttempt": 0,
+  "elapsedMs": 17484,
+  "failures": []
+}
