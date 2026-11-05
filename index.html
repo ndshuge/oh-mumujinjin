@@ -66,6 +66,16 @@
           <div class="board-heading"><span class="tiny-square"></span><span>对弈战场</span><span class="board-index">09 × 13</span></div>
           <div class="board-version"><span class="tiny-dot"></span><span id="boardVersion">经典战场</span></div>
         </div>
+        <nav id="mapQuickTools" class="map-v2-quicktools" aria-label="地图绘制快捷工具" hidden>
+          <button id="quickEditorAdd" type="button">障碍</button>
+          <button id="quickEditorPortal" type="button">传送门</button>
+          <button id="quickEditorIce" type="button">冰面</button>
+          <button id="quickEditorBoost" type="button">加速</button>
+          <button id="quickEditorSelect" type="button">移动</button>
+          <button id="quickEditorErase" type="button">擦除</button>
+          <button id="quickEditorUndo" type="button">撤销</button>
+          <button id="quickEditorRedo" type="button">重做</button>
+        </nav>
         <div class="board-frame">
           <div class="board-corner corner-tl"></div><div class="board-corner corner-tr"></div>
           <div class="board-corner corner-bl"></div><div class="board-corner corner-br"></div>
@@ -197,6 +207,17 @@
     <button id="playAgainBtn" class="primary-btn" type="button">再来一局 ↗</button>
   </div>
 </div>
+<nav id="mobileMapDock" class="mobile-map-dock" aria-label="地图工坊快捷工具">
+  <button id="mobileMapRock" type="button">障碍</button>
+  <button id="mobileMapPortal" type="button">传送</button>
+  <button id="mobileMapIce" type="button">冰面</button>
+  <button id="mobileMapBoost" type="button">加速</button>
+  <button id="mobileMapErase" type="button">擦除</button>
+  <button id="mobileMapSelect" type="button">移动</button>
+  <button id="mobileMapUndo" type="button">撤销</button>
+  <button id="mobileMapRedo" type="button">重做</button>
+</nav>
+
 <script defer src="./xiaodi-engine.js?v=g4-h13-20261014"></script>
 <script defer src="./game.js?v=map-v2-local-20261105"></script>
 <script defer src="./mobile.js?v=ai-mvp-20261013"></script>

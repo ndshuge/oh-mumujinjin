@@ -8,7 +8,7 @@ const localStorage={getItem:k=>mem[k]||null,setItem:(k,v)=>mem[k]=v};
 const window={confirm:()=>true,setTimeout:()=>{}};
 const probe='window.test={cleanMap,validateMap,mapFingerprint,mapCurrent,installMap,findPath,portal,ice,boost,sha256,mapMetrics,randomMap,randomRocks,reproduceMap,openEditor,editCell,mapDraft,saveMap,shareMap,state:()=>state,mapMode:()=>mapMode};state=load()||newGame("classic");';
 assert(src.includes('state=load()||newGame("classic");'));
-vm.runInNewContext(src.replace('state=load()||newGame("classic");',probe),{window,document:doc,localStorage,Set,Math,Number,JSON,Uint8Array,TextEncoder,TextDecoder,btoa,atob,location:{hash:'',origin:'https://test',pathname:'/'},navigator:{},console},{filename:'game.js'});
+vm.runInNewContext(src.replace('state=load()||newGame("classic");',probe),{window,document:doc,localStorage,Set,Math,Number,JSON,Uint8Array,TextEncoder,TextDecoder,btoa,atob,Date:{now:()=>123456789},location:{hash:'',origin:'https://test',pathname:'/'},navigator:{},console},{filename:'game.js'});
 const t=window.test,copy=x=>JSON.parse(JSON.stringify(x));
 const migrated=t.cleanMap({version:1,name:'旧地图',rocks:[{x:4,y:6}]});
 assert(migrated&&migrated.version===2&&migrated.portals.length===3&&migrated.ice.length===5&&migrated.boost.length===4);
@@ -57,7 +57,7 @@ assert.equal(t.mapDraft().portals.length,1);assert.equal(t.mapDraft().portals[0]
 const savedBefore=mem['mumujinjin-custom-maps-v2'];
 fire('editorSave','click');assert.equal(mem['mumujinjin-custom-maps-v2'],savedBefore,'Incomplete pair cannot save');
 tap(3,5);assert.equal(t.mapDraft().portals.length,1);assert(t.mapDraft().portals[0].b);
-fire('editorIce','click');
+fire('quickEditorIce','click'); // Board-adjacent compact toolbar must control drawing.
 let down={pointerId:77,clientX:67.5+65*5+26,clientY:67.5+65*6+26,cancelable:true,preventDefault(){}};
 fire('board','pointerdown',down);
 fire('board','pointermove',{...down,clientX:down.clientX+65});
@@ -79,3 +79,17 @@ assert.equal(el('mapEditor').hidden,true,'Switching layout closes stale editing 
 assert.equal(t.state().variant,beforeRule,'Map layout mode must not change game rules');
 assert.equal(mem['mumujinjin-layout-mode-v2'],'random-battle');
 console.log('PASS: editor portal pairing, touch brush, undo/redo, select drag, erase, export, independent map modes');
+// Mobile map dock must operate real edit actions without scrolling to the full panel.
+t.openEditor();fire('editorClear','click');
+fire('mobileMapIce','click');tap(7,9);
+assert.equal(t.mapDraft().ice.length,1,'Mobile dock ice tool paints');
+fire('mobileMapUndo','click');assert.equal(t.mapDraft().ice.length,0,'Mobile dock undo works');
+fire('mobileMapRedo','click');assert.equal(t.mapDraft().ice.length,1,'Mobile dock redo works');
+// Map IDs must remain unique after deleting a middle pair and immediately adding another.
+fire('editorClear','click');fire('editorPortal','click');
+tap(3,4);tap(3,5);tap(4,4);tap(4,5);tap(5,4);tap(5,5);
+fire('editorErase','click');tap(4,4);
+fire('editorPortal','click');tap(6,4);tap(6,5);
+assert.equal(t.mapDraft().portals.length,3);
+assert.equal(new Set(t.mapDraft().portals.map(p=>p.id)).size,t.mapDraft().portals.length,'Portal IDs must be unique');
+assert(t.validateMap(t.mapDraft()).ok,'New portal IDs must not collide with an existing pair');

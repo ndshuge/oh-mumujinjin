@@ -187,13 +187,25 @@
   function editorMessage(msg){$("editorMessage").textContent=msg;}
   function editorDraw(){
     $("mapEditor").hidden=!editing;
+    $("mapQuickTools").hidden=!editing;
     canvas.classList.toggle("map-editing",editing);
     if(document.body&&document.body.classList)document.body.classList.toggle("map-workshop-active",editing);
     $("mapEditorButton").textContent=editing?"关闭工坊":"地图工坊";
     ["add","erase","portal","ice","boost","select"].forEach(function(tool){
       var id=tool==="add"?"editorAdd":tool==="erase"?"editorErase":"editor"+tool.charAt(0).toUpperCase()+tool.slice(1);
       if($(id))$(id).classList.toggle("selected",editorTool===tool);
+      var quickId="quickEditor"+tool.charAt(0).toUpperCase()+tool.slice(1);
+      if($(quickId)){
+        $(quickId).classList.toggle("selected",editorTool===tool);
+        $(quickId).setAttribute("aria-pressed",editorTool===tool?"true":"false");
+      }
     });
+    [["mobileMapRock","add"],["mobileMapPortal","portal"],["mobileMapIce","ice"],
+      ["mobileMapBoost","boost"],["mobileMapErase","erase"],["mobileMapSelect","select"]]
+      .forEach(function(item){
+        $(item[0]).classList.toggle("selected",editorTool===item[1]);
+        $(item[0]).setAttribute("aria-pressed",String(editorTool===item[1]));
+      });
     $("editorName").value=editorName;
     $("mapNameActive").textContent=activeMap?activeMap.name:editorName;
     refreshAIBanter();drawBoard();
@@ -234,7 +246,9 @@
         var gate=editorMap.portals[editorPendingPortal];
         if(gate&&gate.b===null){editorCheckpoint();gate.b=copy(t);editorPendingPortal=null;return true;}
       }
-      editorCheckpoint();var id="portal-"+(Date.now().toString(36))+"-"+(editorMap.portals.length+1);
+      editorCheckpoint();var stamp=Date.now().toString(36),serial=editorMap.portals.length+1;
+      var id="portal-"+stamp+"-"+serial;
+      while(editorMap.portals.some(function(g){return g.id===id;}))id="portal-"+stamp+"-"+(++serial);
       editorMap.portals.push({id:id,a:copy(t),b:null});
       editorPendingPortal=editorMap.portals.length-1;
       editorMessage("已放置传送门第一个端点，请点击第二个端点完成配对。");return true;
@@ -557,6 +571,7 @@
     return false;
   }
   function validWall(w){
+    if(!w||!Number.isInteger(w.x)||!Number.isInteger(w.y)||(w.o!=="h"&&w.o!=="v"))return false;
     if(w.x<0||w.y<0||w.x>W-2||w.y>H-2)return false;
     if(state.left[state.turn]===0||state.phase!=="play")return false;
     var conflicts=state.walls.some(function(q){
@@ -750,6 +765,7 @@
   // 地狱级：有界两层对抗搜索（AI 下一步 vs 玩家最佳应对）。
   // Includes both legal wall placements and player moves, and both portal choices.
   function hellWallAllowed(s,w,who){
+    if(!w||!Number.isInteger(w.x)||!Number.isInteger(w.y)||(w.o!=="h"&&w.o!=="v"))return false;
     if(w.x<0||w.y<0||w.x>W-2||w.y>H-2||s.left[who]<=0)return false;
     if(s.walls.some(function(q){
       return q.o===w.o?(w.o==="h"?q.y===w.y&&Math.abs(q.x-w.x)<2:q.x===w.x&&Math.abs(q.y-w.y)<2):q.x===w.x&&q.y===w.y;
@@ -1195,6 +1211,17 @@
   }
   function bindEvents(){
     canvas.addEventListener("click",canvasClick);
+    // Mobile in-board tool dock: same editor state as the desktop toolbar.
+    [["mobileMapRock","add"],["mobileMapPortal","portal"],["mobileMapIce","ice"],
+      ["mobileMapBoost","boost"],["mobileMapErase","erase"],["mobileMapSelect","select"]]
+      .forEach(function(item){
+        $(item[0]).addEventListener("click",function(){
+          if(!editing)return;
+          editorTool=item[1];editorSelection=null;editorDraw();
+        });
+      });
+    $("mobileMapUndo").addEventListener("click",editorUndoAction);
+    $("mobileMapRedo").addEventListener("click",editorRedoAction);
     canvas.addEventListener("pointerdown",editorPointerDown);
     canvas.addEventListener("pointerup",editorPointerUp);
     canvas.addEventListener("pointercancel",function(){editorPointer=null;suppressEditorClick=false;});
@@ -1243,6 +1270,13 @@
       editorCheckpoint();editorMap.rocks=[];editorMap.portals=[];editorMap.ice=[];editorMap.boost=[];
       editorRocks=editorMap.rocks;editorPendingPortal=null;editorSelection=null;editorDraw();editorMessage("可编辑地形已清空，营地保留。");
     });
+    ["add","portal","ice","boost","select","erase"].forEach(function(tool){
+      $("quickEditor"+tool.charAt(0).toUpperCase()+tool.slice(1)).addEventListener("click",function(){
+        editorTool=tool;editorSelection=null;editorDraw();
+      });
+    });
+    $("quickEditorUndo").addEventListener("click",editorUndoAction);
+    $("quickEditorRedo").addEventListener("click",editorRedoAction);
     $("editorUndo").addEventListener("click",editorUndoAction);
     $("editorRedo").addEventListener("click",editorRedoAction);
     $("editorSave").addEventListener("click",saveMap);

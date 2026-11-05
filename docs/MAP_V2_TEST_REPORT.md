@@ -16,6 +16,14 @@
 
 > 1000 张最终混合参数生成结果以 `datasets/map-v2-20261105/manifest.json` 为准（必须配合控制台 PASS）。老版单一参数集已弃用。
 
+## UI 工坊专项复核（独立分支 feature/map-v2-ui-20261105）
+
+- 桌面浏览器 1366×900 视口：工坊工具区与完整棋盘并排，页面仍维持原游戏视觉语言。截图 `docs/map-v2-previews/workshop-desktop-review.png`。
+- 移动浏览器 390×844 视口：紧凑工具区、完整九列十三行棋盘及底部操作栏在同一画面内；修复初版工坊的棋盘横向裁切。截图 `docs/map-v2-previews/workshop-mobile-compact-review.png`。
+- 使用 `map-v2-regression.cjs` 验证快捷工具事件、实际 Pointer 绘制与撤销重做；另验证传送门 ID 不重复和墙参数拒绝规则。
+- 在此独立分支重新执行全部 12 组回归：PASS。原正式版和其他训练工作树均未修改。
+- 当前屏幕证据来自 Edge 的移动视口模拟，**不等同 iPhone Safari / iPad 真机实测**。
+
 ## 边界与未验收
 
 - **真机 Safari、iPad 触摸/性能**：目前仅有浏览器视口截图与真实 `PointerEvent` 监听器自动模拟，尚未在物理设备验收。
