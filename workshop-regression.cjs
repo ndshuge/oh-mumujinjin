@@ -8,11 +8,11 @@ const el=id=>{
 const ctx=new Proxy({},{get(t,k){return k in t?t[k]:()=>{};}});
 el("board").getContext=()=>ctx;
 const document={getElementById:el,querySelectorAll:()=>[],createElement:()=>({}),addEventListener(){}};
-const window={confirm:()=>true,setTimeout:fn=>callbacks.push(fn)};
+const window={confirm:()=>true,setTimeout:fn=>callbacks.push(fn),crypto:{getRandomValues(a){a[0]=0;return a;}}};
 const localStorage={getItem:k=>mem[k]||null,setItem:(k,v)=>{mem[k]=v}};
-const injection='window.test={state:()=>state,cleanMap,installMap,mapCurrent,resetGame,setAILevel,selectOrigin,availableMoves,playerMove,choosePortal,hellChooseAction,hellWallAllowed,hellCandidates,saveMap,shareMap,openEditor};state=load()||newGame("classic");';
+const injection='window.test={state:()=>state,cleanMap,installMap,mapCurrent,resetGame,setAILevel,playRps,decideRpsSide,selectOrigin,availableMoves,playerMove,choosePortal,hellChooseAction,hellWallAllowed,hellCandidates,saveMap,shareMap,openEditor};state=load()||newGame("classic");';
 assert(source.includes('state=load()||newGame("classic");'));
-vm.runInNewContext(source.replace('state=load()||newGame("classic");',injection),{window,document,localStorage,Set,Math,JSON,Number,Uint8Array,TextEncoder,btoa,atob,location:{origin:"https://example.com",pathname:"/game",hash:""},navigator:{clipboard:{writeText:async()=>{}}},console},{filename:"game.js"});
+vm.runInNewContext(source.replace('state=load()||newGame("classic");',injection),{window,document,localStorage,Set,Math,JSON,Number,Uint32Array,Uint8Array,TextEncoder,btoa,atob,location:{origin:"https://example.com",pathname:"/game",hash:""},navigator:{clipboard:{writeText:async()=>{}}},console},{filename:"game.js"});
 const t=window.test;
 const map={version:1,name:"测试地图",rocks:[{x:4,y:6}]};
 const good=t.cleanMap(map);
@@ -39,7 +39,7 @@ const raw=link.split("#map=")[1].replace(/-/g,"+").replace(/_/g,"/");
 const decoded=JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(raw),c=>c.charCodeAt(0))));
 assert.strictEqual(decoded.rocks.length,1);
 t.openEditor();t.resetGame("classic");
-t.setAILevel("hell");t.selectOrigin({x:7,y:12});
+t.setAILevel("hell");t.playRps("rock");t.decideRpsSide("first");t.selectOrigin({x:7,y:12});
 for(let i=0;i<callbacks.length;i++){const cb=callbacks[i];cb();if(i>50)throw Error("Too many async turns");}
 const state=t.state();
 assert.strictEqual(state.phase,"play");assert.strictEqual(state.turn,0);

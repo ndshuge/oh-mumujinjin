@@ -10,11 +10,11 @@ function el(id){
 const ctx=new Proxy({},{get(t,k){return k in t?t[k]:(()=>{});},set(t,k,v){t[k]=v;return true;}});
 el("board").getContext=()=>ctx;
 const document={getElementById:el,querySelectorAll:()=>[],addEventListener(){}},data={};
-const window={confirm:()=>true,setTimeout:(fn)=>{timers.push(fn);return timers.length;}};
+const window={confirm:()=>true,setTimeout:(fn)=>{timers.push(fn);return timers.length;},crypto:{getRandomValues(arr){arr[0]=0;return arr;}}};
 const localStorage={getItem(k){return data[k]||null;},setItem(k,v){data[k]=v;}};
-const inject='window.test={state:()=>state,setAILevel,setPlayMode,selectOrigin,availableMoves,playerMove,choosePortal,undo,resetGame,computerDistance,computerMoveChoice,computerWallChoice,validWall};state=load()||newGame("classic");';
+const inject='window.test={state:()=>state,playRps,decideRpsSide,setAILevel,setPlayMode,selectOrigin,availableMoves,playerMove,choosePortal,undo,resetGame,computerDistance,computerMoveChoice,computerWallChoice,validWall};state=load()||newGame("classic");';
 assert(source.includes('state=load()||newGame("classic");'),"entry hook changed");
-vm.runInNewContext(source.replace('state=load()||newGame("classic");',inject),{window,document,localStorage,Set,Math,JSON,Number,console},{filename:"game.js"});
+vm.runInNewContext(source.replace('state=load()||newGame("classic");',inject),{window,document,localStorage,Set,Math,JSON,Number,Uint32Array,console},{filename:"game.js"});
 const t=window.test;
 function drain(max=20){
  let n=0;
@@ -26,7 +26,7 @@ for(const level of ["easy","normal","hard"]){
  t.setAILevel(level);
  assert.strictEqual(t.state().playMode,"cpu");
  assert.strictEqual(t.state().aiLevel,level);
- t.selectOrigin(pos(7,12));
+ t.playRps("rock");t.decideRpsSide("first");t.selectOrigin(pos(7,12));
  drain();
  assert.strictEqual(t.state().phase,"play");
  assert.strictEqual(t.state().turn,0,"Computer spawn should finish then human moves");
@@ -50,7 +50,7 @@ assert.strictEqual(t.state().phase,"pick-defend","Local two-player mode still ne
 let turns=0;
 for(const variant of ["classic","advanced"]){
  for(const level of ["easy","normal","hard"]){
-  t.resetGame(variant);t.setAILevel(level);t.selectOrigin(pos(7,12));drain();
+  t.resetGame(variant);t.setAILevel(level);t.playRps("rock");t.decideRpsSide("first");t.selectOrigin(pos(7,12));drain();
   for(let i=0;i<10 && t.state().phase==="play";i++){
    assert.strictEqual(t.state().turn,0);
    const legal=t.availableMoves();

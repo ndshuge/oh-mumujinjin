@@ -564,10 +564,46 @@
   var ice = function(p){return state.variant==="advanced" && has(ICE,p);};
   var boost = function(p){return state.variant==="advanced" && has(BOOST,p);};
   var portal = function(p){return PORTALS.find(function(g){return same(g.a,p)||same(g.b,p);}) || null;};
+  // Pre-match rock/paper/scissors; the winner chooses whether to take the first (gold) move.
+  function cpuSide(){return state.humanSide===1?0:1;}
+  function rpsRandom(){
+    if(typeof crypto!=="undefined"&&crypto.getRandomValues){var a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%3;}
+    if(window.crypto&&window.crypto.getRandomValues){var a=new Uint32Array(1);window.crypto.getRandomValues(a);return a[0]%3;}
+    return Math.floor(Math.random()*3);
+  }
+  function beginRps(){
+    if(state.playMode!=="cpu")return;
+    state.phase="rps";state.rps={winner:null,human:null,computer:null,rounds:0};state.humanSide=0;
+    $("rpsResult").textContent="选择石头、剪刀或布。平局重新猜拳。";
+    $("rpsSideChoices").hidden=true;$("rpsChoices").hidden=false;
+    setModal("rpsModal",true);save();drawUI();drawBoard();
+  }
+  function playRps(hand){
+    if(state.playMode!=="cpu"||state.phase!=="rps"||!["rock","paper","scissors"].includes(hand))return;
+    var choices=["scissors","rock","paper"],labels={rock:"石头",paper:"布",scissors:"剪刀"};
+    var ai=choices[rpsRandom()];
+    state.rps.human=hand;state.rps.computer=ai;state.rps.rounds++;
+    if(hand===ai){$("rpsResult").textContent="双方都出 "+labels[hand]+"，平局！再猜一次。";save();return;}
+    var win=(hand==="rock"&&ai==="scissors")||(hand==="scissors"&&ai==="paper")||(hand==="paper"&&ai==="rock");
+    state.rps.winner=win?"human":"cpu";
+    $("rpsResult").textContent="你出 "+labels[hand]+"，电脑出 "+labels[ai]+"。"+(win?"你赢了！选择先后手。":"电脑获胜，电脑决定先手。");
+    $("rpsChoices").hidden=true;
+    if(win)$("rpsSideChoices").hidden=false;
+    else decideRpsSide("second");
+    save();
+  }
+  function decideRpsSide(choice){
+    if(state.phase!=="rps"||!state.rps||!state.rps.winner)return;
+    if(state.rps.winner==="human"&&choice!=="first"&&choice!=="second")return;
+    // CPU wins: it elects the first move; human occupies wood. User wins: can choose either.
+    state.humanSide=choice==="second"?1:0;
+    state.phase="pick-attack";state.turn=0;state.rps.chosen=choice;
+    setModal("rpsModal",false);commit();
+  }
   function newGame(variant){
     return {variant:variant||"classic",playMode:"local",aiLevel:"normal",phase:"pick-attack",players:[null,null],turn:0,
       walls:[],left:[5,5],moves:0,history:[],action:"move",orientation:"h",
-      hover:null,slideDir:[null,null],pending:null,winner:null,repetitions:{},notice:""};
+      hover:null,slideDir:[null,null],pending:null,winner:null,repetitions:{},notice:"",humanSide:0,rps:null};
   }
   function snapshot(){
     return JSON.stringify({phase:state.phase,players:state.players,turn:state.turn,walls:state.walls,
@@ -606,7 +642,7 @@
     var playMode=state.playMode||"local",aiLevel=state.aiLevel||"normal";
     state=newGame(variant||state.variant);
     state.playMode=playMode;state.aiLevel=aiLevel;
-    closeAll();commit();
+    closeAll();if(playMode==="cpu")beginRps();else commit();
   }
   function confirmSwitch(variant){
     if(state.variant===variant)return;
@@ -616,7 +652,7 @@
   function record(){state.history.push(snapshot());if(state.history.length>120)state.history.shift();}
   function undo(){
     if(!state.history.length){notice("还没有可悔的步骤。");return;}
-    var count=state.playMode==="cpu"&&state.phase==="play"&&state.turn===0?2:1;
+    var count=state.playMode==="cpu"&&state.phase==="play"&&state.turn===state.humanSide?2:1;
     while(count-- > 0 && state.history.length)restore(state.history.pop());
     closeAll();commit();
   }
@@ -791,8 +827,8 @@
     }
     commit();
     if(state.playMode==="cpu"){
-      if(state.phase==="finished"&&state.winner!==null)showAIQuote(state.winner===1?"win":"lose",true);
-      else if(moving===1)showAIQuote(actionName.indexOf("墙")>=0?"wall":actionName.indexOf("门")>=0?"portal":"move",false);
+      if(state.phase==="finished"&&state.winner!==null)showAIQuote(state.winner===cpuSide()?"win":"lose",true);
+      else if(moving===cpuSide())showAIQuote(actionName.indexOf("墙")>=0?"wall":actionName.indexOf("门")>=0?"portal":"move",false);
       else if(state.moves%5===0)showAIQuote("danger",true);
     }
   }
@@ -818,10 +854,11 @@
   }
   function canvasClick(event){
     if(editing){if(suppressEditorClick){suppressEditorClick=false;return;}editCell(tileAt(pointerPos(event)));return;}
-    if(state.playMode==="cpu"&&state.phase==="play"&&state.turn===1)return;
+    if(state.playMode==="cpu"&&state.phase==="play"&&state.turn===cpuSide())return;
     if(state.phase==="finished"||state.pending)return;
     var p=pointerPos(event),t=tileAt(p);
     if(state.phase==="pick-attack"||state.phase==="pick-defend"){
+      if(state.playMode==="cpu"&&(state.phase==="pick-attack"?0:1)===cpuSide())return;
       if(t)selectOrigin(t);
       return;
     }
@@ -986,14 +1023,60 @@
     }
     return best;
   }
-  function xiaodiChooseAction(){
+  function xiaodiChooseAction(who){
+    who=who===0?0:1;
     if(!window.MumuXiaodi){throw Error("小迪引擎未加载，拒绝降级为其他难度");}
     var snapshot={players:state.players.map(function(p){return {x:p.x,y:p.y};}),dirs:state.slideDir.map(function(d){return d?{x:d.x,y:d.y}:null;}),walls:state.walls.map(function(w){return {x:w.x,y:w.y,o:w.o};}),left:state.left.slice()};
     var engine={terrain:{CAMPS:CAMPS,PORTALS:PORTALS,ICE:ICE,BOOST:BOOST},setRocks:function(){},movementOptions:movementOptions,computerDistance:computerDistance,hellWallAllowed:hellWallAllowed,hellApply:hellApply,hellEvaluate:hellEvaluate,hellCandidates:hellCandidates,portal:portal};
-    return window.MumuXiaodi.choose(engine,snapshot,1,{rocks:ROCKS,map:mapCurrent(),fingerprint:mapFingerprint(mapCurrent())},260);
+    return window.MumuXiaodi.choose(engine,snapshot,who,{rocks:ROCKS,map:mapCurrent(),fingerprint:mapFingerprint(mapCurrent())},260);
+  }
+  function computerGoldChoice(){
+    var mine=state.players[0],goal=CAMPS[1],actions=movementOptions(mine,state.slideDir[0],state.walls);
+    var best=null,bestScore=Infinity;
+    actions.forEach(function(m){
+      var gate=portal(m.p),options=[{move:m,p:m.p,warp:false,lock:m.nextLock}];
+      if(gate)options.push({move:m,p:same(gate.a,m.p)?gate.b:gate.a,warp:true,lock:null});
+      options.forEach(function(a){
+        var d=computerDistance(a.p,goal,state.walls,a.lock);
+        var score=d+(a.warp?0.01:0);
+        if(score<bestScore){bestScore=score;best=a;}
+      });
+    });
+    var level=state.aiLevel||"normal";
+    if(level==="xiaodi")return xiaodiChooseAction(0);
+    if(level==="hard"||level==="hell"){
+      var snapshot={players:state.players,dirs:state.slideDir,walls:state.walls,left:state.left};
+      var candidates=hellCandidates(snapshot,0),ranked=null,scoreBest=-Infinity;
+      candidates.forEach(function(action){
+        var next=hellApply(snapshot,0,action);
+        var ours=computerDistance(next.players[0],CAMPS[1],next.walls,next.dirs[0]);
+        var theirs=computerDistance(next.players[1],CAMPS[0],next.walls,next.dirs[1]);
+        var score=-4*ours+.65*theirs+(action.wall?-0.75:0);
+        if(level==="hell"){
+          var worst=score;
+          hellCandidates(next,1).forEach(function(reply){
+            var after=hellApply(next,1,reply);
+            var val=-4*computerDistance(after.players[0],CAMPS[1],after.walls,after.dirs[0])
+              +.65*computerDistance(after.players[1],CAMPS[0],after.walls,after.dirs[1]);
+            worst=Math.min(worst,val);
+          });
+          score=.72*worst+.28*score;
+        }
+        if(score>scoreBest){scoreBest=score;ranked=action;}
+      });
+      if(ranked)return ranked;
+    }
+    return best;
   }
   function computerTakeTurn(){
-    if(state.playMode!=="cpu"||state.phase!=="play"||state.turn!==1||state.pending)return;
+    if(state.playMode!=="cpu"||state.phase!=="play"||state.turn!==cpuSide()||state.pending)return;
+    if(cpuSide()===0){
+      var gold=computerGoldChoice();if(!gold)return;
+      if(gold.wall){placeWall(gold.wall);return;}
+      playerMove(gold.move);
+      if(state.pending)choosePortal(gold.warp===true);
+      return;
+    }
     var level=state.aiLevel||"normal";
     var tactical=level==="xiaodi"?xiaodiChooseAction():level==="hell"?hellChooseAction():null;
     var wall=tactical?tactical.wall:computerWallChoice(level);
@@ -1001,7 +1084,7 @@
     var move=tactical?tactical.move:computerMoveChoice(level);
     if(!move)return;
     playerMove(move);
-    if(state.pending&&state.turn===1){
+    if(state.pending&&state.turn===cpuSide()){
       var gate=PORTALS[state.pending.index],cur=state.players[1];
       var exit=same(gate.a,cur)?gate.b:gate.a;
       var stayDistance=computerDistance(cur,CAMPS[0],state.walls,null);
@@ -1012,14 +1095,19 @@
   function scheduleComputerTurn(){
     var token=++cpuScheduleToken;
     if(editing||state.playMode!=="cpu"||typeof window.setTimeout!=="function")return;
-    if(state.phase==="pick-defend"){
+    if(state.phase==="pick-attack"&&cpuSide()===0){
+      window.setTimeout(function(){
+        if(token!==cpuScheduleToken||state.phase!=="pick-attack"||state.playMode!=="cpu")return;
+        selectOrigin({x:7,y:12});
+      },280);
+    }else if(state.phase==="pick-defend"&&cpuSide()===1){
       window.setTimeout(function(){
         if(token!==cpuScheduleToken||state.phase!=="pick-defend"||state.playMode!=="cpu")return;
         selectOrigin({x:1,y:0});
       },280);
-    }else if(state.phase==="play"&&state.turn===1&&!state.pending){
+    }else if(state.phase==="play"&&state.turn===cpuSide()&&!state.pending){
       window.setTimeout(function(){
-        if(token!==cpuScheduleToken||state.phase!=="play"||state.turn!==1||state.playMode!=="cpu")return;
+        if(token!==cpuScheduleToken||state.phase!=="play"||state.turn!==cpuSide()||state.playMode!=="cpu")return;
         computerTakeTurn();
       },420);
     }
@@ -1035,22 +1123,22 @@
     state.playMode="cpu";state.aiLevel=level;resetGame(state.variant);
   }
   function setAction(a){
-    if(editing||state.phase!=="play"||(state.playMode==="cpu"&&state.turn===1))return;
+    if(editing||state.phase!=="play"||(state.playMode==="cpu"&&state.turn===cpuSide()))return;
     state.action=a;state.hover=null;drawUI();drawBoard();
   }
   function orientation(o){
     state.orientation=o;drawUI();drawBoard();
   }
   function setModal(id,show){$(id).hidden=!show;}
-  function closeAll(){["guideModal","portalModal","winModal"].forEach(function(id){setModal(id,false);});}
+  function closeAll(){["guideModal","portalModal","winModal","rpsModal"].forEach(function(id){setModal(id,false);});}
   function drawUI(){
     var picking=state.phase!=="play"||editing;
     refreshAIBanter();
     $("mapEditorButton").textContent=editing?"关闭工坊":"地图工坊";
     $("mapNameActive").textContent=editorName;
-    var title=state.phase==="pick-attack"?"金方选择起点":state.phase==="pick-defend"?"木方选择起点":
+    var title=state.phase==="rps"?"猜拳决定先后手":state.phase==="pick-attack"?"金方选择起点":state.phase==="pick-defend"?"木方选择起点":
       state.phase==="finished"?(state.winner===null?"平局":NAMES[state.winner]+"赢得胜利"):NAMES[state.turn]+"的回合";
-    var help=state.phase==="pick-attack"?"点击棋盘右下角的任一金色营地格，作为金方出生点。":
+    var help=state.phase==="rps"?"选择石头、剪刀或布，赢的一方决定先后手。":state.phase==="pick-attack"?"点击棋盘右下角的任一金色营地格，作为金方出生点。":
       state.phase==="pick-defend"?"点击棋盘左上角的任一青色营地格，作为木方出生点。":
       state.phase==="finished"?"本局对战结束。可以悔棋或再来一局。":
       state.action==="wall"?"在棋盘上点击修筑两格长的墙。修墙会结束当前回合。":"点击棋盘内发光的格子行动。一次移动或筑墙即结束回合。";
@@ -1063,8 +1151,8 @@
         "冰面前方受阻：可转向，下一回合沿新方向继续滑行。";
     }
     if(state.playMode==="cpu"){
-      if(state.phase==="pick-defend")help="电脑正在选择木方出生点…";
-      if(state.phase==="play"&&state.turn===1){title="木方电脑的回合";help="电脑正在计算下一步，请稍候。";}
+      if(state.phase==="pick-defend"&&cpuSide()===1)help="电脑正在选择木方出生点…";
+      if(state.phase==="play"&&state.turn===cpuSide()){title=NAMES[cpuSide()]+"电脑的回合";help="电脑正在计算下一步，请稍候。";}
     }
     $("phaseInfo").textContent=title;
     $("message").textContent=state.notice||help;
@@ -1079,7 +1167,7 @@
     }
     $("moveMode").classList.toggle("selected",state.action==="move");
     $("wallMode").classList.toggle("selected",state.action==="wall");
-    var cpuBusy=state.playMode==="cpu"&&state.turn===1;
+    var cpuBusy=state.playMode==="cpu"&&state.turn===cpuSide();
     $("moveMode").disabled=picking||cpuBusy;$("wallMode").disabled=picking||cpuBusy||state.left[state.turn]===0;
     $("wallTools").hidden=state.action!=="wall"||picking;
     $("wallH").classList.toggle("selected",state.orientation==="h");
@@ -1090,7 +1178,7 @@
       $(x[0]).classList.toggle("selected",mapMode===x[1]);
     });
     $("boardVersion").textContent=state.variant==="classic"?"经典战场":"跑道挑战";
-    if(state.playMode==="cpu")$("player1Label").textContent=state.phase==="play"&&state.turn===1?"电脑思考中":"电脑执木方";
+    if(state.playMode==="cpu")$("player"+cpuSide()+"Label").textContent=state.phase==="play"&&state.turn===cpuSide()?"电脑思考中":"电脑执"+NAMES[cpuSide()];
     $("playLocal").classList.toggle("selected",state.playMode!=="cpu");
     $("playAI").classList.toggle("selected",state.playMode==="cpu");
     $("aiDifficulty").hidden=state.playMode!=="cpu";
@@ -1465,6 +1553,9 @@
       editing=false;mapMode="default";installMap(defaultMap());editorDraw();
     });
 
+    ["rock","paper","scissors"].forEach(function(hand){$("rps-"+hand).addEventListener("click",function(){playRps(hand);});});
+    $("rpsFirst").addEventListener("click",function(){decideRpsSide("first");});
+    $("rpsSecond").addEventListener("click",function(){decideRpsSide("second");});
     $("playLocal").addEventListener("click",function(){setPlayMode("local");});
     $("playAI").addEventListener("click",function(){setPlayMode("cpu");});
     $("aiQuiet").addEventListener("click",function(){
@@ -1505,7 +1596,7 @@
         e.preventDefault();if(e.shiftKey)editorRedoAction();else editorUndoAction();return;
       }
       if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="z"){e.preventDefault();undo();return;}
-      if(state.phase!=="play"||(state.playMode==="cpu"&&state.turn===1))return;
+      if(state.phase!=="play"||(state.playMode==="cpu"&&state.turn===cpuSide()))return;
       if(e.key.toLowerCase()==="r"){orientation(state.orientation==="h"?"v":"h");return;}
       var m={"ArrowRight":{x:1,y:0},"ArrowLeft":{x:-1,y:0},"ArrowDown":{x:0,y:1},"ArrowUp":{x:0,y:-1}}[e.key];
       if(m&&state.action==="move"){
@@ -1534,6 +1625,7 @@
   state.aiLevel=["easy","normal","hard","hell","xiaodi"].indexOf(state.aiLevel)>=0?state.aiLevel:"normal";
   bindEvents();drawUI();drawBoard();
   if(state.playMode==="cpu"&&state.phase==="play")showAIQuote("opening",true);
+  if(state.playMode==="cpu"&&state.phase==="rps")setModal("rpsModal",true);
   if(state.phase==="finished"&&state.winner!==null){
     $("winTitle").textContent=NAMES[state.winner]+"获胜！";
     $("winTurns").textContent=String(state.moves);
