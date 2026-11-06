@@ -713,15 +713,17 @@
   function decideRpsSide(choice){
     if(state.phase!=="rps"||!state.rps||!state.rps.winner)return;
     if(state.rps.winner==="human"&&choice!=="first"&&choice!=="second")return;
-    // CPU wins: it elects the first move; human occupies wood. User wins: can choose either.
-    state.humanSide=choice==="second"?1:0;
-    state.phase="pick-attack";state.turn=0;state.rps.chosen=choice;
+    // Human stays gold/bottom-right; the computer stays wood/top-left.
+    // First mover picks their own origin first.
+    state.humanSide=0;state.firstTurn=choice==="second"?1:0;
+    state.phase=state.firstTurn===1?"pick-defend":"pick-attack";
+    state.turn=state.firstTurn;state.rps.chosen=choice;
     setModal("rpsModal",false);commit();
   }
   function newGame(variant){
     return {variant:variant||"classic",playMode:"cpu",aiLevel:"xiaoke",phase:"waiting-ai",players:[null,null],turn:0,
       walls:[],left:[5,5],moves:0,history:[],action:"move",orientation:"h",
-      hover:null,slideDir:[null,null],pending:null,winner:null,repetitions:{},notice:"",humanSide:0,rps:null};
+      hover:null,slideDir:[null,null],pending:null,winner:null,repetitions:{},notice:"",humanSide:0,firstTurn:0,rps:null};
   }
   function snapshot(){
     return JSON.stringify({phase:state.phase,players:state.players,turn:state.turn,walls:state.walls,
@@ -753,7 +755,7 @@
       (s.winner===null||[0,1].includes(s.winner))&&
       (!s.pending||(Number.isInteger(s.pending.index)&&s.pending.index>=0&&s.pending.index<8))&&
       (!["play","finished"].includes(s.phase)||(!!s.players[0]&&!!s.players[1]))&&
-      (s.phase!=="pick-defend"||!!s.players[0])&&
+      (s.phase!=="pick-defend"||s.firstTurn===1||!!s.players[0])&&
       (s.phase!=="waiting-ai"||(s.playMode==="cpu"&&s.aiLevel==="xiaoke"&&s.moves===0));
   }
   function backupInvalidSave(raw){
@@ -772,6 +774,7 @@
       }
       if(parsed.state.variant!=="classic"&&parsed.state.variant!=="advanced")return null;
       parsed.state.repetitions=parsed.state.repetitions||{};
+      if(parsed.state.firstTurn!==1)parsed.state.firstTurn=0;
       return parsed.state;
     } catch(e){return null;}
   }
@@ -793,6 +796,9 @@
   function record(){state.history.push(snapshot());if(state.history.length>120)state.history.shift();}
   function undo(){
     if(!state.history.length){notice("还没有可悔的步骤。");return;}
+    if(state.playMode==="cpu"&&state.firstTurn===1&&state.moves===1&&state.phase==="play"){
+      notice("轮到你走第一步；走棋之后才能悔棋。");return;
+    }
     var count=state.playMode==="cpu"&&state.phase==="play"&&state.turn===state.humanSide?2:1;
     while(count-- > 0 && state.history.length)restore(state.history.pop());
     closeAll();commit();
@@ -898,8 +904,9 @@
       return;
     }
     record();state.players[who]={x:p.x,y:p.y};
-    if(who===0){state.phase="pick-defend";state.turn=1;}
-    else {state.phase="play";state.turn=0;}
+    if(!state.players[1-who]){
+      state.phase=who===0?"pick-defend":"pick-attack";state.turn=1-who;
+    }else {state.phase="play";state.turn=state.firstTurn===1?1:0;}
     commit();
     if(who===1)showAIQuote("opening",true);
   }
@@ -1168,6 +1175,29 @@
     return window.MumuZhongdi.choose(engine,snapshot,side,{rocks:ROCKS,map:mapCurrent(),fingerprint:mapFingerprint(mapCurrent())});
   }
   // Search runs in a browser Worker. Validate moves against the live rule engine.
+  // The first mover can be wood. XiaoKe chooses from the three fixed
+  // top-left camp cells without waiting for the human to pick gold.
+  function xiaokeChooseOrigin(token){
+    if(!window.MMJJXiaokeAI){notice('小克模型未加载，请刷新网页。');return;}
+    var snap=copy({variant:state.variant,phase:state.phase,players:state.players,
+      slideDir:state.slideDir,walls:state.walls,left:state.left,turn:state.turn,
+      moves:state.moves,repetitions:state.repetitions,map:mapCurrent()});
+    var fp=mapFingerprint(mapCurrent());
+    window.MMJJXiaokeAI.choose({state:snap,budgetMs:800}).then(function(reply){
+      if(token!==cpuScheduleToken||state.playMode!=='cpu'||state.aiLevel!=='xiaoke'||
+         state.phase!=='pick-defend'||state.turn!==1||
+         mapFingerprint(mapCurrent())!==fp)return;
+      if(!reply||reply.info&&reply.info.warning)throw Error(reply?.info?.warning||'模型返回错误');
+      var a=reply.action;
+      if(!a||a.type!=='pick')throw Error('小克没有返回出生点');
+      var p=CAMPS[1].find(function(q){return q.x===a.x&&q.y===a.y;});
+      if(!p)throw Error('小克选择的出生点不在木方营地');
+      selectOrigin(p);
+    }).catch(function(e){
+      if(token===cpuScheduleToken&&state.phase==='pick-defend'&&state.aiLevel==='xiaoke')
+        notice('小克选择出生点失败：'+String(e.message||e)+'。可重新开局。');
+    });
+  }
   function xiaokeChooseTurn(token){
     if(!window.MMJJXiaokeAI){notice('小克模型未加载，请刷新网页。');return;}
     var snap=copy({variant:state.variant,phase:state.phase,players:state.players,
@@ -1261,7 +1291,8 @@
     }else if(state.phase==="pick-defend"&&cpuSide()===1){
       window.setTimeout(function(){
         if(token!==cpuScheduleToken||state.phase!=="pick-defend"||state.playMode!=="cpu")return;
-        selectOrigin({x:1,y:0});
+        if(state.aiLevel==="xiaoke")xiaokeChooseOrigin(token);
+        else selectOrigin({x:1,y:0});
       },280);
     }else if(state.phase==="play"&&state.turn===cpuSide()&&!state.pending){
       window.setTimeout(function(){
@@ -1352,7 +1383,8 @@
       if(typeof $("ai-"+level).setAttribute==="function")$("ai-"+level).setAttribute("aria-pressed",state.aiLevel===level?"true":"false");
     });
     $("legendExtra").hidden=state.variant!=="advanced"&&!editing;
-    $("undoBtn").disabled=state.history.length===0;
+    $("undoBtn").disabled=state.history.length===0||
+      (state.playMode==="cpu"&&state.firstTurn===1&&state.moves===1&&state.phase==="play");
     $("board").style.cursor=state.action==="wall"&&state.phase==="play"?"crosshair":"pointer";
   }
   function rounded(x,y,w,h,r,fill,stroke){
@@ -1410,6 +1442,7 @@
     if(editing)return;
     if(state.phase==="pick-attack"||state.phase==="pick-defend"){
       var who=state.phase==="pick-attack"?0:1;
+      if(state.playMode==="cpu"&&who===cpuSide())return;
       CAMPS[who].forEach(function(p){
         var x=X+p.x*STEP,y=Y+p.y*STEP;
         ctx.save();ctx.shadowColor=who===0?"#ffd08d":"#75dfd3";ctx.shadowBlur=12;
@@ -1799,7 +1832,18 @@
   state.playMode=state.playMode==="cpu"?"cpu":"local";
   state.aiLevel=["easy","normal","hard","hell","xiaodi","zhongdi","xiaoke"].indexOf(state.aiLevel)>=0?state.aiLevel:"xiaoke";
   if(state.playMode==="cpu"&&state.aiLevel==="xiaoke"&&state.phase==="waiting-ai"&&state.moves===0){state.phase="rps";state.rps=null;}
-  bindEvents();if(state.playMode==="cpu"&&state.phase==="rps"&&!state.rps)beginRps();else if(!loadedAtBoot&&state.playMode==="cpu"&&state.phase!=="rps")beginRps();drawUI();drawBoard();preloadSelectedEngine();
+  bindEvents();
+  // Saved matches from the old seat-switching rules keep a recoverable backup.
+  // Restart them with fixed human gold rather than silently swapping sides.
+  if(loadedAtBoot&&state.playMode==="cpu"&&state.humanSide!==0){
+    try{
+      var previous=localStorage.getItem("mumujinjin-game-v1");
+      if(previous&&!localStorage.getItem("mumujinjin-pre-fixed-gold-20261106"))
+        localStorage.setItem("mumujinjin-pre-fixed-gold-20261106",previous);
+    }catch(e){}
+    resetGame(state.variant,true);
+  }
+  if(state.playMode==="cpu"&&state.phase==="rps"&&!state.rps)beginRps();else if(!loadedAtBoot&&state.playMode==="cpu"&&state.phase!=="rps")beginRps();drawUI();drawBoard();preloadSelectedEngine();
   if(state.playMode==="cpu"&&state.phase==="play")showAIQuote("opening",true);
   if(state.playMode==="cpu"&&state.phase==="rps")setModal("rpsModal",true);
   if(state.phase==="finished"&&state.winner!==null){

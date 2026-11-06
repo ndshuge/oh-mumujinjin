@@ -29,7 +29,7 @@ test('上线版本必须刷新所有已修改的脚本 URL，避免旧资源与�
    assert.match(h,new RegExp(name.replaceAll('.','\\.')+'\\?v=xiaoke-20261106-r2'));
  }
 });
-test('页面资源版本与按需加载代码一致',()=>{assert.ok(read('index.html').includes('game.js?v=fair-r3-20261106-v1'))});
+test('页面资源版本与按需加载代码一致',()=>{assert.ok(read('index.html').includes('game.js?v=fair-r3-20261106-v2-fixed-seats'))});
 test('双指缩放拦截，一指滑动保留',()=>{
  const html=read('index.html'),js=read('viewport-guard.js');
  assert.match(html, /user-scalable=no/);
