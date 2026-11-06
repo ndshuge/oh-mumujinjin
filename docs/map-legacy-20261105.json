@@ -1,0 +1,473 @@
+{
+  "r2": {
+    "version": 2,
+    "rulesVersion": "map-v2-r1",
+    "generatorVersion": "mapgen-v2-r2",
+    "name": "均衡随机战场",
+    "seed": 20261105,
+    "rocks": [
+      {
+        "x": 2,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 10
+      },
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 7,
+        "y": 6
+      },
+      {
+        "x": 2,
+        "y": 8
+      },
+      {
+        "x": 6,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 10
+      },
+      {
+        "x": 6,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 10
+      },
+      {
+        "x": 8,
+        "y": 2
+      }
+    ],
+    "portals": [
+      {
+        "id": "portal-1",
+        "a": {
+          "x": 0,
+          "y": 2
+        },
+        "b": {
+          "x": 8,
+          "y": 10
+        }
+      },
+      {
+        "id": "portal-2",
+        "a": {
+          "x": 1,
+          "y": 1
+        },
+        "b": {
+          "x": 3,
+          "y": 10
+        }
+      },
+      {
+        "id": "portal-3",
+        "a": {
+          "x": 7,
+          "y": 11
+        },
+        "b": {
+          "x": 5,
+          "y": 2
+        }
+      }
+    ],
+    "ice": [
+      {
+        "x": 4,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 10
+      },
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 2,
+        "y": 12
+      },
+      {
+        "x": 6,
+        "y": 0
+      }
+    ],
+    "boost": [
+      {
+        "x": 0,
+        "y": 5
+      },
+      {
+        "x": 8,
+        "y": 7
+      },
+      {
+        "x": 3,
+        "y": 8
+      },
+      {
+        "x": 5,
+        "y": 4
+      }
+    ],
+    "generation": {
+      "type": "balanced-r2",
+      "parameters": {
+        "rocks": 10,
+        "portals": 3,
+        "ice": 5,
+        "boost": 4,
+        "iceContinuity": 0.76
+      },
+      "attempt": 0
+    },
+    "quality": {
+      "ok": true,
+      "classicDistances": [
+        4,
+        4
+      ],
+      "advancedDistances": [
+        4,
+        4
+      ],
+      "fairnessGap": 0,
+      "openingMobility": [
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ]
+      ],
+      "portalPairs": 3,
+      "iceTiles": 5,
+      "boostTiles": 4,
+      "usableBoostTiles": 4,
+      "iceDirectionalTiles": 5,
+      "portalShortcuts": [
+        11,
+        11
+      ],
+      "rockTiles": 10
+    }
+  },
+  "r1": {
+    "version": 2,
+    "rulesVersion": "map-v2-r1",
+    "generatorVersion": "mapgen-v2-r1",
+    "name": "随机战场",
+    "seed": 20261105,
+    "generation": {
+      "parameters": {
+        "rocks": 10,
+        "portals": 3,
+        "ice": 5,
+        "boost": 4,
+        "iceContinuity": 0.76,
+        "maxFairnessGap": 12
+      },
+      "attempt": 0
+    },
+    "rocks": [
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 5
+      },
+      {
+        "x": 5,
+        "y": 2
+      },
+      {
+        "x": 6,
+        "y": 11
+      },
+      {
+        "x": 4,
+        "y": 11
+      },
+      {
+        "x": 5,
+        "y": 6
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 7
+      },
+      {
+        "x": 5,
+        "y": 1
+      },
+      {
+        "x": 2,
+        "y": 10
+      }
+    ],
+    "portals": [
+      {
+        "id": "portal-1",
+        "a": {
+          "x": 8,
+          "y": 1
+        },
+        "b": {
+          "x": 0,
+          "y": 1
+        }
+      },
+      {
+        "id": "portal-2",
+        "a": {
+          "x": 3,
+          "y": 10
+        },
+        "b": {
+          "x": 5,
+          "y": 12
+        }
+      },
+      {
+        "id": "portal-3",
+        "a": {
+          "x": 5,
+          "y": 10
+        },
+        "b": {
+          "x": 7,
+          "y": 9
+        }
+      }
+    ],
+    "ice": [
+      {
+        "x": 1,
+        "y": 12
+      },
+      {
+        "x": 1,
+        "y": 11
+      },
+      {
+        "x": 8,
+        "y": 9
+      },
+      {
+        "x": 1,
+        "y": 8
+      },
+      {
+        "x": 5,
+        "y": 8
+      }
+    ],
+    "boost": [
+      {
+        "x": 0,
+        "y": 12
+      },
+      {
+        "x": 7,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 3
+      },
+      {
+        "x": 6,
+        "y": 4
+      }
+    ],
+    "quality": {
+      "ok": true,
+      "classicDistances": [
+        12,
+        12
+      ],
+      "advancedDistances": [
+        12,
+        12
+      ],
+      "fairnessGap": 0,
+      "openingMobility": [
+        [
+          7,
+          8
+        ],
+        [
+          7,
+          8
+        ]
+      ],
+      "portalPairs": 3,
+      "iceTiles": 5,
+      "boostTiles": 4,
+      "usableBoostTiles": 4,
+      "iceDirectionalTiles": 5,
+      "portalShortcuts": [
+        4,
+        4
+      ],
+      "rockTiles": 10
+    }
+  },
+  "rocks": {
+    "version": 2,
+    "rulesVersion": "map-v2-r1",
+    "generatorVersion": "mapgen-v2-r1",
+    "name": "随机障碍",
+    "seed": 20261105,
+    "generation": {
+      "type": "random-rocks",
+      "parameters": {
+        "rocks": 10
+      },
+      "attempt": 0
+    },
+    "rocks": [
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 8,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 10
+      },
+      {
+        "x": 5,
+        "y": 12
+      },
+      {
+        "x": 5,
+        "y": 10
+      },
+      {
+        "x": 7,
+        "y": 9
+      },
+      {
+        "x": 1,
+        "y": 12
+      },
+      {
+        "x": 7,
+        "y": 4
+      },
+      {
+        "x": 8,
+        "y": 8
+      },
+      {
+        "x": 0,
+        "y": 2
+      }
+    ],
+    "portals": [
+      {
+        "id": "portal-1",
+        "symbol": "△",
+        "name": "三角之门",
+        "a": {
+          "x": 5,
+          "y": 2
+        },
+        "b": {
+          "x": 2,
+          "y": 5
+        }
+      },
+      {
+        "id": "portal-2",
+        "symbol": "✦",
+        "name": "星辉之门",
+        "a": {
+          "x": 6,
+          "y": 4
+        },
+        "b": {
+          "x": 1,
+          "y": 11
+        }
+      },
+      {
+        "id": "portal-3",
+        "symbol": "○",
+        "name": "圆环之门",
+        "a": {
+          "x": 8,
+          "y": 6
+        },
+        "b": {
+          "x": 3,
+          "y": 8
+        }
+      }
+    ],
+    "ice": [
+      {
+        "x": 1,
+        "y": 6
+      },
+      {
+        "x": 1,
+        "y": 7
+      },
+      {
+        "x": 1,
+        "y": 8
+      },
+      {
+        "x": 7,
+        "y": 7
+      },
+      {
+        "x": 7,
+        "y": 8
+      }
+    ],
+    "boost": [
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 4
+      },
+      {
+        "x": 6,
+        "y": 10
+      },
+      {
+        "x": 7,
+        "y": 10
+      }
+    ]
+  }
+}

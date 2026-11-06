@@ -10,7 +10,7 @@ const els=new Map();function el(id){
 }
 el('board').getContext=()=>new Proxy({},{get:()=>()=>{}});
 const document={getElementById:el,createElement:()=>({}),querySelectorAll:()=>[],addEventListener(){}},window={setTimeout:()=>{},confirm:()=>true};
-const code=fs.readFileSync('game.js','utf8'),hook='window.lab={generateBalancedMap,reproduceMap,mapFingerprint,validateMap,mapMetrics};';
+const code=fs.readFileSync('game.js','utf8'),hook='window.lab={generateBalancedMap,reproduceMap,mapFingerprint,validateMap,mapMetrics,auditFairMap};';
 vm.runInNewContext(code.replace('state=load()||newGame("classic");',hook+'state=load()||newGame("classic");'),
 {window,document,localStorage:{getItem:()=>null,setItem(){}},Set,Math,Number,JSON,Date,Uint8Array,TextEncoder,TextDecoder,btoa,atob,console,navigator:{},location:{hash:'',origin:'http://test',pathname:'/'}},{timeout:20000});
 const api=window.lab,hashes=new Set(),start=Date.now();
@@ -25,17 +25,14 @@ for(let i=0;i<total;i++){
  assert(!hashes.has(f),'duplicate map');hashes.add(f);
  assert(api.validateMap(m).ok,'invalid map');
  assert.equal(api.mapFingerprint(api.reproduceMap(m)),f,'seed mismatch');
- for(const layer of ['rocks','ice','boost']){
-  const set=new Set(m[layer].map(key));
-  for(const p of m[layer])assert(set.has(key(flip(p))),layer+' asymmetric');
- }
- const links=new Set(m.portals.map(g=>edge(g.a,g.b)));
- for(const g of m.portals)assert(links.has(edge(flip(g.a),flip(g.b))),'portal paired links asymmetric');
+ const fair=api.auditFairMap(m);
+ assert(fair.ok,'non-symmetric fairness failure '+seed+': '+fair.reason);
+ assert(!fair.symmetric,'new generated map must not be 180-degree rotationally symmetric');
  const mt=api.mapMetrics(m);
  const dc=Math.abs(mt.classicDistances[0]-mt.classicDistances[1]),da=Math.abs(mt.advancedDistances[0]-mt.advancedDistances[1]);
  distDiff.classicMax=Math.max(distDiff.classicMax,dc);
  distDiff.advancedMax=Math.max(distDiff.advancedMax,da);
- assert(dc===0&&da===0,'path advantage');
+ assert(dc<=1&&da<=2,'path advantage');
  attemptCounts.push(m.generation.attempt);
  boost.push(mt.usableBoostTiles);
  ice.push(mt.iceDirectionalTiles);

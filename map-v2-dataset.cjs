@@ -67,7 +67,7 @@ for(let i=0,attempt=0;i<count&&attempt<retryLimit;attempt++){
   if(i%100===0)console.log('checked',i+'/'+count,'elapsed_ms',Date.now()-t0);
 }
 assert.equal(accepted.length,count,'Did not produce required unique valid maps');
-const manifest={schema:'map-v2-dataset-1',rulesVersion:api.rulesVersion,generatorVersion:balanced?'mapgen-v2-r2':api.generatorVersion,mode:balanced?'balanced':'legacy',
+const manifest={schema:'map-v2-dataset-1',rulesVersion:api.rulesVersion,generatorVersion:api.generatorVersion,mode:balanced?'balanced':'legacy',
   baseSeed:seed,counts:{train,validation,holdout},profiles:profiles,fingerprints:accepted.map(x=>x.fingerprint),
   uniqueCount:seen.size,elapsedMs:Date.now()-t0,rejections:rejected};
 if(out){

@@ -19,7 +19,7 @@ vm.runInNewContext(src.replace('state=load()||newGame("classic");',hook+'state=l
 },{timeout:20000});
 const t=window.integration,first=t.get();
 assert.equal(t.mode(),'random-battle');
-assert.equal(first.generatorVersion,'mapgen-v2-r2');
+assert.equal(first.generatorVersion,'mapgen-v2-r3');
 assert(first.rocks.length>0 && first.portals.length>0 && first.ice.length>0 && first.boost.length>0);
 assert.notEqual(t.mapFingerprint(first),t.mapFingerprint(t.defaultMap()));
 assert.equal(t.state().phase,'rps','XiaoKe is playable and begins with fair rock-paper-scissors');
@@ -27,7 +27,7 @@ t.state().aiLevel='zhongdi';t.resetGame('classic');
 assert.equal(t.state().phase,'rps','Supported CPU game starts with fair rock-paper-scissors');
 const initial=t.mapFingerprint(first);
 t.resetGame('advanced');
-assert.equal(t.get().generatorVersion,'mapgen-v2-r2');
+assert.equal(t.get().generatorVersion,'mapgen-v2-r3');
 assert.equal(t.state().phase,'rps');
 assert.notEqual(t.mapFingerprint(t.get()),initial,'New random match changes layout');
 assert(t.installMap(t.defaultMap(),'default'));

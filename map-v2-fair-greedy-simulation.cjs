@@ -18,13 +18,13 @@ const t=window.test,GOALS=[[{x:0,y:0},{x:1,y:0},{x:2,y:0}],[{x:6,y:12},{x:7,y:12
 let all={games:0,wins:0,bySide:[0,0],draws:0,teleports:0,boosts:0,iceArrivals:0,turns:0,limitGames:0};
 for(let k=0;k<60;k++)for(const variant of ['classic','advanced']){
  const m=t.generateBalancedMap((37111+k*131)>>>0),state=t.state();
- assert(t.installMap(m));t.resetGame(variant);
+ assert(t.installMap(m));t.state().playMode="local";t.resetGame(variant);
  t.selectOrigin({x:7,y:12});t.selectOrigin({x:1,y:0});
  assert.equal(t.state().phase,'play');
  let turns=0;
  while(t.state().phase==='play'&&turns++<130){
   let st=t.state(),side=st.turn,goal=GOALS[side],options=t.availableMoves();
-  assert(options.length>0,'No legal move available in play state');
+  assert(options.length>0,JSON.stringify({reason:'No legal move',seed:(37111+k*131)>>>0,variant,turn:turns,side,at:st.players[side],rocks:m.rocks,ice:m.ice}));
   const evalMove=move=>{
     let cost=t.computerDistance(move.p,goal,st.walls,move.nextLock);
     const gate=t.portal(move.p);if(gate){const dst=(gate.a.x===move.p.x&&gate.a.y===move.p.y)?gate.b:gate.a;

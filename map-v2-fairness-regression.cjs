@@ -6,7 +6,7 @@ el('board').getContext=()=>new Proxy({},{get:()=>()=>{}});
 const document={getElementById:el,querySelectorAll:()=>[],createElement:()=>({}),addEventListener(){}};
 const memory={};const localStorage={getItem:k=>memory[k]||null,setItem:(k,v)=>memory[k]=v};
 const window={confirm:()=>true,setTimeout:()=>{}};
-const expose='window.test={generateBalancedMap,reproduceMap,mapCurrent,validateMap,mapFingerprint,mapMetrics};state=load()||newGame("classic");';
+const expose='window.test={generateBalancedMap:generateBalancedMapR2,reproduceMap,mapCurrent,validateMap,mapFingerprint,mapMetrics};state=load()||newGame("classic");';
 vm.runInNewContext(src.replace('state=load()||newGame("classic");',expose),{window,document,localStorage,Set,JSON,Math,Number,Date,Uint8Array,TextEncoder,TextDecoder,btoa,atob,console,navigator:{},location:{origin:'http://test',pathname:'/',hash:''}},{filename:'game.js'});
 const t=window.test;
 const flip=p=>({x:8-p.x,y:12-p.y}),key=p=>p.x+','+p.y,edge=(a,b)=>[key(a),key(b)].sort().join('|');
@@ -34,5 +34,6 @@ assert.equal(t.mapFingerprint(t.reproduceMap(t.generateBalancedMap(999))),t.mapF
 const many=t.generateBalancedMap(17,{rocks:12,portals:4,ice:6,boost:8});check(many);
 assert.throws(()=>t.generateBalancedMap(1,{rocks:11,ice:5,boost:4}),/count|odd|中心|不能|invalid/i,'odd rock count conflicts with center occupied by ice');
 assert(handlers['mapRandomBattle:click']);handlers['mapRandomBattle:click']();
-check(t.mapCurrent());
-console.log('PASS balanced maps symmetry, rule legality, equal path costs, deterministic seed & UI mode');
+assert(t.validateMap(t.mapCurrent()).ok,'UI random battle must remain legal');
+assert.equal(t.mapCurrent().generatorVersion,'mapgen-v2-r3','UI random battle uses new fairness generator');
+console.log('PASS historical r2 symmetry replay and new r3 UI mode');

@@ -178,6 +178,8 @@
   }
   function installMap(input,selectedMode){
     var result=validateMap(input);if(!result.ok)return false;
+    var fair=auditFairMap(result.map);
+    if(!fair.ok){editorMessage("地图未通过公平性验证："+fair.reason);return false;}
     setActiveMap(result.map);
     mapMode=selectedMode||"custom";
     try{localStorage.setItem(ACTIVE_KEY,JSON.stringify(activeMap));localStorage.setItem(MODE_KEY,mapMode);}catch(e){}
@@ -301,7 +303,8 @@
       if(value.length>12000)return;
       var binary=atob(value.replace(/-/g,"+").replace(/_/g,"/")),bytes=Uint8Array.from(binary,function(s){return s.charCodeAt(0);});
       var map=cleanMap(JSON.parse(new TextDecoder().decode(bytes)));
-      if(map){setActiveMap(map);mapMode="custom";state=newGame(state.variant);localStorage.setItem(ACTIVE_KEY,JSON.stringify(map));localStorage.setItem(MODE_KEY,mapMode);}
+      if(map&&auditFairMap(map).ok){setActiveMap(map);mapMode="custom";state=newGame(state.variant);localStorage.setItem(ACTIVE_KEY,JSON.stringify(map));localStorage.setItem(MODE_KEY,mapMode);}
+      else if(map){editorMap=copy(map);editorName=map.name;editing=true;}
     }catch(e){}
   }
   function randomizeInitialMap(){
@@ -325,8 +328,13 @@
         saved=null;state=newGame(state.variant);
       }
       var active=cleanMap(JSON.parse(localStorage.getItem(ACTIVE_KEY)||localStorage.getItem(LEGACY_ACTIVE_KEY)||"null"));
+      if(state&&state.moves===0){
+        if(saved&&!auditFairMap(saved).ok){saved=null;savedGameMap=null;savedGameHash=null;}
+        if(active&&!auditFairMap(active).ok)active=null;
+      }
       if(saved)setActiveMap(saved);
       else if(active)setActiveMap(active);
+      else if(mapMode==="random-battle"||mapMode==="random-rocks")randomizeInitialMap();
     }catch(e){}
     loadShare();
     // First visit: symmetric fully-random terrain is the default battlefield.
@@ -379,7 +387,7 @@
       usableBoostTiles:usableBoostTiles,iceDirectionalTiles:iceDirectionalTiles,portalShortcuts:portalShortcuts,
       rockTiles:r.map.rocks.length};
   }
-  function randomMap(seed,opts){
+  function randomMapR1(seed,opts){
     var options=opts||{},base=seed===undefined?Date.now()>>>0:Number(seed);
     if(!Number.isInteger(base)||base<0||base>4294967295)throw Error("Invalid seed");
     function count(n,def,max){return Number.isInteger(n)?Math.max(0,Math.min(max,n)):def;}
@@ -453,7 +461,7 @@
   }
   // Competitive generator r2. The 180-degree transform swaps the fixed camps exactly.
   // It mirrors portal LINKS as well as endpoint locations, unlike a position-only balance check.
-  function generateBalancedMap(seed,opts){
+  function generateBalancedMapR2(seed,opts){
     var options=opts||{},base=seed===undefined?Date.now()>>>0:Number(seed);
     if(!Number.isInteger(base)||base<0||base>4294967295)throw Error("Invalid seed");
     function count(v,d,max,label){
@@ -560,15 +568,93 @@
     var err=Error("Unable to generate balanced playable map: "+JSON.stringify(failures));
     err.rejections=failures;throw err;
   }
+
+  // Evaluated against both actual rule sets. Unlike r2 this makes no positional mirror.
+  function rotationallySymmetricMap(m){
+    var flip=function(p){return {x:W-1-p.x,y:H-1-p.y};};
+    if(!["rocks","ice","boost"].every(function(layer){
+      return m[layer].every(function(p){return has(m[layer],flip(p));});
+    }))return false;
+    return m.portals.every(function(g){
+      var a=flip(g.a),b=flip(g.b);
+      return m.portals.some(function(h){return (same(h.a,a)&&same(h.b,b))||(same(h.b,a)&&same(h.a,b));});
+    });
+  }
+  function auditFairMap(input){
+    var valid=validateMap(input);
+    if(!valid.ok)return {ok:false,reason:valid.reason,code:valid.code};
+    var m=valid.map,metrics=mapMetrics(m),diff=function(a){return Math.abs(a[0]-a[1]);};
+    var symmetric=rotationallySymmetricMap(m),reasons=[];
+    if(symmetric)reasons.push("整体地形中心对称");
+    if(diff(metrics.classicDistances)>1)reasons.push("经典模式路径差距过大");
+    if(diff(metrics.advancedDistances)>2)reasons.push("进阶模式路径差距过大");
+    for(var i=0;i<2;i++){
+      if(diff(metrics.openingMobility[i])>2)reasons.push("双方初始行动空间不平衡");
+      if(Math.min.apply(null,metrics.openingMobility[i])<3)reasons.push("某方起始空间受限");
+    }
+    if(metrics.portalShortcuts.some(function(x){return !Number.isFinite(x);})||
+       diff(metrics.portalShortcuts)>3)reasons.push("传送门收益差距过大");
+    if(m.boost.length&&metrics.usableBoostTiles<Math.ceil(m.boost.length*.6))
+      reasons.push("过多加速格无法有效使用");
+    return {ok:reasons.length===0,reason:reasons.join("；")||"双方起点和路线已通过公平检查",
+      code:reasons.length?"unfair":"ok",metrics:metrics,symmetric:symmetric};
+  }
+  // New independent-layout generator. Legacy r1/r2 routines stay untouched for replay.
+  function generateFairAsymmetricMap(seed,opts){
+    var base=seed===undefined?(Date.now()>>>0):Number(seed),options=opts||{};
+    if(!Number.isInteger(base)||base<0||base>4294967295)throw Error("Invalid seed");
+    if(options.attempts===0)throw Error("Invalid attempts=0");
+    if(options.timeLimitMs!==undefined&&(!Number.isFinite(Number(options.timeLimitMs))||Number(options.timeLimitMs)<1||Number(options.timeLimitMs)>10000))throw Error("Invalid time limit");
+    var started=Date.now(),rejections={};
+    for(var trial=0;trial<64;trial++){
+      if(Date.now()-started>3500)break;
+      var next=(base+Math.imul(trial,0x85ebca6b))>>>0,candidate;
+      try{candidate=randomMapR1(next,options);}catch(error){
+        rejections.generator=(rejections.generator||0)+1;continue;
+      }
+      var result=auditFairMap(candidate);
+      if(!result.ok){rejections[result.code]=(rejections[result.code]||0)+1;continue;}
+      candidate.generatorVersion="mapgen-v2-r3";
+      candidate.seed=base;
+      candidate.generation={type:"fair-asymmetric-r3",parameters:candidate.generation.parameters,
+        selection:trial,attempt:candidate.generation.attempt};
+      candidate.quality=result.metrics;
+      return candidate;
+    }
+    throw Error("无法生成同时满足经典/进阶公平性和非对称条件的地图："+JSON.stringify(rejections));
+  }
+  function randomMap(seed,opts){return generateFairAsymmetricMap(seed,opts);}
+  function generateBalancedMap(seed,opts){return generateFairAsymmetricMap(seed,opts);}
+  function randomRocks(seed){
+    var base=seed===undefined?(Date.now()>>>0):Number(seed);
+    if(!Number.isInteger(base)||base<0||base>4294967295)throw Error("Invalid seed");
+    var started=Date.now();
+    for(var trial=0;trial<100;trial++){
+      if(Date.now()-started>2400)break;
+      var map=randomRocksR1((base+Math.imul(trial,0x85ebca6b))>>>0);
+      var result=auditFairMap(map);
+      if(!result.ok)continue;
+      map.seed=base;map.generatorVersion="mapgen-v2-r3";
+      map.generation={type:"fair-rocks-r3",parameters:{rocks:10},selection:trial,attempt:map.generation.attempt};
+      map.quality=result.metrics;
+      return map;
+    }
+    throw Error("随机障碍无法生成公平且非中心对称的地图");
+  }
+
   function reproduceMap(input){
     var m=normalizeMap(input);
     if(!m||!m.generation||!m.generation.parameters||m.seed===null)
       throw Error("Missing or incompatible seeded map generation information");
     var out;
-    if(m.generatorVersion==="mapgen-v2-r2"&&m.generation.type==="balanced-r2")
-      out=generateBalancedMap(m.seed,m.generation.parameters);
+    if(m.generatorVersion==="mapgen-v2-r3"&&m.generation.type==="fair-asymmetric-r3")
+      out=randomMap(m.seed,m.generation.parameters);
+    else if(m.generatorVersion==="mapgen-v2-r3"&&m.generation.type==="fair-rocks-r3")
+      out=randomRocks(m.seed);
+    else if(m.generatorVersion==="mapgen-v2-r2"&&m.generation.type==="balanced-r2")
+      out=generateBalancedMapR2(m.seed,m.generation.parameters);
     else if(m.generatorVersion===GENERATOR_VERSION)
-      out=m.generation.type==="random-rocks"?randomRocks(m.seed):randomMap(m.seed,m.generation.parameters);
+      out=m.generation.type==="random-rocks"?randomRocksR1(m.seed):randomMapR1(m.seed,m.generation.parameters);
     else throw Error("Unsupported historical map generator version");
     if(mapFingerprint(out)!==mapFingerprint(m))throw Error("Map generator does not reproduce original map fingerprint");
     return out;
@@ -1390,7 +1476,7 @@
     }
     if($("boardLoading"))$("boardLoading").hidden=true;
   }
-  function randomRocks(seed){
+  function randomRocksR1(seed){
     var base=seed===undefined?(Date.now()>>>0):Number(seed),rnd=seededRandom(base);
     var fixed=defaultMap(),forbidden=new Set();
     fixed.portals.forEach(function(g){forbidden.add(posKey(g.a));forbidden.add(posKey(g.b));});
@@ -1553,7 +1639,8 @@
       editorName=$("editorName").value.trim().slice(0,40)||"自定义地图";editorMap.name=editorName;
       var r=validateMap(mapDraft());
       if(!r.ok){editorMessage("不能试玩："+r.reason);return;}
-      editing=false;mapMode="custom";installMap(r.map);editorDraw();
+      if(!installMap(r.map,"custom")){editorMessage("无法开始竞技对局："+auditFairMap(r.map).reason);return;}
+      editing=false;mapMode="custom";editorDraw();
     });
     $("editorShare").addEventListener("click",shareMap);
     $("editorExport").addEventListener("click",function(){
@@ -1689,8 +1776,8 @@
   initMap();refreshMapSelect();
   // Public read-only Map V2 API, independent from AI research policies.
   window.MumuMapV2=Object.freeze({
-    rulesVersion:RULES_VERSION,generatorVersion:GENERATOR_VERSION,
-    get:getMap,normalize:normalizeMap,validate:validateMap,
+    rulesVersion:RULES_VERSION,generatorVersion:"mapgen-v2-r3",
+    get:getMap,normalize:normalizeMap,validate:validateMap,auditFair:auditFairMap,
     generate:randomMap,generateBalanced:generateBalancedMap,generateRandomRocks:randomRocks,
     metrics:mapMetrics,fingerprint:mapFingerprint,reproduce:reproduceMap
   });
