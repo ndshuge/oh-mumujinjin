@@ -76,7 +76,7 @@
     const newRole=xiaoke?"小克 · AI 对手":xiaodi?(persona.displayName()+" · AI 对手"):isAI?"木木 · 小白":"木木 · 棋局向导";
     if(role.textContent!==newRole)role.textContent=newRole;
     if(face.dataset.emotion!==emotion)face.dataset.emotion=emotion;
-    const moodText=xiaoke?"模型待接入":moodNames[emotion];
+    const moodText=xiaoke?"双模式 AI · 实战中":moodNames[emotion];
     if(moodLabel&&moodLabel.textContent!==moodText)moodLabel.textContent=moodText;
     if(speech.textContent!==message)speech.textContent=message;
     guide.classList.toggle("mascot-ai-mode",isAI);

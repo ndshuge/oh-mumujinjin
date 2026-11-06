@@ -17,4 +17,5 @@ test('static worker and client are wired to existing playable XiaoKe game',()=>{
  assert.ok(!game.includes('state.aiLevel==="xiaoke"||state.phase!=="play"'));
  assert.ok(!game.includes('aiLevel!=="xiaoke")beginRps()'));
  assert.ok(!html.includes('小克模型正在接入，暂不能开始人机对局'));
+ assert.ok(!fs.readFileSync(path.join(root,'ui-mascot-v8.js'),'utf8').includes('模型待接入'));
 });
