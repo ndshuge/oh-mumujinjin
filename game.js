@@ -55,7 +55,7 @@
   var ACTIVE_KEY="mumujinjin-active-map-v2", LEGACY_ACTIVE_KEY="mumujinjin-active-map-v1";
   var editing=false,editorTool="add",editorName="我的地图",editorRocks=null,editorMap=null;
   var editorUndo=[],editorRedo=[],editorSelection=null,editorPendingPortal=null;
-  var activeMap=null,savedGameMap=null,savedGameHash=null,mapMode="default";
+  var activeMap=null,savedGameMap=null,savedGameHash=null,mapMode="random-battle";
   var MODE_KEY="mumujinjin-layout-mode-v2";
   function copy(v){return JSON.parse(JSON.stringify(v));}
   function defaultMap(){
@@ -176,11 +176,12 @@
       }).slice(0,30);
     }catch(e){return [];}
   }
-  function installMap(input){
+  function installMap(input,selectedMode){
     var result=validateMap(input);if(!result.ok)return false;
     setActiveMap(result.map);
+    mapMode=selectedMode||"custom";
     try{localStorage.setItem(ACTIVE_KEY,JSON.stringify(activeMap));localStorage.setItem(MODE_KEY,mapMode);}catch(e){}
-    if(state)resetGame(state.variant);
+    if(state)resetGame(state.variant,true);
     return true;
   }
   function mapCurrent(){return getMap();}
@@ -303,15 +304,16 @@
     }catch(e){}
   }
   function randomizeInitialMap(){
-    if(!window.MumuRandomMap)return null; // Compatibility with legacy isolated rule-test harnesses; production loads random-map.js first.
-    var previous=window.MumuRandomMap.signature(ROCKS),seed=(Math.random()*4294967296)>>>0;
-    var generated=window.MumuRandomMap.generate({seed:seed,width:W,height:H,count:10,previous:previous,
-      blocked:fixedTile,fallback:DEFAULT_ROCKS,
-      validate:function(rocks){return !!cleanMap({version:1,name:"随机棋盘",rocks:rocks});}});
-    ROCKS=generated.rocks.map(function(p){return{x:p.x,y:p.y};});
-    editorName="随机棋盘";
-    try{localStorage.removeItem(ACTIVE_KEY);localStorage.setItem(RANDOM_KEY,JSON.stringify({version:1,name:editorName,rocks:ROCKS}));}catch(e){}
-    return generated;
+    // A fresh match refreshes only the selected random layout.
+    // Fixed/default/custom maps are kept unchanged, including imported maps.
+    var seed=Date.now()>>>0,map=null;
+    if(mapMode==="random-battle")map=generateBalancedMap(seed);
+    else if(mapMode==="random-rocks")map=randomRocks(seed);
+    if(!map)return null;
+    setActiveMap(map);
+    try{localStorage.setItem(ACTIVE_KEY,JSON.stringify(map));
+        localStorage.setItem(MODE_KEY,mapMode);}catch(e){}
+    return map;
   }
   function initMap(){
     setActiveMap(defaultMap());
@@ -326,6 +328,9 @@
       else if(active)setActiveMap(active);
     }catch(e){}
     loadShare();
+    // First visit: symmetric fully-random terrain is the default battlefield.
+    // A restored saved/share/custom map always takes precedence.
+    try{if(!savedGameMap&&!localStorage.getItem(ACTIVE_KEY)&&!localStorage.getItem(LEGACY_ACTIVE_KEY)&&!(location.hash||"").startsWith("#map="))randomizeInitialMap();}catch(e){/* keep the fixed default map if generator fails */}
   }
   function seededRandom(seed){
     var s=(seed>>>0)||0x9e3779b9;return function(){
@@ -1430,7 +1435,7 @@
         else if(mode==="random-rocks")map=randomRocks(Date.now()>>>0);
         else if(mode==="random-battle")map=generateBalancedMap(Date.now()>>>0);
         else throw Error("Unknown map layout mode");
-        if(!installMap(map))throw Error("地图未通过合法性验证");
+        if(!installMap(map,mode))throw Error("地图未通过合法性验证");
         editing=false;editorMap=null;editorRocks=null;editorSelection=null;editorPendingPortal=null;
         editorDraw();editorMessage("已切换地图："+map.name+" · "+mapFingerprint(map).slice(0,12));
       }catch(e){mapMode=previous;editorMessage("地图生成失败："+e.message);}
@@ -1528,7 +1533,7 @@
       refreshMapSelect();editorDraw();editorMessage("地图已重命名："+name);
     });
     $("editorUseDefault").addEventListener("click",function(){
-      editing=false;mapMode="default";installMap(defaultMap());editorDraw();
+      editing=false;mapMode="default";installMap(defaultMap(),"default");editorDraw();
     });
 
     ["rock","paper","scissors"].forEach(function(hand){$("rps-"+hand).addEventListener("click",function(){playRps(hand);});});
