@@ -35,17 +35,17 @@
     win:["将军。下次再来挑战吧。"]
   };
   function showAIQuote(kind,force){
-    if(!state||state.playMode!=="cpu"||editing||aiDialogueDisabled)return;
+    if(!state||state.playMode!=="cpu"||state.aiLevel==="xiaoke"||editing||aiDialogueDisabled)return;
     if(!force&&state.moves%3!==0&&kind!=="wall")return;
     var box=$("aiBanter");if(!box)return;
     var list=AI_QUOTES[kind]||AI_QUOTES.move;
     $("aiBanterText").textContent=list[aiBanterTurns++%list.length];
     box.hidden=false;$("aiReplies").hidden=true;
   }
-  function aiOpponentName(){return state.aiLevel==="zhongdi"?"中迪":state.aiLevel==="xiaodi"?"小迪":state.aiLevel==="hell"?"小白":state.aiLevel==="normal"?"中级":"AI";}
+  function aiOpponentName(){return state.aiLevel==="xiaoke"?"小克":state.aiLevel==="zhongdi"?"中迪":state.aiLevel==="xiaodi"?"小迪":state.aiLevel==="hell"?"小白":state.aiLevel==="normal"?"中级":"AI";}
   function refreshAIBanter(){
     var box=$("aiBanter");if(!box)return;
-    box.hidden=state.playMode!=="cpu"||editing||aiDialogueDisabled;
+    box.hidden=state.playMode!=="cpu"||state.aiLevel==="xiaoke"||editing||aiDialogueDisabled;
     $("aiQuiet").textContent=aiDialogueDisabled?"开启对话":"安静模式";
     $("aiReplyToggle").hidden=aiDialogueDisabled;
   }
@@ -590,6 +590,7 @@
     return Math.floor(Math.random()*3);
   }
   function beginRps(){
+    if(state&&state.aiLevel==="xiaoke")return;
     if(state.playMode!=="cpu")return;
     state.phase="rps";state.rps={winner:null,human:null,computer:null,rounds:0};state.humanSide=0;
     $("rpsResult").textContent="选择石头、剪刀或布。平局重新猜拳。";
@@ -619,7 +620,7 @@
     setModal("rpsModal",false);commit();
   }
   function newGame(variant){
-    return {variant:variant||"classic",playMode:"cpu",aiLevel:"zhongdi",phase:"pick-attack",players:[null,null],turn:0,
+    return {variant:variant||"classic",playMode:"cpu",aiLevel:"xiaoke",phase:"waiting-ai",players:[null,null],turn:0,
       walls:[],left:[5,5],moves:0,history:[],action:"move",orientation:"h",
       hover:null,slideDir:[null,null],pending:null,winner:null,repetitions:{},notice:"",humanSide:0,rps:null};
   }
@@ -639,14 +640,35 @@
       localStorage.setItem("mumujinjin-game-v1",JSON.stringify({version:2,state:state,map:current,mapFingerprint:mapFingerprint(current)}));
     } catch(e){}
   }
+  function validSavedState(s){
+    var validPoint=function(p){return p===null||(p&&Number.isInteger(p.x)&&Number.isInteger(p.y)&&p.x>=0&&p.x<W&&p.y>=0&&p.y<H);};
+    return !!s&&["classic","advanced"].includes(s.variant)&&["cpu","local"].includes(s.playMode)&&
+      ["rps","pick-attack","pick-defend","play","finished","waiting-ai"].includes(s.phase)&&
+      Array.isArray(s.players)&&s.players.length===2&&s.players.every(validPoint)&&
+      Array.isArray(s.walls)&&s.walls.every(function(w){return w&&Number.isInteger(w.x)&&Number.isInteger(w.y)&&["h","v"].includes(w.o);})&&
+      Array.isArray(s.left)&&s.left.length===2&&s.left.every(function(n){return Number.isInteger(n)&&n>=0&&n<=5;})&&
+      Array.isArray(s.slideDir)&&s.slideDir.length===2&&s.slideDir.every(function(d){return d===null||(d&&Number.isInteger(d.x)&&Number.isInteger(d.y));})&&
+      Array.isArray(s.history)&&Number.isInteger(s.turn)&&[0,1].includes(s.turn)&&
+      Number.isInteger(s.moves)&&s.moves>=0&&["move","wall"].includes(s.action)&&
+      ["h","v"].includes(s.orientation)&&[0,1].includes(s.humanSide)&&
+      (s.winner===null||[0,1].includes(s.winner))&&
+      (!s.pending||(Number.isInteger(s.pending.index)&&s.pending.index>=0&&s.pending.index<8))&&
+      (!["play","finished"].includes(s.phase)||(!!s.players[0]&&!!s.players[1]))&&
+      (s.phase!=="pick-defend"||!!s.players[0])&&
+      (s.phase!=="waiting-ai"||(s.playMode==="cpu"&&s.aiLevel==="xiaoke"&&s.moves===0));
+  }
+  function backupInvalidSave(raw){
+    try{if(raw&&!localStorage.getItem("mumujinjin-invalid-save-backup-v1"))localStorage.setItem("mumujinjin-invalid-save-backup-v1",raw);}catch(e){}
+  }
   function load(){
     try {
       var raw=localStorage.getItem("mumujinjin-game-v1");
       if(!raw)return null;
-      var parsed=JSON.parse(raw);
-      if((parsed.version!==1&&parsed.version!==2)||!parsed.state||!Array.isArray(parsed.state.walls)||!Array.isArray(parsed.state.players))return null;
+      var parsed;
+      try{parsed=JSON.parse(raw);}catch(error){backupInvalidSave(raw);return null;}
+      if(!parsed||(parsed.version!==1&&parsed.version!==2)||!validSavedState(parsed.state)){backupInvalidSave(raw);return null;}
       if(parsed.version===2){
-        if(!parsed.map||typeof parsed.mapFingerprint!=="string")return null;
+        if(!parsed.map||typeof parsed.mapFingerprint!=="string"){backupInvalidSave(raw);return null;}
         savedGameMap=parsed.map;savedGameHash=parsed.mapFingerprint;
       }
       if(parsed.state.variant!=="classic"&&parsed.state.variant!=="advanced")return null;
@@ -658,10 +680,10 @@
   function commit(){state.notice="";save();drawUI();drawBoard();scheduleComputerTurn();}
   function resetGame(variant,preserveSelectedMap){
     if(!preserveSelectedMap)randomizeInitialMap();
-    var playMode=state.playMode||"local",aiLevel=state.aiLevel||"normal";
+    var playMode=state.playMode||"local",aiLevel=state.aiLevel||"xiaoke";
     state=newGame(variant||state.variant);
     state.playMode=playMode;state.aiLevel=aiLevel;
-    closeAll();if(playMode==="cpu")beginRps();else commit();
+    closeAll();if(playMode==="cpu"&&aiLevel!=="xiaoke")beginRps();else {state.phase=playMode==="cpu"?"waiting-ai":"pick-attack";commit();}
   }
   function confirmSwitch(variant){
     if(state.variant===variant)return;
@@ -1045,7 +1067,7 @@
     return window.MumuZhongdi.choose(engine,snapshot,side,{rocks:ROCKS,map:mapCurrent(),fingerprint:mapFingerprint(mapCurrent())});
   }
   function computerTakeTurn(){
-    if(state.playMode!=="cpu"||state.phase!=="play"||state.turn!==cpuSide()||state.pending)return;
+    if(state.playMode!=="cpu"||state.aiLevel==="xiaoke"||state.phase!=="play"||state.turn!==cpuSide()||state.pending)return;
     var level=state.aiLevel||"zhongdi";
     var tactical=level==="zhongdi"?zhongdiChooseAction(cpuSide()):level==="xiaodi"?xiaodiChooseAction(cpuSide()):level==="hell"&&cpuSide()===1?hellChooseAction():null;
     if(cpuSide()===0&&!tactical){
@@ -1072,7 +1094,7 @@
   }
   function scheduleComputerTurn(){
     var token=++cpuScheduleToken;
-    if(editing||state.playMode!=="cpu"||typeof window.setTimeout!=="function")return;
+    if(editing||state.playMode!=="cpu"||state.aiLevel==="xiaoke"||typeof window.setTimeout!=="function")return;
     if(state.phase==="pick-attack"&&cpuSide()===0){
       window.setTimeout(function(){
         if(token!==cpuScheduleToken||state.phase!=="pick-attack"||state.playMode!=="cpu")return;
@@ -1116,9 +1138,9 @@
     refreshAIBanter();
     $("mapEditorButton").textContent=editing?"关闭工坊":"地图工坊";
     $("mapNameActive").textContent=editorName;
-    var title=state.phase==="rps"?"猜拳决定先后手":state.phase==="pick-attack"?"金方选择起点":state.phase==="pick-defend"?"木方选择起点":
+    var title=state.phase==="waiting-ai"?"小克正在准备中":state.phase==="rps"?"猜拳决定先后手":state.phase==="pick-attack"?"金方选择起点":state.phase==="pick-defend"?"木方选择起点":
       state.phase==="finished"?(state.winner===null?"平局":NAMES[state.winner]+"赢得胜利"):NAMES[state.turn]+"的回合";
-    var help=state.phase==="rps"?"选择石头、剪刀或布，赢的一方决定先后手。":state.phase==="pick-attack"?"点击棋盘右下角的任一金色营地格，作为金方出生点。":
+    var help=state.phase==="waiting-ai"?"小克的 AI 模型尚未接入。可先查看棋盘与角色，或切换中迪、小迪开始对局。":state.phase==="rps"?"选择石头、剪刀或布，赢的一方决定先后手。":state.phase==="pick-attack"?"点击棋盘右下角的任一金色营地格，作为金方出生点。":
       state.phase==="pick-defend"?"点击棋盘左上角的任一青色营地格，作为木方出生点。":
       state.phase==="finished"?"本局对战结束。可以悔棋或再来一局。":
       state.action==="wall"?"在棋盘上点击修筑两格长的墙。修墙会结束当前回合。":"点击棋盘内发光的格子行动。一次移动或筑墙即结束回合。";
@@ -1162,11 +1184,13 @@
     $("aiOpponentNameBadge").textContent=aiOpponentName();
     $("aiOpponentChatName").textContent=aiOpponentName()+" · 电脑对手";
 
-    if(state.playMode==="cpu")$("player"+cpuSide()+"Label").textContent=aiOpponentName()+(state.phase==="play"&&state.turn===cpuSide()?"思考中":"执"+NAMES[cpuSide()]);
+    if(state.playMode==="cpu")$("player"+cpuSide()+"Label").textContent=state.aiLevel==="xiaoke"?"小克 · 模型待接入":aiOpponentName()+(state.phase==="play"&&state.turn===cpuSide()?"思考中":"执"+NAMES[cpuSide()]);
     $("playLocal").classList.toggle("selected",state.playMode!=="cpu");
     $("playAI").classList.toggle("selected",state.playMode==="cpu");
     $("aiDifficulty").hidden=state.playMode!=="cpu";
-    ["easy","normal","hard","hell","xiaodi","zhongdi"].forEach(function(level){
+    $("xiaokePendingHint").hidden=!(state.playMode==="cpu"&&state.aiLevel==="xiaoke");
+    $("xiaokeStatusNotice").hidden=!(state.playMode==="cpu"&&state.aiLevel==="xiaoke");
+    ["easy","normal","hard","hell","xiaodi","zhongdi","xiaoke"].forEach(function(level){
       $("ai-"+level).classList.toggle("selected",state.aiLevel===level);
       if(typeof $("ai-"+level).setAttribute==="function")$("ai-"+level).setAttribute("aria-pressed",state.aiLevel===level?"true":"false");
     });
@@ -1306,6 +1330,7 @@
       text(NAMES[state.winner]+" 获 胜",360,Y+403,35,state.winner===0?"#f6c180":"#9ce8dc");
       ctx.restore();
     }
+    if($("boardLoading"))$("boardLoading").hidden=true;
   }
   function randomRocks(seed){
     var base=seed===undefined?(Date.now()>>>0):Number(seed),rnd=seededRandom(base);
@@ -1423,7 +1448,7 @@
     $("wallH").addEventListener("click",function(){orientation("h");});
     $("wallV").addEventListener("click",function(){orientation("v");});
     $("mapEditorButton").addEventListener("click",openEditor);
-    $("mobileWorkshopBtn").addEventListener("click",openEditor);
+    $("mobileWorkshopBtn")?.addEventListener("click",openEditor);
     $("editorMore").addEventListener("click",function(){var expanded=$("mapEditor").classList.toggle("expanded");$("editorMore").setAttribute("aria-expanded",String(expanded));});
     // Keep map mode independent of classic/advanced movement rules.
     function chooseMapMode(mode){
@@ -1555,7 +1580,7 @@
         $("aiReplies").hidden=true;
       });
     });
-    ["easy","normal","hard","hell","xiaodi","zhongdi"].forEach(function(level){
+    ["easy","normal","hard","hell","xiaodi","zhongdi","xiaoke"].forEach(function(level){
       $("ai-"+level).addEventListener("click",function(){setAILevel(level);});
     });
     $("undoBtn").addEventListener("click",undo);
@@ -1595,6 +1620,14 @@
     });
   }
   var loadedAtBoot=load();state=load()||newGame("classic");
+  try{
+    if(!localStorage.getItem("mumujinjin-xiaoke-default-v1")){
+      if(loadedAtBoot&&state.moves===0&&["rps","pick-attack","pick-defend"].includes(state.phase)){
+        state.playMode="cpu";state.aiLevel="xiaoke";state.phase="waiting-ai";state.players=[null,null];state.rps=null;
+      }
+      localStorage.setItem("mumujinjin-xiaoke-default-v1","1");
+    }
+  }catch(e){}
   initMap();refreshMapSelect();
   // Public read-only Map V2 API, independent from AI research policies.
   window.MumuMapV2=Object.freeze({
@@ -1606,8 +1639,9 @@
   state.hover=null;state.notice=state.notice||"";
   try{aiDialogueDisabled=localStorage.getItem("mumujinjin-ai-quiet")==="1";}catch(e){}
   state.playMode=state.playMode==="cpu"?"cpu":"local";
-  state.aiLevel=["easy","normal","hard","hell","xiaodi","zhongdi"].indexOf(state.aiLevel)>=0?state.aiLevel:"zhongdi";
-  bindEvents();if(!loadedAtBoot&&state.playMode==="cpu")beginRps();drawUI();drawBoard();
+  state.aiLevel=["easy","normal","hard","hell","xiaodi","zhongdi","xiaoke"].indexOf(state.aiLevel)>=0?state.aiLevel:"xiaoke";
+  if(state.playMode==="cpu"&&state.aiLevel==="xiaoke"&&state.moves===0){state.phase="waiting-ai";state.rps=null;}
+  bindEvents();if(!loadedAtBoot&&state.playMode==="cpu"&&state.aiLevel!=="xiaoke")beginRps();drawUI();drawBoard();
   if(state.playMode==="cpu"&&state.phase==="play")showAIQuote("opening",true);
   if(state.playMode==="cpu"&&state.phase==="rps")setModal("rpsModal",true);
   if(state.phase==="finished"&&state.winner!==null){

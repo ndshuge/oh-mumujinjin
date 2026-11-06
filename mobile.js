@@ -29,7 +29,7 @@
     el("mobileWalls").textContent = "金 " + count("walls0") + " · 木 " + count("walls1");
     document.body.classList.toggle("mobile-wall-open", !wallTools.hidden);
     const mascotMessage = el("mascotMessage");
-    if (mascotMessage) {
+    if (mascotMessage && !el("ai-xiaoke")?.classList.contains("selected")) {
       const phase = statusSource.textContent;
       let hint = "轮到你啦！试试移动或筑墙。";
       if (phase.includes("起点") || phase.includes("营地")) hint = "选择营地，准备开启这场冒险！";

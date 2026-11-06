@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#f6faf5">
   <meta name="description" content="哦，木木金金棋——从一张手绘地图诞生的双人路线争夺策略棋。走棋、筑墙、传送、滑冰与加速，先抵达对方营地者获胜。">
   <title>哦，木木金金棋 · 步步为营</title>
@@ -73,16 +73,16 @@
     <section class="game-layout" aria-label="游戏区域">
       <div class="play-section">
         <div class="mobile-status" aria-live="polite" aria-atomic="true">
-          <div class="mobile-status-top"><strong id="mobilePhase">选择金方营地</strong><span id="mobileRound">第 1 回合</span><span id="mobileWalls" class="mobile-walls">金 5 · 木 5</span></div>
-          <p id="mobileMessage">点击金色营地格子开始对弈</p>
+          <div class="mobile-status-top"><strong id="mobilePhase">小克正在准备中</strong><span id="mobileRound">第 1 回合</span><span id="mobileWalls" class="mobile-walls">金 5 · 木 5</span></div>
+          <p id="mobileMessage">小克的模型即将接入；先看看新棋盘。</p>
         </div>
         <div class="board-head">
-          <div class="board-heading"><span class="board-kicker">01 / THE ARENA</span><strong>棋局</strong><span class="ai-opponent-label" id="aiOpponentNameBadge">中迪</span><span class="board-index">09 × 13</span></div>
+          <div class="board-heading"><span class="board-kicker">01 / THE ARENA</span><strong>棋局</strong><span class="ai-opponent-label" id="aiOpponentNameBadge">小克</span><span class="board-index">09 × 13</span></div>
           <div class="board-version"><span class="tiny-dot"></span><span id="boardVersion">经典战场</span></div>
         </div>
-          <div class="mascot-guide mascot-v8" aria-label="木木，棋局向导">
-            <button class="mascot-face mascot-avatar" id="mascotTap" type="button" aria-label="和木木互动，查看详细对话" aria-expanded="false" aria-controls="mascotExpanded" data-emotion="calm">
-              <span class="xiaodi-photo" aria-hidden="true"></span><svg class="mumu-character" viewBox="0 0 120 124" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <div class="mascot-guide mascot-v8 mascot-xiaoke mascot-ai-mode" aria-label="小克，AI 对手">
+            <button class="mascot-face mascot-avatar" id="mascotTap" type="button" aria-label="和小克互动，查看详细对话" aria-expanded="false" aria-controls="mascotExpanded" data-emotion="calm" data-persona="xiaoke">
+              <span class="xiaodi-photo" aria-hidden="true"></span><span class="xiaoke-photo" aria-hidden="true"><img src="./claude-avatar.svg" alt=""></span><svg class="mumu-character" viewBox="0 0 120 124" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <defs><linearGradient id="mumuBody" x1="0" y1="0" x2=".95" y2="1"><stop offset="0" stop-color="#B9EDC9"/><stop offset=".58" stop-color="#88D5AA"/><stop offset="1" stop-color="#57B990"/></linearGradient><linearGradient id="mumuBelly" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#F5FFF0"/><stop offset="1" stop-color="#E0F8DB"/></linearGradient></defs>
               <ellipse class="mumu-ground" cx="61" cy="113" rx="38" ry="7" fill="#38885D" opacity=".16"/>
               <g class="mumu-creature"><g class="mumu-sprout"><path d="M58 20Q51 4 36 8Q38 23 58 25Z" fill="#55B47B"/><path d="M63 21Q65 7 80 5Q82 21 62 27Z" fill="#75CC88"/><path d="M58 29Q60 23 63 18" fill="none" stroke="#428E65" stroke-width="3.5" stroke-linecap="round"/></g>
@@ -101,9 +101,10 @@
               <path class="mumu-spark" d="M102 15l2.3 6.7 6.6 2.4-6.6 2.1-2.3 6.9-2.5-6.9-6.3-2.1 6.3-2.4Z" fill="#F2C569"/>
               </g></svg>
             </button>
-            <div class="mascot-speech"><div class="mascot-speech-top"><strong id="mascotRole">木木 · 棋局向导</strong><span id="mascotEmotion" class="mascot-emotion">准备好了</span></div><p id="mascotMessage">轮到你啦！试试移动或筑墙。</p></div>
-            <div id="mascotExpanded" class="mascot-expanded" hidden><div class="mascot-expanded-title">木木的小心思 <button id="mascotDismiss" type="button" aria-label="收起角色对话">×</button></div><p id="mascotDetail">和木木下一局，它会告诉你它在想什么。</p></div>
+            <div class="mascot-speech"><div class="mascot-speech-top"><strong id="mascotRole">小克 · AI 对手</strong><span id="mascotEmotion" class="mascot-emotion">模型待接入</span></div><p id="mascotMessage">⌁∿⟡‽</p></div>
+            <div id="mascotExpanded" class="mascot-expanded" hidden><div class="mascot-expanded-title">角色对话 <button id="mascotDismiss" type="button" aria-label="收起角色对话">×</button></div><p id="mascotDetail">⌁∿⟡‽</p></div>
           </div>
+        <p id="xiaokeStatusNotice" class="xiaoke-status-note" role="status">小克已就位 · AI 模型接入中。棋盘可预览；想现在对弈可选中迪或小迪。</p>
         <nav id="mapQuickTools" class="map-v2-quicktools" aria-label="地图绘制快捷工具" hidden>
           <button id="quickEditorAdd" type="button">障碍</button>
           <button id="quickEditorPortal" type="button">传送门</button>
@@ -133,6 +134,7 @@
           <div class="board-corner corner-tl"></div><div class="board-corner corner-tr"></div>
           <div class="board-corner corner-bl"></div><div class="board-corner corner-br"></div>
           <div class="board-wrap">
+            <div id="boardLoading" class="board-loading" role="status">棋盘加载中… <button type="button" onclick="location.reload()">重新载入</button></div>
             <canvas id="board" width="720" height="980" aria-label="九列十三行棋盘。点击高亮格移动棋子，筑墙模式点击棋盘放置墙体。" tabindex="0"></canvas>
           </div>
           <div class="board-footer"><span><i class="footer-wood"></i>木方起点 · 北</span><span class="board-footer-center">↗ 每一步都至关重要 ↙</span><span>金方起点 · 南<i class="footer-gold"></i></span></div>
@@ -202,11 +204,16 @@
             <button class="mode-button selected" id="playAI" type="button"><span class="mode-marker">AI</span><span class="mode-label"><b>人机对战</b><small>猜拳决定谁先手</small></span><span class="mode-check">✓</span></button>
           </div>
           <div id="aiDifficulty" class="ai-difficulty">
+            <button id="xiaokePreviewBtn" class="xiaoke-preview-trigger" type="button" aria-haspopup="dialog" aria-controls="xiaokePreviewDialog">
+              <img src="./claude-avatar.svg" alt="" aria-hidden="true"><span>小克 · 角色预览</span>
+              <span class="xiaoke-preview-hint">仅看头像与对白 ↗</span>
+            </button>
+            <p id="xiaokePendingHint" class="xiaoke-pending-hint">小克模型正在接入，暂不能开始人机对局。可先查看头像和台词；选择中迪、小迪可立即下棋。</p>
             <div class="difficulty-label">电脑难度 <span>无需联网，手机本地计算</span></div>
             <div class="ai-levels" role="group" aria-label="人机难度">
               <button class="ai-level" id="ai-easy" type="button" hidden aria-hidden="true" tabindex="-1">入门</button>
               <button class="ai-level" id="ai-normal" type="button" hidden aria-hidden="true" tabindex="-1">策略</button>
-              <button class="ai-level" id="ai-hard" type="button" hidden aria-hidden="true" tabindex="-1">挑战</button><button class="ai-level hell-level" id="ai-hell" type="button">小白</button><button class="ai-level hell-level" id="ai-xiaodi" type="button" title="G4-h13 冻结冠军 · 本地运行">小迪</button><button class="ai-level hell-level selected" id="ai-zhongdi" type="button" title="G5 phase-defense · 训练谱系挑战者，离线运行">中迪</button>
+              <button class="ai-level" id="ai-hard" type="button" hidden aria-hidden="true" tabindex="-1">挑战</button><button class="ai-level hell-level" id="ai-hell" type="button">小白</button><button class="ai-level hell-level" id="ai-xiaodi" type="button" title="G4-h13 冻结冠军 · 本地运行">小迪</button><button class="ai-level hell-level" id="ai-zhongdi" type="button" title="G5 phase-defense · 训练谱系挑战者，离线运行">中迪</button><button class="ai-level hell-level selected" id="ai-xiaoke" type="button" title="小克 · Claude 角色，AI 模型待接入">小克</button>
             </div>
           </div>
           </div><p class="settings-foot">切换玩法或对手会重置当前棋局。所有原有规则保持不变。</p>
@@ -282,11 +289,32 @@
 </nav>
 
 
+<dialog id="xiaokePreviewDialog" class="xiaoke-preview-dialog" aria-labelledby="xiaokeTitle" aria-describedby="xiaokePreviewNote">
+  <div class="xiaoke-preview-inner">
+    <div class="xiaoke-preview-top"><span class="xiaoke-preview-kicker">GUEST · CHARACTER PREVIEW</span><button class="xiaoke-preview-close" id="xiaokeClose" type="button" aria-label="关闭小克预览">×</button></div>
+    <div class="xiaoke-avatar-wrap" id="xiaokeAvatar"><img src="./claude-avatar.svg" alt="Claude 风格标志，小克头像"></div>
+    <h2 class="xiaoke-preview-title" id="xiaokeTitle">小克</h2>
+    <p class="xiaoke-preview-sub">即将加入棋局的神秘对手</p>
+    <div class="xiaoke-speech-box"><p id="xiaokeSpeech" aria-live="polite">⌁∿⟡‽</p></div>
+    <div class="xiaoke-event-tabs" role="group" aria-label="预览小克的不同情绪">
+      <button type="button" data-xiaoke-event="opening" aria-pressed="true">开场</button>
+      <button type="button" data-xiaoke-event="thinking" aria-pressed="false">思考</button>
+      <button type="button" data-xiaoke-event="wall" aria-pressed="false">筑墙</button>
+      <button type="button" data-xiaoke-event="danger" aria-pressed="false">紧张</button>
+      <button type="button" data-xiaoke-event="win" aria-pressed="false">获胜</button>
+      <button type="button" data-xiaoke-event="lose" aria-pressed="false">失利</button>
+    </div>
+    <button type="button" class="xiaoke-next" id="xiaokeNextLine">再听一句 ↗</button>
+    <p class="xiaoke-preview-note" id="xiaokePreviewNote">这里只展示小克的形象与对白。经典 / 进阶模型尚未接入，不会改变当前 AI 对局。</p>
+  </div>
+</dialog>
 <link rel="stylesheet" href="./ui-focus-v6.css?v=20261015">
 <link rel="stylesheet" href="./ui-wall-split-v7.css?v=20261015">
 <link rel="stylesheet" href="./ui-mascot-v8.css?v=20261015">
 <link rel="stylesheet" href="./ui-ai-v9.css?v=mode-visibility-v10-20261015">
 <link rel="stylesheet" href="./zhongdi-ui.css?v=20261015">
+<link rel="stylesheet" href="./xiaoke-preview.css?v=20261106">
+<script defer src="./viewport-guard.js?v=20261106"></script>
 <script defer src="./ui-touch-v6.js?v=20261015"></script>
 <script defer src="./board-skin.js?v=ui-v5-20261015"></script>
 <script defer src="./xiaodi-engine.js?v=g4-h13-20261014"></script>
@@ -295,7 +323,9 @@
 <script defer src="./game.js?v=map-v2-rps-20261106"></script>
 <script defer src="./mobile.js?v=zhongdi-20261015"></script>
 <script defer src="./ui-wall-split-v7.js?v=20261015"></script>
+<script defer src="./xiaoke-persona.js?v=20261106"></script>
 <script defer src="./ui-ai-presets-v9.js?v=zhongdi-20261015"></script>
-<script defer src="./ui-mascot-v8.js?v=zhongdi-20261015"></script>
+<script defer src="./ui-mascot-v8.js?v=xiaoke-20261106"></script>
+<script defer src="./xiaoke-preview.js?v=20261106"></script>
 </body>
 </html>

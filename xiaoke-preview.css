@@ -1,0 +1,73 @@
+/* XiaoKe character-only preview; isolated from actual game AI and board. */\n
+/* Integrated XiaoKe AI character, separate from Mumu/XiaoDi engines. */
+
+.mascot-v8 .xiaoke-photo{display:none}
+.mascot-v8.mascot-xiaoke .mumu-character,.mascot-v8.mascot-xiaoke .xiaodi-photo{display:none!important}
+.mascot-v8.mascot-xiaoke .xiaoke-photo{position:absolute;inset:3px;display:grid!important;place-items:center;
+  border-radius:21px;background:radial-gradient(circle at 32% 25%,#fff9ef,#f2d1bf);box-shadow:inset 0 0 0 1px #d4a88e,0 5px 0 #d29b8299}
+.mascot-v8.mascot-xiaoke .xiaoke-photo img{width:76%;height:76%;object-fit:contain}
+.mascot-v8.mascot-xiaoke .mascot-speech{background:#fff5ee;border-color:#ebc9b6}
+.mascot-v8.mascot-xiaoke .mascot-speech strong{color:#bd7157}
+.mascot-v8.mascot-xiaoke .mascot-speech p{color:#975b46;letter-spacing:1px}
+.mascot-v8.mascot-xiaoke .mascot-emotion{background:#ffe7d8;color:#bd7157}
+.xiaoke-status-note{box-sizing:border-box;margin:0 0 9px;padding:8px 13px;border:1px solid #f0ceb9;
+  border-radius:12px;background:#fff6ee;color:#8e5d4a;font-size:12px;line-height:1.4}
+.xiaoke-pending-hint{margin:7px 2px 11px;line-height:1.5;color:#99634e;font-size:11px}
+#ai-xiaoke{border-color:#dba88c!important;background:#fff5ef!important;color:#a85f47!important}
+#ai-xiaoke.selected{background:#fae1d4!important;box-shadow:0 4px 0 #d9aa92!important;border-color:#d97757!important}
+.settings-choice-group .ai-levels{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.board-wrap{position:relative}
+.board-loading{position:absolute;inset:0;z-index:9;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:15px;
+  text-align:center;background:linear-gradient(150deg,#dfebe4,#c1d9c7);border:1px solid #9cbca9;border-radius:15px;
+  color:#37634e;font-size:14px;font-weight:750}
+.board-loading[hidden]{display:none!important}
+.board-loading button{background:white;border:1px solid #8ebba4;border-radius:12px;padding:11px 14px;color:#3c7558;font-weight:750}
+@media(max-width:760px){.xiaoke-status-note{margin:2px 4px 7px;padding:6px 9px;font-size:10px}
+  .mascot-v8.mascot-xiaoke .xiaoke-photo{border-radius:15px}}
+@media(max-width:380px){.settings-choice-group .ai-levels{gap:4px!important}
+  #ai-xiaoke{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.mascot-v8.mascot-xiaoke .xiaoke-photo,.mascot-v8.mascot-xiaoke .xiaoke-photo img{animation:none!important;transition:none!important}}
+
+.xiaoke-preview-trigger{display:flex;align-items:center;gap:9px;width:100%;min-height:47px;
+  margin:10px 0 2px;padding:9px 11px;border:1px dashed #dca98f;border-radius:13px;
+  background:#fff7f1;color:#7a4739;font-size:12px;font-weight:800;text-align:left;cursor:pointer}
+.xiaoke-preview-trigger img{width:26px;height:26px;padding:4px;flex:none;background:#f8e9dc;border-radius:9px}
+.xiaoke-preview-trigger .xiaoke-preview-hint{font-size:10px;line-height:1.3;font-weight:600;color:#ab8575;margin-left:auto}
+.xiaoke-preview-trigger:hover{background:#ffefe1;border-color:#c97b5c}
+.xiaoke-preview-trigger:focus-visible{outline:3px solid #cc886d;outline-offset:2px}
+.xiaoke-preview-dialog{border:0;padding:0;background:transparent;max-width:min(440px,calc(100vw - 28px));width:440px;
+  max-height:min(710px,calc(100dvh - 40px));color:#4a342d;overflow:visible}
+.xiaoke-preview-dialog::backdrop{background:rgba(31,27,27,.5);backdrop-filter:blur(5px)}
+.xiaoke-preview-inner{position:relative;isolation:isolate;overflow:hidden;box-sizing:border-box;padding:26px 24px 24px;
+  background:linear-gradient(155deg,#fff9ef 0%,#fff0e7 53%,#f5e1d6 100%);
+  border:1px solid #fff6ed;border-radius:26px;box-shadow:0 20px 75px #321d1750,inset 0 1px #fff}
+.xiaoke-preview-inner:before{content:"";position:absolute;width:270px;height:270px;top:-135px;right:-130px;
+  border-radius:50%;background:#ecc2ab70;z-index:-1}
+.xiaoke-preview-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.xiaoke-preview-kicker{letter-spacing:1.8px;font-size:10px;font-weight:850;color:#bb7157}
+.xiaoke-preview-close{border:0;background:#f5dcd0;color:#7f5345;border-radius:50%;width:32px;height:32px;font-size:21px;cursor:pointer}
+.xiaoke-avatar-wrap{position:relative;display:grid;place-items:center;margin:16px auto 8px;width:126px;height:126px;
+  border:1px solid #e9bda8;background:radial-gradient(circle at 36% 22%,#fff7ec,#f7d4c1 84%);
+  border-radius:32px;box-shadow:0 11px 0 #dba88e77,0 20px 32px #9f5d4433}
+.xiaoke-avatar-wrap img{width:90px;height:90px;object-fit:contain;filter:drop-shadow(0 3px 2px #c17b5538)}
+.xiaoke-avatar-wrap.xiaoke-bounce{animation:xiaoke-brief-pulse .36s cubic-bezier(.15,1.4,.35,1)}
+@keyframes xiaoke-brief-pulse{0%{transform:scale(.94) rotate(-3deg)}65%{transform:scale(1.04) rotate(2deg)}100%{transform:scale(1) rotate(0)}}
+.xiaoke-preview-title{text-align:center;font-size:28px;margin:15px 0 2px;font-weight:900;letter-spacing:2px}
+.xiaoke-preview-sub{text-align:center;font-size:12px;color:#aa796b;margin:0 0 18px}
+.xiaoke-speech-box{position:relative;display:grid;place-items:center;background:#fffdfa;border:1px solid #eccfc1;
+  border-radius:20px;min-height:93px;padding:14px;margin:10px 0 17px;box-shadow:0 5px 0 #e4bca7}
+.xiaoke-speech-box:before{content:"";position:absolute;width:15px;height:15px;top:-8px;left:calc(50% - 8px);
+  background:#fffdfa;border-top:1px solid #eccfc1;border-left:1px solid #eccfc1;transform:rotate(45deg)}
+.xiaoke-speech-box p{font-size:25px;line-height:1.25;font-weight:800;letter-spacing:1px;margin:0;word-break:break-word;text-align:center}
+.xiaoke-event-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin-bottom:14px}
+.xiaoke-event-tabs button{border:1px solid #e2c7b7;background:#fff9f4;color:#92634f;border-radius:999px;
+  padding:8px 12px;font-size:11px;font-weight:800;cursor:pointer}
+.xiaoke-event-tabs button[aria-pressed="true"]{background:#d97757;color:white;border-color:#d97757}
+.xiaoke-next{display:block;width:100%;border:0;border-radius:13px;background:#ce7555;color:#fff;padding:12px 13px;
+  font-weight:850;font-size:14px;cursor:pointer;box-shadow:0 4px 0 #a5513b}
+.xiaoke-next:active{transform:translateY(2px);box-shadow:0 2px 0 #a5513b}
+.xiaoke-preview-note{font-size:11px;line-height:1.55;text-align:center;color:#a17e70;margin:15px 0 0}
+@media(max-width:440px){.xiaoke-preview-inner{padding:20px 16px 20px}.xiaoke-avatar-wrap{height:104px;width:104px}
+ .xiaoke-avatar-wrap img{width:76px;height:76px}.xiaoke-speech-box p{font-size:22px}}
+@media(prefers-reduced-motion:reduce){.xiaoke-avatar-wrap,.xiaoke-avatar-wrap.xiaoke-bounce{animation:none!important;
+  transition:none!important}.xiaoke-next:active{transform:none}}

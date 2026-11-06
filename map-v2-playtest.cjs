@@ -18,7 +18,7 @@ const t=window.test,GOALS=[[{x:0,y:0},{x:1,y:0},{x:2,y:0}],[{x:6,y:12},{x:7,y:12
 let all={games:0,wins:0,draws:0,teleports:0,boosts:0,iceArrivals:0,turns:0,limitGames:0};
 for(let k=0;k<30;k++)for(const variant of ['classic','advanced']){
  const m=t.randomMap((37111+k*131)>>>0),state=t.state();
- assert(t.installMap(m));t.resetGame(variant);
+ assert(t.installMap(m));t.state().playMode="local";t.resetGame(variant);
  t.selectOrigin({x:7,y:12});t.selectOrigin({x:1,y:0});
  assert.equal(t.state().phase,'play');
  let turns=0;

@@ -7,7 +7,7 @@ const window={confirm:()=>true,setTimeout:()=>{},crypto:{getRandomValues(a){a[0]
 const src=fs.readFileSync('game.js','utf8'),probe='window.rpsTest={state:()=>state,beginRps,playRps,decideRpsSide,selectOrigin,computerTakeTurn,resetGame};state=load()||newGame("classic");';
 vm.runInNewContext(src.replace('state=load()||newGame("classic");',probe),{window,document,localStorage,Set,Math,Number,Date,JSON,Uint8Array,TextEncoder,TextDecoder,btoa,atob,navigator:{},location:{hash:'',pathname:'/',origin:'http://test'},console},{timeout:12000});
 const t=window.rpsTest;
-t.state().playMode='cpu';t.beginRps();assert.equal(t.state().phase,'rps');
+t.state().playMode='cpu';t.state().aiLevel='zhongdi';t.beginRps();assert.equal(t.state().phase,'rps');
 t.playRps('rock');assert.equal(t.state().rps.winner,'human');
 t.decideRpsSide('second');assert.equal(t.state().humanSide,1);
 assert.equal(t.state().phase,'pick-attack');

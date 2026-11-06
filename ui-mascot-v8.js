@@ -17,6 +17,8 @@
   if(banter)popup.appendChild(banter);
   let lastQuote=byId("aiBanterText")?.textContent||"";
   let reactiveMood=null,reactiveText="",reactiveUntil=0,clickCount=0,updateQueued=false;
+  const xiaokePersona=window.MMJJXiaokePersona?.createPersona();
+  let xiaokeLine=xiaokePersona?.nextLine("opening")||"⌁∿⟡‽";
   const cpu=()=>byId("playAI")?.classList.contains("selected")===true;
   const visible=id=>{const e=byId(id);return!!e&&!e.hidden};
   const phase=()=>byId("phaseInfo")?.textContent?.trim()||"";
@@ -65,28 +67,33 @@
     }
     const persona=window.MMJJPersona;
     const xiaodi=!!(isAI&&persona?.isXiaodi());
+    const xiaoke=!!(isAI&&byId("ai-xiaoke")?.classList.contains("selected"));
     if(xiaodi){
       message=persona.currentLine();
       expandedText=message;
       emotion=persona.currentMood();
       face.dataset.photo=String(persona.currentPhoto());
     }
-    face.dataset.persona=xiaodi?"xiaodi":"mumu";
-    const newRole=xiaodi?(persona.displayName()+" · AI 对手"):isAI?"木木 · 小白":"木木 · 棋局向导";
+    if(xiaoke){message=xiaokeLine;expandedText=message;emotion="calm";}
+    face.dataset.persona=xiaoke?"xiaoke":xiaodi?"xiaodi":"mumu";
+    const newRole=xiaoke?"小克 · AI 对手":xiaodi?(persona.displayName()+" · AI 对手"):isAI?"木木 · 小白":"木木 · 棋局向导";
     if(role.textContent!==newRole)role.textContent=newRole;
     if(face.dataset.emotion!==emotion)face.dataset.emotion=emotion;
-    if(moodLabel&&moodLabel.textContent!==moodNames[emotion])moodLabel.textContent=moodNames[emotion];
+    const moodText=xiaoke?"模型待接入":moodNames[emotion];
+    if(moodLabel&&moodLabel.textContent!==moodText)moodLabel.textContent=moodText;
     if(speech.textContent!==message)speech.textContent=message;
     if(detail.textContent!==expandedText)detail.textContent=expandedText;
     guide.classList.toggle("mascot-ai-mode",isAI);
     guide.classList.toggle("mascot-xiaodi",xiaodi);
+    guide.classList.toggle("mascot-xiaoke",xiaoke);
+    face.setAttribute("aria-label",xiaoke?"和小克互动，查看符号对白":"和角色互动，查看详细对话");
     guide.hidden=!isAI;
   };
   function requestUpdate(){
     if(updateQueued)return;
     updateQueued=true;requestAnimationFrame(update);
   }
-  const sourceIds=["phaseInfo","wallSlot","aiBanterText","aiBanter","winModal","winTitle","playAI","playLocal","ai-xiaodi","ai-zhongdi","ai-hell","mascotMessage"];
+  const sourceIds=["phaseInfo","wallSlot","aiBanterText","aiBanter","winModal","winTitle","playAI","playLocal","ai-xiaodi","ai-zhongdi","ai-xiaoke","ai-hell","mascotMessage"];
   const watch=new MutationObserver(records=>{
     for(const record of records){
       if(record.target===byId("aiBanterText")){
@@ -109,6 +116,9 @@
   };
   face.addEventListener("click",()=>{
     if(open){show(false);return;}
+    if(byId("ai-xiaoke")?.classList.contains("selected")&&xiaokePersona){
+      xiaokeLine=xiaokePersona.nextLine("tap");requestUpdate();show(true);return;
+    }
     if(window.MMJJPersona?.isXiaodi()){
       const line=window.MMJJPersona.nextLine();
       react(window.MMJJPersona.currentMood(),line,2000);
