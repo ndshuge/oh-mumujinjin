@@ -24,6 +24,21 @@
   var BOOST = DEFAULT_BOOST.map(function(p){return {x:p.x,y:p.y};});
   var DIRS = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
   var state;
+  var onlineSession = null, onlineApplying = false;
+  function onlineIsMyTurn() {
+    if(!onlineSession) return true;
+    var required = state.phase==="pick-attack"?0:state.phase==="pick-defend"?1:state.turn;
+    return required === onlineSession.side;
+  }
+  function onlineSend(action){
+    if(!onlineSession||onlineApplying)return false;
+    if(!onlineIsMyTurn()){notice("等待好友完成当前回合");return true;}
+    if(onlineSession.awaiting){notice("正在等待服务器确认上一步");return true;}
+    onlineSession.awaiting=true;
+    try{onlineSession.sendAction(action,onlineSession.revision);}
+    catch(error){onlineSession.awaiting=false;notice(error.message||"网络连接中断");}
+    return true;
+  }
   var aiDialogueDisabled=false,aiBanterTurns=0;
   var AI_QUOTES={
     opening:["金方先手？那就看看你能走多远。","我已经在想三步之后的局面了。","别急，棋盘才刚刚热起来。"],
@@ -167,6 +182,8 @@
   function getMap(){return copy(activeMap||defaultMap());}
   function setActiveMap(m){activeMap=copy(m);terrainApply(activeMap);editorName=activeMap.name;}
   function readMaps(){
+    // Share the deletion tombstones and names used by the new card library.
+    if(window.MumuMapCollection)return window.MumuMapCollection.createStore(localStorage,cleanMap,mapFingerprint).list();
     try{
       var newer=JSON.parse(localStorage.getItem(MAP_KEY)||"[]");
       var older=JSON.parse(localStorage.getItem(LEGACY_MAP_KEY)||"[]");
@@ -217,6 +234,7 @@
     refreshAIBanter();drawBoard();
   }
   function openEditor(){
+    if(onlineSession){notice("好友联机期间无法编辑地图");return;}
     if(!editing&&state.moves>0&&!window.confirm("进入地图编辑将结束当前对局，确定继续？"))return;
     editing=!editing;
     if(editing){editorMap=getMap();editorRocks=editorMap.rocks;editorTool="add";editorUndo=[];editorRedo=[];editorPendingPortal=null;
@@ -778,6 +796,7 @@
   function notice(text){state.notice=text;drawUI();}
   function commit(){state.notice="";save();drawUI();drawBoard();scheduleComputerTurn();}
   function resetGame(variant,preserveSelectedMap){
+    if(onlineSession&&!onlineApplying){notice("请先退出好友房间");return;}
     if(!preserveSelectedMap)randomizeInitialMap();
     var playMode=state.playMode||"local",aiLevel=state.aiLevel||"xiaoke";
     state=newGame(variant||state.variant);
@@ -792,6 +811,7 @@
   }
   function record(){state.history.push(snapshot());if(state.history.length>120)state.history.shift();}
   function undo(){
+    if(onlineSession){notice("好友联机暂不提供悔棋");return;}
     if(!state.history.length){notice("还没有可悔的步骤。");return;}
     var count=state.playMode==="cpu"&&state.phase==="play"&&state.turn===state.humanSide?2:1;
     while(count-- > 0 && state.history.length)restore(state.history.pop());
@@ -882,6 +902,7 @@
     return true;
   }
   function placeWall(w){
+    if(onlineSend({kind:"wall",wall:{x:w.x,y:w.y,o:w.o}}))return;
     if(!validWall(w)){notice("不能在这里筑墙：墙不得交叉、重叠或彻底封住去路。");return;}
     record();state.walls.push({x:w.x,y:w.y,o:w.o,owner:state.turn});
     state.left[state.turn]--;
@@ -897,13 +918,18 @@
       notice(who===0?"请点击右下角任意一格金色营地。":"请点击左上角任意一格青色营地。");
       return;
     }
+    if(onlineSend({kind:"origin",p:{x:p.x,y:p.y}}))return;
     record();state.players[who]={x:p.x,y:p.y};
-    if(who===0){state.phase="pick-defend";state.turn=1;}
+    if(onlineSession){
+      if(!state.players[1-who]){state.phase=who===0?"pick-defend":"pick-attack";state.turn=1-who;}
+      else {state.phase="play";state.turn=onlineSession.firstSide;}
+    }else if(who===0){state.phase="pick-defend";state.turn=1;}
     else {state.phase="play";state.turn=0;}
     commit();
     if(who===1)showAIQuote("opening",true);
   }
   function playerMove(move){
+    if(onlineSend({kind:"move",to:{x:move.p.x,y:move.p.y}}))return;
     record();
     state.players[state.turn]={x:move.p.x,y:move.p.y};
     // The destination's momentum is calculated by the same transition
@@ -920,6 +946,7 @@
   }
   function choosePortal(warp){
     if(!state.pending)return;
+    if(onlineSend({kind:"portal",warp:!!warp}))return;
     var gate=PORTALS[state.pending.index],p=state.players[state.turn];
     if(warp){
       var target=same(gate.a,p)?gate.b:gate.a;
@@ -984,6 +1011,7 @@
     return w.x>=0&&w.y>=0&&w.x<W-1&&w.y<H-1?w:null;
   }
   function canvasClick(event){
+    if(onlineSession && !onlineIsMyTurn())return;
     if(editing){if(suppressEditorClick){suppressEditorClick=false;return;}editCell(tileAt(pointerPos(event)));return;}
     if(state.playMode==="cpu"&&state.phase==="play"&&state.turn===cpuSide())return;
     if(state.phase==="finished"||state.pending)return;
@@ -1271,11 +1299,13 @@
     }
   }
   function setPlayMode(mode){
+    if(onlineSession){notice("请先退出好友房间再切换对战方式");return;}
     if(state.playMode===mode)return;
     if(state.moves>0&&!window.confirm("切换对战方式会重置当前对局。确定继续？"))return;
     state.playMode=mode;resetGame(state.variant);
   }
   function setAILevel(level){
+    if(onlineSession){notice("请先退出好友房间再选择电脑对手");return;}
     if(state.playMode==="cpu"&&state.aiLevel===level){preloadSelectedEngine();return;}
     if(state.moves>0&&!window.confirm("切换人机难度会重置当前对局。确定继续？"))return;
     state.playMode="cpu";state.aiLevel=level;
@@ -1283,6 +1313,7 @@
     resetGame(state.variant);
   }
   function setAction(a){
+    if(onlineSession&&!onlineIsMyTurn())return;
     if(editing||state.phase!=="play"||(state.playMode==="cpu"&&state.turn===cpuSide()))return;
     state.action=a;state.hover=null;drawUI();drawBoard();
   }
@@ -1752,7 +1783,10 @@
     $("guideBtn").addEventListener("click",function(){setModal("guideModal",true);});
     $("stayBtn").addEventListener("click",function(){choosePortal(false);});
     $("warpBtn").addEventListener("click",function(){choosePortal(true);});
-    $("playAgainBtn").addEventListener("click",function(){resetGame(state.variant);});
+    $("playAgainBtn").addEventListener("click",function(){
+      if(onlineSession){notice("请在好友房间中开始新一局");closeAll();return;}
+      resetGame(state.variant);
+    });
     document.querySelectorAll("[data-close]").forEach(function(b){
       b.addEventListener("click",function(){setModal(b.dataset.close,false);});
     });
@@ -1788,11 +1822,113 @@
   }catch(e){}
   initMap();refreshMapSelect();
   // Public read-only Map V2 API, independent from AI research policies.
+  // Lobby uses an explicit start API so new matches only begin after mode/map selection.
+  window.MumuLobbyGame=Object.freeze({
+    info:function(){return {variant:state.variant,mode:state.playMode,moves:state.moves,phase:state.phase};},
+    start:function(options){
+      if(onlineSession)return {ok:false,reason:"请先退出在线房间"};
+      var settings=options||{},map=settings.map,variant=settings.variant,opponent=settings.opponent;
+      if(!["classic","advanced"].includes(variant)||!["cpu","local"].includes(opponent))
+        return {ok:false,reason:"游戏模式无效"};
+      if(!map)return {ok:false,reason:"请先选择地图"};
+      var valid=validateMap(map);
+      if(!valid.ok)return {ok:false,reason:valid.reason||"地图不合法"};
+      if(!auditFairMap(map).ok)return {ok:false,reason:"地图未通过竞技公平性检查"};
+      state.playMode=opponent;
+      state.aiLevel="xiaoke";
+      if(!installMap(map,"custom"))return {ok:false,reason:"无法安装地图"};
+      resetGame(variant,true);
+      return {ok:true};
+    },
+    resume:function(){
+      if(onlineSession)return {ok:true};
+      return {ok:state.phase!=="waiting-ai"};
+    }
+  });
   window.MumuMapV2=Object.freeze({
     rulesVersion:RULES_VERSION,generatorVersion:"mapgen-v2-r3",
-    get:getMap,normalize:normalizeMap,validate:validateMap,auditFair:auditFairMap,
+    get:getMap,official:defaultMap,normalize:normalizeMap,validate:validateMap,auditFair:auditFairMap,
+    use:function(map){return !onlineSession && installMap(map,"custom");},
+    installFromLibrary:function(map){if(onlineSession)return false;return installMap(map,"custom");},
     generate:randomMap,generateBalanced:generateBalancedMap,generateRandomRocks:randomRocks,
     metrics:mapMetrics,fingerprint:mapFingerprint,reproduce:reproduceMap
+  });
+  function onlineHydrate(roomGame) {
+    if(!roomGame)return;
+    ["phase","players","turn","walls","left","moves","slideDir","pending","winner","repetitions"].forEach(function(key){
+      state[key]=JSON.parse(JSON.stringify(roomGame[key]));
+    });
+    state.action="move";state.history=[];state.hover=null;
+    closeAll();
+    if(state.pending!==null){
+      $("portalIcon").textContent=(PORTALS[state.pending]||{}).symbol||"门";
+      if(onlineIsMyTurn())setModal("portalModal",true);
+    }
+    if(state.phase==="finished"){
+      $("winTitle").textContent=state.winner===null?"平局":NAMES[state.winner]+"获胜";
+      $("winDesc").textContent="好友联机对局已结束";
+      $("winTurns").textContent=String(state.moves);
+      $("winWalls").textContent=String(state.walls.length);
+      setModal("winModal",true);
+    }
+    drawUI();drawBoard();
+  }
+  window.MumuOnline=Object.freeze({
+    start:function(event){
+      if(!event||!event.room||!event.room.game)return;
+      var game=event.room.game,map=event.room.settings.map;
+      if(!map)return;
+      onlineApplying=true;
+      onlineSession=null;
+      if(editing){editing=false;editorDraw();}
+      state.playMode="local";
+      state=newGame(game.variant);
+      state.playMode="local";state.aiLevel="xiaoke";
+      var applied=false;
+      if(event.room.settings.mapSource==="official"){
+        var legal=validateMap(map);
+        if(legal.ok){setActiveMap(legal.map);mapMode="default";resetGame(game.variant,true);applied=true;}
+      }else applied=installMap(map,"custom");
+      if(!applied){onlineApplying=false;notice("房间地图未通过本机验证");return;}
+      onlineSession={side:event.side,firstSide:event.firstSide,revision:event.room.revision||0,
+        sendAction:event.sendAction,awaiting:false};
+      onlineHydrate(game);
+      onlineApplying=false;
+      var status=document.querySelector(".connection-tag");
+      if(status&&!status.hasAttribute("data-original"))
+        status.setAttribute("data-original",status.textContent);
+      if(status)status.textContent="好友实时对战";
+      state.notice="好友联机 · "+(event.side===0?"金方":"木方");
+      drawUI();drawBoard();
+    },
+    apply:function(event){
+      if(!onlineSession)return;
+      if(event.revision<=onlineSession.revision)return;
+      if(event.revision!==onlineSession.revision+1){onlineSession.awaiting=false;notice("棋盘版本不一致，请刷新并重新加入房间");return;}
+      onlineSession.revision=event.revision;
+      onlineSession.awaiting=false;
+      // Server state is canonical; full reconciliation prevents hidden turn drift.
+      if(event.game)onlineHydrate(event.game);
+    },
+    reject:function(reason){
+      if(!onlineSession)return;
+      onlineSession.awaiting=false;
+      if(reason)notice(reason);
+    },
+    active:function(){return !!onlineSession;},
+    sync:function(game,revision){
+      if(!onlineSession||!game)return;
+      onlineSession.revision=revision;onlineSession.awaiting=false;onlineHydrate(game);
+    },
+    stop:function(){
+      onlineSession=null;onlineApplying=false;closeAll();state.playMode="local";
+      var status=document.querySelector(".connection-tag");
+      if(status&&status.hasAttribute("data-original")){
+        status.textContent=status.getAttribute("data-original");
+        status.removeAttribute("data-original");
+      }
+      resetGame(state.variant,true);
+    }
   });
   state.hover=null;state.notice=state.notice||"";
   try{aiDialogueDisabled=localStorage.getItem("mumujinjin-ai-quiet")==="1";}catch(e){}

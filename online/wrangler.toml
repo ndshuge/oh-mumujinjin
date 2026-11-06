@@ -1,0 +1,13 @@
+name = "mmjj-friends"
+main = "worker.mjs"
+compatibility_date = "2026-11-06"
+
+[durable_objects]
+bindings = [{ name = "ROOMS", class_name = "GameRoom" }]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["GameRoom"]
+
+[vars]
+ALLOWED_ORIGINS = "https://ndshuge.github.io,http://localhost:5500,http://127.0.0.1:5500,http://localhost:8899,http://127.0.0.1:8899,http://localhost:8787"
