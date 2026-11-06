@@ -93,6 +93,28 @@ try{
  assert.equal(await evalJS('!document.getElementById("rpsModal").hidden'),true);
  assert.equal(await evalJS('MumuLobby.isVisible()'),false);
  console.log('PASS challenge AI after choosing mode');
+ await evalJS('document.getElementById("mmjjBackToLobby").click()');
+ await evalJS('document.getElementById("mmjjLobbyMapSource").value="official";document.getElementById("mmjjLobbyMapSource").dispatchEvent(new Event("change",{bubbles:true}))');
+ assert.equal(await evalJS('document.getElementById("mmjjLobbyStart").disabled'),false,'official map should be playable');
+ assert.equal(await evalJS('document.getElementById("mmjjLobbyMapName").textContent'),'经典地图');
+ await evalJS('document.getElementById("mmjjModeLocal").click();document.getElementById("mmjjLobbyAdvanced").click()');
+ await evalJS('document.getElementById("mmjjLobbyStart").click()');
+ assert.equal(await evalJS('MumuLobbyGame.info().variant'),'advanced');
+ assert.equal(await evalJS('MumuMapV2.fingerprint(MumuMapV2.get())===MumuMapV2.fingerprint(MumuMapV2.official())'),true);
+ console.log('PASS advanced match uses exact official map');
+ await evalJS('document.getElementById("mmjjBackToLobby").click()');
+ await evalJS('document.getElementById("mmjjLobbyMapSource").value="saved";document.getElementById("mmjjLobbyMapSource").dispatchEvent(new Event("change",{bubbles:true}))');
+ assert.equal(await evalJS('document.getElementById("mmjjLobbyStart").disabled'),false,'saved map should be playable');
+ const selectedName=await evalJS('document.getElementById("mmjjLobbyMapName").textContent');
+ assert.equal(selectedName,await evalJS('MumuFriendsUI.store.list()[0].name'));
+ await evalJS('document.getElementById("mmjjLobbyStart").click()');
+ assert.equal(await evalJS('MumuLobby.isVisible()'),false);
+ assert.equal(await evalJS('MumuMapV2.get().name'),selectedName);
+ console.log('PASS named saved map opens as exact playable terrain');
+ await evalJS('document.getElementById("mmjjBackToLobby").click()');
+ const overflow=await evalJS('document.documentElement.scrollWidth > window.innerWidth + 1');
+ assert.equal(overflow,false,'main lobby must not overflow horizontally');
+ console.log('PASS responsive lobby has no horizontal overflow');
  console.log('BROWSER SMOKE PASS');
 }finally{
  if(socket)socket.close();
