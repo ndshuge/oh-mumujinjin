@@ -259,3 +259,54 @@ body.mobile-settings-open .settings-scrim{display:block!important}
 
 
 .rps-choices{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0 8px}.rps-choices[hidden]{display:none}.rps-choices button{flex:1;min-width:90px;min-height:52px;padding:12px;background:#20384d;border:1px solid #8aabb5;color:#e3f0ef;font:600 15px system-ui;cursor:pointer}
+
+/* Optional contextual AI speech, deliberately small and non-blocking. */
+.board-frame{position:relative}
+.ai-banter{position:absolute;z-index:6;top:8px;right:8px;width:min(260px,62%);background:#0e1d2dec;backdrop-filter:blur(7px);border:1px solid #7a977f;border-radius:8px;padding:8px 10px;box-shadow:0 6px 22px #0007}
+.ai-banter[hidden],.ai-replies[hidden]{display:none!important}
+.ai-banter-head{display:flex;align-items:center;justify-content:space-between;color:#a8e0cd;font-size:10px;font-weight:700}
+.ai-banter-head button,.ai-reply-toggle,.ai-replies button{font-size:10px;background:#233e49;border:1px solid #446472;border-radius:4px;padding:4px;color:#d4e5df}
+.ai-banter p{font-size:11px;line-height:1.55;color:#e4ede5;margin:7px 0;max-height:52px;overflow:hidden}
+.ai-replies{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px}
+.ai-reply-toggle{border-color:#7d9f88;color:#d2eacb}
+@media(max-width:760px){.ai-banter{top:5px;right:5px;max-width:65%;padding:5px 7px}.ai-banter p{font-size:10px;margin:4px 0}.ai-banter-head{font-size:9px}}
+
+
+/* Map V2 workshop — preserve the game visual system, improve editing precision. */
+#board.map-editing { touch-action:none; cursor:crosshair; }
+.map-v2-toolrow { flex-wrap:wrap; gap:8px; }
+.map-v2-toolrow button { min-height:42px; padding:9px 12px; }
+.map-v2-advanced { border:1px solid #40556b; padding:8px 12px; margin:10px 0; color:#d4e5e8; }
+.map-v2-advanced summary { cursor:pointer; min-height:36px; padding-top:6px; font-weight:600; }
+.map-v2-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:12px 0; }
+.map-v2-grid label {display:flex;flex-direction:column;gap:4px;font-size:13px;}
+.map-v2-grid input {min-height:40px;width:100%;box-sizing:border-box;background:#14283b;border:1px solid #456079;color:#e6f2f5;padding:7px;}
+.map-v2-mode-picker {display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:9px 0 12px;}
+.map-v2-mode-picker button {min-height:43px;background:#1b3447;color:#d6ebed;border:1px solid #456173;font:inherit;cursor:pointer;}
+.map-v2-mode-picker button:focus-visible,.map-v2-toolrow button:focus-visible {outline:2px solid #8fffd9;outline-offset:2px;}
+@media (max-width:700px){.map-v2-mode-picker button{font-size:13px;min-height:45px}.map-v2-toolrow button{min-height:44px}}
+@media (max-width:760px){
+  .map-editor:not(.expanded){max-height:205px;overflow-y:auto;}
+  .map-editor:not(.expanded) .map-v2-advanced,
+  .map-editor:not(.expanded) #editorRandom,
+  .map-editor:not(.expanded) #editorExport,
+  .map-editor:not(.expanded) #editorDelete,
+  .map-editor:not(.expanded) #editorRename{display:none!important;}
+  .map-editor .map-v2-toolrow{display:flex!important;gap:6px;}
+  .map-editor .map-v2-toolrow button{min-height:42px;flex:1 0 28%;padding:6px;font-size:11px;}
+  #board.map-editing{touch-action:none;}
+}
+
+
+/* Mobile layout editor flows above the board, preventing overlay on bottom camp. */
+@media (max-width:760px){
+.map-editor,.map-editor:not(.expanded){position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;z-index:1!important;height:auto!important;max-height:none!important;overflow:visible!important;margin:0 0 14px!important;border-radius:5px;box-shadow:none}
+.map-editor .map-v2-toolrow button{min-height:44px;flex:1 1 30%}
+.map-editor:not(.expanded) .map-v2-advanced,.map-editor:not(.expanded) #editorRandom,.map-editor:not(.expanded) #editorExport,.map-editor:not(.expanded) #editorRename,.map-editor:not(.expanded) #editorDelete{display:none!important}
+.map-editor:not(.expanded) .map-editor-tools:has(#editorImport){display:none!important}
+.map-editor #editorMessage{white-space:normal!important;line-height:1.5;font-size:11px;overflow:visible}
+}
+
+.mobile-workshop-button{display:none!important}
+.map-v2-mode-picker button.selected{background:#3b503d;color:#e6ffd8;border-color:#8fc9a3}
+@media(max-width:760px){.mobile-workshop-button{display:grid!important;font-size:14px;letter-spacing:0}}

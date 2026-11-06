@@ -261,3 +261,15 @@ body{background:linear-gradient(160deg,#f9faf7,#eef5ed);color:#30483d}
 @keyframes win-stars{from{transform:scale(.95) rotate(-3deg);opacity:.8}to{transform:scale(1.08) rotate(3deg);opacity:1}}
 @media(max-width:760px){.mascot-face.mascot-thinking .mascot-smile{width:7px;height:5px;left:20px;border-width:2px}}
 @media(prefers-reduced-motion:reduce){.mascot-face.mascot-celebrate,.win-laurel{animation:none}}
+
+/* Map workshop restores scroll and readable board size while active. */
+@media (max-width:760px){
+html:has(body.map-workshop-active),body.map-workshop-active{height:auto!important;min-height:100%;overflow:auto!important;overscroll-behavior:auto}
+body.map-workshop-active .shell{height:auto!important;min-height:100dvh!important}
+body.map-workshop-active .shell>main{flex:initial!important;min-height:0!important;display:block!important;padding-bottom:calc(var(--mobile-dock) + 20px)!important}
+body.map-workshop-active .game-layout{display:flex!important;flex:initial!important;min-height:0!important}
+body.map-workshop-active .play-section{flex:initial!important;min-height:0!important}
+body.map-workshop-active .board-frame{flex:initial!important;min-height:0!important;height:auto!important;overflow:visible!important}
+body.map-workshop-active .board-wrap{height:auto!important;max-width:none!important;display:block!important;margin:0!important}
+body.map-workshop-active .board-wrap canvas{width:100%!important;height:auto!important;max-width:100%!important;max-height:none!important;touch-action:none!important}
+}

@@ -30,7 +30,7 @@ assert(t.installMap(good),"Valid map installs");
 assert.strictEqual(t.mapCurrent().rocks.length,1);
 t.openEditor();el("editorName").value="测试地图";
 t.saveMap();
-const saved=JSON.parse(mem["mumujinjin-custom-maps-v1"]);
+const saved=JSON.parse(mem["mumujinjin-custom-maps-v2"]);
 assert.strictEqual(saved.length,1);
 t.shareMap();
 const link=el("mapShareLink").value;

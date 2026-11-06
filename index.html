@@ -38,17 +38,33 @@
     </section>
 
     <section id="mapEditor" class="map-editor" hidden>
-      <div class="map-editor-top"><b>地图工坊</b><small>点击棋盘编辑固定障碍物（营地和传送门不可覆盖）</small></div>
+      <div class="map-editor-top"><b>地图工坊</b><small>放置障碍、配对传送门、绘制冰面与加速格。营地不可移动。</small></div>
       <div class="map-editor-tools">
         <button id="editorAdd" class="selected" type="button">＋ 障碍</button><button id="editorErase" type="button">⌫ 擦除</button>
         <button id="editorMore" type="button" aria-expanded="false">更多 · 保存/分享 ▾</button><button id="editorDefault" type="button">恢复默认</button><button id="editorUseDefault" type="button">使用经典地图</button>
       </div>
+      <div class="map-editor-tools map-v2-toolrow" role="toolbar" aria-label="地图元素工具">
+        <button id="editorPortal" type="button">◎ 传送门</button><button id="editorIce" type="button">≋ 冰面</button>
+        <button id="editorBoost" type="button">ϟ 加速格</button><button id="editorSelect" type="button">↔ 选择/移动</button>
+        <button id="editorUndo" type="button">↶ 撤销</button><button id="editorRedo" type="button">↷ 重做</button><button id="editorClear" type="button">清空地形</button>
+      </div>
+      <details class="map-v2-advanced"><summary>随机地图 · 高级设置</summary>
+        <div class="map-v2-grid">
+          <label>种子 <input id="editorSeed" inputmode="numeric" type="number" min="0" max="4294967295" placeholder="自动生成"></label>
+          <label>障碍 <input id="editorRocksCount" type="number" min="0" max="45" value="10"></label>
+          <label>传送门对数 <input id="editorPortalsCount" type="number" min="0" max="8" value="3"></label>
+          <label>冰面格数 <input id="editorIceCount" type="number" min="0" max="45" value="5"></label>
+          <label>加速格数 <input id="editorBoostCount" type="number" min="0" max="45" value="4"></label>
+          <label>冰面连续性 <input id="editorIceContinuity" type="number" min="0" max="1" step="0.1" value="0.8"></label>
+        </div>
+      </details>
+      <div class="map-editor-tools"><button id="editorRandom" class="primary-btn" type="button">🎲 一键生成全随机战场</button></div>
       <input id="editorName" maxlength="40" placeholder="地图名称" value="我的地图">
       <div class="map-editor-tools"><button id="editorPlay" class="primary-btn" type="button">▶ 试玩地图</button><button id="editorSave" type="button">保存地图</button><button id="editorShare" type="button">生成分享链接</button></div>
       <select id="savedMaps" aria-label="已保存地图"><option value="">选择已保存地图</option></select>
       <textarea id="mapImportData" rows="2" placeholder="粘贴地图 JSON 或分享链接进行导入"></textarea>
-      <button id="editorImport" type="button">导入地图</button><input id="mapShareLink" readonly placeholder="分享链接将显示在这里">
-      <p id="editorMessage" aria-live="polite">点击棋盘放置障碍</p>
+      <div class="map-editor-tools"><button id="editorImport" type="button">导入地图</button><button id="editorExport" type="button">导出完整 JSON</button><button id="editorRename" type="button">重命名</button><button id="editorDelete" type="button">删除已选地图</button></div><input id="mapShareLink" readonly placeholder="分享链接将显示在这里">
+      <p id="editorMessage" aria-live="polite">选择地图工具后点击或拖动棋盘</p>
     </section>
     <section class="game-layout" aria-label="游戏区域">
       <div class="play-section">
@@ -156,6 +172,12 @@
           <button class="mode-button" id="modeAdvanced" type="button"><span class="mode-marker">02</span><span class="mode-label"><b>跑道挑战 · 测试版</b><small>冰面惯性与加速带</small></span><span class="mode-check">✓</span></button></div>
           <button id="mapEditorButton" class="mode-button workshop-entry" type="button">▧ 地图工坊 · 编辑障碍物 ↗</button>
           <div class="map-active">当前地图：<span id="mapNameActive">经典地图</span></div>
+          <div class="map-v2-mode-picker" aria-label="地图布局模式">
+            <button id="mapDefault" type="button">经典地图</button><button id="mapRandomRocks" type="button">随机障碍</button>
+            <button id="mapRandomBattle" type="button">全随机战场</button><button id="mapCustom" type="button">自定义地图</button>
+          </div>
+          <div class="settings-divider"></div>
+          <div class="panel-overline">OPPONENT <span>SELECT</span></div>
           </div><div class="settings-divider"></div><div class="settings-choice-group" id="settingsOpponentGroup"><div class="settings-group-intro"><span class="settings-index">02</span><div><h3>选择对手</h3><p>和朋友面对面，或者挑战木木。</p></div></div>
           <div class="panel-overline">选择对手 <span>OPPONENT</span></div>
           <div class="mode-options match-options">
@@ -241,7 +263,7 @@
 <script defer src="./xiaodi-engine.js?v=g4-h13-20261014"></script>
 <script defer src="./random-map.js?v=verified-random-20261016"></script>
 <script defer src="./zhongdi-engine.js?v=g5-phase-defense-20261015"></script>
-<script defer src="./game.js?v=rps-live-20261105"></script>
+<script defer src="./game.js?v=map-v2-rps-20261106"></script>
 <script defer src="./mobile.js?v=zhongdi-20261015"></script>
 <script defer src="./ui-wall-split-v7.js?v=20261015"></script>
 <script defer src="./ui-ai-presets-v9.js?v=zhongdi-20261015"></script>
