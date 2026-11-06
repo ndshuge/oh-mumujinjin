@@ -14,6 +14,8 @@ for(let k=0;k<30;k++){
  const map=t.generateBalancedMap(74011+k*31),terrain=[...map.rocks,...map.ice,...map.boost,...map.portals.flatMap(g=>[g.a,g.b])];
  for(const variant of ['classic','advanced']){
   assert(t.installMap(map));t.resetGame(variant);
+  // Wall path checks run local, independently of CPU RPS setup.
+  t.state().playMode="local";t.state().phase="pick-attack";
   t.selectOrigin({x:7,y:12});t.selectOrigin({x:1,y:0});
   const state=t.state(),candidates=[];
   assert.strictEqual(t.validWall({x:0,y:0,o:"diagonal"}),false,'Reject unsupported wall orientation');

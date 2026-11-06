@@ -25,7 +25,7 @@ for(let seed=1;seed<=600;seed++){
 let unique=new Set();
 for(let i=0;i<50;i++){g.resetGame("classic");const m=g.mapCurrent();assert(g.cleanMap(m));unique.add(win.MumuRandomMap.signature(m.rocks));}
 assert(unique.size>=45,"Not sufficiently randomized");
-const active=JSON.parse(localStorage.getItem("mumujinjin-random-last-v1"));
+const active=JSON.parse(localStorage.getItem("mumujinjin-active-map-v2"));
 assert(g.cleanMap(active),"Persisted active map invalid");
 assert(!localStorage.getItem("mumujinjin-active-map-v1"),"Prior fixed user map should not mask generated maps");
 console.log("RANDOM_MAP_600_SEEDS_50_RESTARTS_PASS",JSON.stringify({seeds:600,restarts:50,unique:unique.size,fallbacks:fallback,validBothSides:true,lockedTilesProtected:true}));

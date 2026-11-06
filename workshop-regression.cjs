@@ -39,7 +39,7 @@ const raw=link.split("#map=")[1].replace(/-/g,"+").replace(/_/g,"/");
 const decoded=JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(raw),c=>c.charCodeAt(0))));
 assert.strictEqual(decoded.rocks.length,1);
 t.openEditor();t.resetGame("classic");
-t.setAILevel("hell");t.selectOrigin({x:7,y:12});
+t.setAILevel("hell");t.state().phase="pick-attack";t.state().humanSide=0;t.selectOrigin({x:7,y:12});
 for(let i=0;i<callbacks.length;i++){const cb=callbacks[i];cb();if(i>50)throw Error("Too many async turns");}
 const state=t.state();
 assert.strictEqual(state.phase,"play");assert.strictEqual(state.turn,0);

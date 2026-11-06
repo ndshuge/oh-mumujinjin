@@ -11,10 +11,11 @@ el("board").getContext=()=>ctx;
 const document={getElementById:el,querySelectorAll:()=>[],addEventListener(){}};
 const window={confirm:()=>true},mem={};
 const localStorage={getItem(k){return mem[k]||null;},setItem(k,v){mem[k]=v;}};
-const injection='window.test={state:()=>state,resetGame,movementOptions,validWall,findPath,availableMoves,playerMove};state=load()||newGame("classic");';
+const injection='window.test={state:()=>state,resetGame,installMap,defaultMap,movementOptions,validWall,findPath,availableMoves,playerMove};state=load()||newGame("classic");';
 assert(source.includes('state=load()||newGame("classic");'));
 vm.runInNewContext(source.replace('state=load()||newGame("classic");',injection),{window,document,localStorage,Set,Math,JSON,console},{filename:"game.js"});
 const t=window.test,point=(x,y)=>({x,y}),up=point(0,-1),down=point(0,1);
+t.installMap(t.defaultMap(),"default");
 const same=(a,b)=>a&&a.x===b.x&&a.y===b.y;
 function setup(){
  t.resetGame("advanced");

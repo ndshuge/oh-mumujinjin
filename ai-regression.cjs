@@ -31,9 +31,10 @@ for(const level of ["easy","normal","hard"]){
  assert.strictEqual(t.state().phase,"play");
  assert.strictEqual(t.state().turn,0,"Computer spawn should finish then human moves");
  assert(t.state().players[1],"Computer must choose a wood spawn");
- const move=t.availableMoves().find(m=>m.p.x===7&&m.p.y===11);
+ const move=t.availableMoves()[0]; // full random Map V2 may block the former fixed opening
  assert(move,"Human move must be legal");
  t.playerMove(move);
+ if(t.state().pending)t.choosePortal(false);
  drain();
  assert.strictEqual(t.state().turn,0,level+" AI must finish its turn");
  assert.strictEqual(t.state().moves,2,level+" AI should perform one full turn");
