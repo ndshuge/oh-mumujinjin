@@ -1,0 +1,23 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync('game.js','utf8');
+const legacy=JSON.parse(fs.readFileSync('docs/map-legacy-20261105.json','utf8')).r2;
+const original=JSON.stringify(legacy);
+const storage={'mumujinjin-active-map-v2':original,'mumujinjin-layout-mode-v2':'custom'};
+const items=new Map();
+function el(id){if(!items.has(id))items.set(id,{id,hidden:false,style:{},dataset:{},textContent:'',value:'',classList:{toggle(){},add(){}},addEventListener(){},appendChild(){},setAttribute(){},getBoundingClientRect(){return {left:0,top:0,width:720,height:980}}});return items.get(id)}
+el('board').getContext=()=>new Proxy({},{get:()=>()=>{}});
+const document={getElementById:el,querySelectorAll:()=>[],createElement:()=>({}),addEventListener(){}};
+const window={confirm:()=>true,setTimeout:()=>{}},localStorage={getItem:key=>storage[key]||null,setItem:(key,value)=>{storage[key]=value}};
+const hook='window.exam={mapCurrent,getMap,auditFairMap,defaultMap,mapFingerprint,readMaps,mode:()=>mapMode};state=load()||newGame("classic");';
+assert(source.includes('state=load()||newGame("classic");'));
+vm.runInNewContext(source.replace('state=load()||newGame("classic");',hook),{window,document,localStorage,Set,Math,Date,JSON,Number,Uint8Array,TextEncoder,TextDecoder,btoa,atob,console,navigator:{},location:{origin:'http://test',pathname:'/',hash:''}});
+const api=window.exam;
+assert(api.auditFairMap(api.getMap()).ok,'loaded match must use a certified fair terrain');
+assert.equal(api.mapFingerprint(api.getMap()),api.mapFingerprint(api.defaultMap()),'uncertified custom replaced with fixed safe terrain');
+assert.equal(api.mode(),'default','UI mode must reflect actual safe layout');
+assert.equal(storage['mumujinjin-layout-mode-v2'],'default','persist repaired selector state');
+assert.equal(storage['mumujinjin-unfair-active-backup-v1'],original,'original user map must remain recoverable');
+assert.equal(storage['mumujinjin-active-map-v2'],original,'do not silently destroy user-authored map');
+assert(api.readMaps().some(m=>api.mapFingerprint(m)===api.mapFingerprint(legacy)),'backup remains selectable for editing in map workshop');
+console.log('PASS_UNCERTIFIED_CUSTOM_BACKUP_AND_SAFE_FALLBACK');

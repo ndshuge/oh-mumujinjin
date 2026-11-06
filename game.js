@@ -171,7 +171,9 @@
       var newer=JSON.parse(localStorage.getItem(MAP_KEY)||"[]");
       var older=JSON.parse(localStorage.getItem(LEGACY_MAP_KEY)||"[]");
       if(!Array.isArray(newer))newer=[];if(!Array.isArray(older))older=[];
-      var seen=new Set();return newer.concat(older).map(cleanMap).filter(function(m){
+      var backup=null;
+      try{backup=JSON.parse(localStorage.getItem("mumujinjin-unfair-active-backup-v1")||"null");}catch(e){}
+      var seen=new Set();return (backup?[backup]:[]).concat(newer,older).map(cleanMap).filter(function(m){
         if(!m)return false;var fp=mapFingerprint(m);if(seen.has(fp))return false;seen.add(fp);return true;
       }).slice(0,30);
     }catch(e){return [];}
@@ -304,7 +306,7 @@
       var binary=atob(value.replace(/-/g,"+").replace(/_/g,"/")),bytes=Uint8Array.from(binary,function(s){return s.charCodeAt(0);});
       var map=cleanMap(JSON.parse(new TextDecoder().decode(bytes)));
       if(map&&auditFairMap(map).ok){setActiveMap(map);mapMode="custom";state=newGame(state.variant);localStorage.setItem(ACTIVE_KEY,JSON.stringify(map));localStorage.setItem(MODE_KEY,mapMode);}
-      else if(map){editorMap=copy(map);editorName=map.name;editing=true;}
+      else if(map){editorMap=copy(map);editorName=map.name;editing=true;editorMessage("分享地图尚未通过竞技公平性检查，已打开草稿；可修改后再使用。");}
     }catch(e){}
   }
   function randomizeInitialMap(){
@@ -330,14 +332,25 @@
       var active=cleanMap(JSON.parse(localStorage.getItem(ACTIVE_KEY)||localStorage.getItem(LEGACY_ACTIVE_KEY)||"null"));
       if(state&&state.moves===0){
         if(saved&&!auditFairMap(saved).ok){saved=null;savedGameMap=null;savedGameHash=null;}
-        if(active&&!auditFairMap(active).ok)active=null;
+        if(active&&!auditFairMap(active).ok){
+          try{
+            var oldActiveRaw=localStorage.getItem(ACTIVE_KEY);
+            if(oldActiveRaw&&!localStorage.getItem("mumujinjin-unfair-active-backup-v1"))
+              localStorage.setItem("mumujinjin-unfair-active-backup-v1",oldActiveRaw);
+          }catch(e){}
+          active=null;
+          if(mapMode==="custom"||mapMode==="default"){
+            mapMode="default";
+            try{localStorage.setItem(MODE_KEY,mapMode);}catch(e){}
+          }
+        }
       }
       if(saved)setActiveMap(saved);
       else if(active)setActiveMap(active);
       else if(mapMode==="random-battle"||mapMode==="random-rocks")randomizeInitialMap();
     }catch(e){}
     loadShare();
-    // First visit: symmetric fully-random terrain is the default battlefield.
+    // First visit: audited fair-asymmetric random terrain is the default battlefield.
     // A restored saved/share/custom map always takes precedence.
     try{if(!savedGameMap&&!localStorage.getItem(ACTIVE_KEY)&&!localStorage.getItem(LEGACY_ACTIVE_KEY)&&!(location.hash||"").startsWith("#map="))randomizeInitialMap();}catch(e){/* keep the fixed default map if generator fails */}
   }
@@ -1655,7 +1668,7 @@
         var opts={rocks:Number($("editorRocksCount").value),portals:Number($("editorPortalsCount").value),
           ice:Number($("editorIceCount").value),boost:Number($("editorBoostCount").value),
           iceContinuity:Number($("editorIceContinuity").value)};
-        var map=$("editorMapStyle").value==="free"?randomMap(seed,opts):generateBalancedMap(seed,opts);
+        var map=generateBalancedMap(seed,opts);
         editorCheckpoint();editorMap=copy(map);editorRocks=editorMap.rocks;editorPendingPortal=null;
         editorName=map.name;editorDraw();
         $("editorSeed").value=String(seed);editorMessage("随机生成成功 · "+mapFingerprint(map).slice(0,12)+

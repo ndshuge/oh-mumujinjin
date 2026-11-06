@@ -50,9 +50,7 @@
       </div>
       <details class="map-v2-advanced"><summary>随机地图 · 高级设置</summary>
         <div class="map-v2-grid">
-          <label>生成方式<select id="editorMapStyle" aria-label="地图生成方式">
-            <option value="balanced" selected>公平随机 · 非对称布局</option>
-          </select></label>
+          <p class="map-fair-note">生成策略：公平非对称随机</p>
           <label>种子 <input id="editorSeed" inputmode="numeric" type="number" min="0" max="4294967295" placeholder="自动生成"></label>
           <label>障碍 <input id="editorRocksCount" type="number" min="0" max="45" value="10"></label>
           <label>传送门对数 <input id="editorPortalsCount" type="number" min="0" max="8" value="3"></label>
@@ -319,7 +317,7 @@
 <script defer src="./ai-engine-loader.js?v=boot-20261106"></script>
 
 <script defer src="./xiaoke-ai-client.js?v=champions-20261106-2"></script>
-<script defer src="./game.js?v=fair-asym-r3-20261106-champions"></script>
+<script defer src="./game.js?v=fair-r3-20261106-v1"></script>
 <script defer src="./mobile.js?v=xiaoke-20261106-r2"></script>
 <script defer src="./ui-wall-split-v7.js?v=20261015"></script>
 <script defer src="./xiaoke-persona.js?v=20261106"></script>
