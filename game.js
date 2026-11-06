@@ -684,6 +684,7 @@
     state=newGame(variant||state.variant);
     state.playMode=playMode;state.aiLevel=aiLevel;
     closeAll();if(playMode==="cpu"&&aiLevel!=="xiaoke")beginRps();else {state.phase=playMode==="cpu"?"waiting-ai":"pick-attack";commit();}
+    preloadSelectedEngine();
   }
   function confirmSwitch(variant){
     if(state.variant===variant)return;
@@ -907,6 +908,7 @@
   // Local, deterministic-rule computer player. No server/API required.
   // All candidate moves and barriers use the same legal actions as human turns.
   var cpuScheduleToken=0;
+  var engineWait=null;
   function computerDistance(start,goal,walls,lock){
     var queue=[{p:start,lock:lock||null,n:0}],head=0;
     var seen=new Set([pathStateKey(start,lock)]);
@@ -1092,9 +1094,35 @@
       choosePortal(tactical?tactical.warp===true:warpDistance<stayDistance);
     }
   }
+  function preloadSelectedEngine(){
+    var level=state.aiLevel;
+    if(state.playMode!=="cpu"||(level!=="zhongdi"&&level!=="xiaodi")||typeof window.MMJJEnsureAIEngine!=="function")return;
+    window.MMJJEnsureAIEngine(level).then(function(){
+      if(state.playMode==="cpu"&&state.aiLevel===level)scheduleComputerTurn();
+    },function(){
+      if(state.playMode==="cpu"&&state.aiLevel===level){state.notice=level==="zhongdi"?"中迪模型加载失败，再点一次中迪重试。":"小迪模型加载失败，再点一次小迪重试。";drawUI();}
+    });
+  }
   function scheduleComputerTurn(){
     var token=++cpuScheduleToken;
     if(editing||state.playMode!=="cpu"||state.aiLevel==="xiaoke"||typeof window.setTimeout!=="function")return;
+    var engineName=state.aiLevel==="zhongdi"?"MumuZhongdi":state.aiLevel==="xiaodi"?"MumuXiaodi":null;
+    if(engineName&&!window[engineName]){
+      if(typeof window.MMJJEnsureAIEngine==="function"){
+        var waitingLevel=state.aiLevel;
+        if(engineWait!==waitingLevel){
+          engineWait=waitingLevel;
+          window.MMJJEnsureAIEngine(waitingLevel).then(function(){
+            if(engineWait===waitingLevel)engineWait=null;
+            if(state.playMode==="cpu"&&state.aiLevel===waitingLevel)scheduleComputerTurn();
+          },function(){
+            if(engineWait===waitingLevel)engineWait=null;
+            if(state.playMode==="cpu"&&state.aiLevel===waitingLevel){state.notice="AI 模型加载失败，请重新选择该对手重试。";drawUI();}
+          });
+        }
+      }
+      return;
+    }
     if(state.phase==="pick-attack"&&cpuSide()===0){
       window.setTimeout(function(){
         if(token!==cpuScheduleToken||state.phase!=="pick-attack"||state.playMode!=="cpu")return;
@@ -1118,7 +1146,7 @@
     state.playMode=mode;resetGame(state.variant);
   }
   function setAILevel(level){
-    if(state.playMode==="cpu"&&state.aiLevel===level)return;
+    if(state.playMode==="cpu"&&state.aiLevel===level){preloadSelectedEngine();return;}
     if(state.moves>0&&!window.confirm("切换人机难度会重置当前对局。确定继续？"))return;
     state.playMode="cpu";state.aiLevel=level;
     try{localStorage.setItem("mumujinjin-ai-choice-explicit-v1",level);}catch(e){}
@@ -1640,7 +1668,7 @@
   state.playMode=state.playMode==="cpu"?"cpu":"local";
   state.aiLevel=["easy","normal","hard","hell","xiaodi","zhongdi","xiaoke"].indexOf(state.aiLevel)>=0?state.aiLevel:"xiaoke";
   if(state.playMode==="cpu"&&state.aiLevel==="xiaoke"&&state.moves===0){state.phase="waiting-ai";state.rps=null;}
-  bindEvents();if(!loadedAtBoot&&state.playMode==="cpu"&&state.aiLevel!=="xiaoke")beginRps();drawUI();drawBoard();
+  bindEvents();if(!loadedAtBoot&&state.playMode==="cpu"&&state.aiLevel!=="xiaoke")beginRps();drawUI();drawBoard();preloadSelectedEngine();
   if(state.playMode==="cpu"&&state.phase==="play")showAIQuote("opening",true);
   if(state.playMode==="cpu"&&state.phase==="rps")setModal("rpsModal",true);
   if(state.phase==="finished"&&state.winner!==null){

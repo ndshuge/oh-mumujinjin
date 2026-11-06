@@ -5,6 +5,9 @@
   ['gesturestart','gesturechange','gestureend'].forEach(type => {
     document.addEventListener(type, block, {passive:false,capture:true});
   });
+  document.addEventListener('touchstart', e => {
+    if (e.touches && e.touches.length > 1) block(e);
+  }, {passive:false,capture:true});
   document.addEventListener('touchmove', e => {
     if (e.touches && e.touches.length > 1) block(e);
   }, {passive:false,capture:true});

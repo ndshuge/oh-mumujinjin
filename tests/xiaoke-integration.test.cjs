@@ -25,10 +25,11 @@ test('小克不冒用任何已存在的中迪/小迪引擎',()=>{
 });
 test('上线版本必须刷新所有已修改的脚本 URL，避免旧资源与新页面混用',()=>{
  const h=read('index.html');
- for(const name of ['game.js','mobile.js','ui-ai-presets-v9.js']){
+ for(const name of ['mobile.js','ui-ai-presets-v9.js']){
    assert.match(h,new RegExp(name.replaceAll('.','\\.')+'\\?v=xiaoke-20261106-r2'));
  }
 });
+test('页面资源版本与按需加载代码一致',()=>{assert.ok(read('index.html').includes('game.js?v=boot-20261106-v1'))});
 test('双指缩放拦截，一指滑动保留',()=>{
  const html=read('index.html'),js=read('viewport-guard.js');
  assert.match(html, /user-scalable=no/);

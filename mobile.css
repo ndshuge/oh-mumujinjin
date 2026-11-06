@@ -273,3 +273,7 @@ body.map-workshop-active .board-frame{flex:initial!important;min-height:0!import
 body.map-workshop-active .board-wrap{height:auto!important;max-width:none!important;display:block!important;margin:0!important}
 body.map-workshop-active .board-wrap canvas{width:100%!important;height:auto!important;max-width:100%!important;max-height:none!important;touch-action:none!important}
 }
+
+/* Mobile game viewport: allow one-finger panning, disallow page pinch-zoom. */
+html, body { touch-action: pan-x pan-y; }
+button, a { touch-action: manipulation; }
