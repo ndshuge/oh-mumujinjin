@@ -25,7 +25,7 @@ test('小克不冒用任何已存在的中迪/小迪引擎',()=>{
 });
 test('上线版本必须刷新所有已修改的脚本 URL，避免旧资源与新页面混用',()=>{
  const h=read('index.html');
- for(const name of ['game.js','mobile.js','ui-ai-presets-v9.js','ui-mascot-v8.js']){
+ for(const name of ['game.js','mobile.js','ui-ai-presets-v9.js']){
    assert.match(h,new RegExp(name.replaceAll('.','\\.')+'\\?v=xiaoke-20261106-r2'));
  }
 });

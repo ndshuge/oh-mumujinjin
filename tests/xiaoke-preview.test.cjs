@@ -14,7 +14,7 @@ test('入口属于额外预览按钮，不伪装为可玩 AI 难度', () => {
   assert.match(selector[1], /id="ai-xiaoke"/);
   assert.match(html, /xiaoke-persona\.js/);
   assert.match(html, /xiaoke-preview\.js/);
-  assert.match(html, /claude-avatar\.svg/);
+  assert.match(html, /xiaoke-clawd\.svg/);
 });
 
 test('角色预览代码不得接管游戏的难度与走子引擎', () => {

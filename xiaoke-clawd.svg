@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" shape-rendering="crispEdges" role="img" aria-labelledby="title">
+  <title id="title">小克：以 Clawd 为造型参考的像素螃蟹</title>
+  <!-- Original vector pixel mascot: warm terracotta, square body, short arms and four feet. -->
+  <g fill="#D97757">
+    <rect x="26" y="25" width="68" height="53"/>
+    <rect x="12" y="43" width="15" height="22"/>
+    <rect x="93" y="43" width="15" height="22"/>
+    <rect x="29" y="76" width="13" height="23"/>
+    <rect x="46" y="76" width="13" height="23"/>
+    <rect x="63" y="76" width="13" height="23"/>
+    <rect x="80" y="76" width="13" height="23"/>
+  </g>
+  <g fill="#2D2724">
+    <rect x="42" y="43" width="10" height="10"/>
+    <rect x="70" y="43" width="10" height="10"/>
+  </g>
+</svg>

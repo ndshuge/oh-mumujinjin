@@ -4,17 +4,14 @@
   const byId=id=>document.getElementById(id);
   const face=byId("mascotTap"),guide=document.querySelector(".mascot-v8"),
         speech=byId("mascotMessage"),role=byId("mascotRole"),
-        moodLabel=byId("mascotEmotion"),popup=byId("mascotExpanded"),
-        detail=byId("mascotDetail"),dismiss=byId("mascotDismiss"),banter=byId("aiBanter");
-  if(!face||!speech||!popup||!role||!detail)return;
+        moodLabel=byId("mascotEmotion");
+  if(!face||!speech||!role||!guide)return;
   const reduced=window.matchMedia("(prefers-reduced-motion: reduce)");
   const moodNames={
     calm:"好心情",thinking:"思考中",happy:"开心",celebrate:"太棒了",
     smug:"有点得意",surprised:"惊讶",worried:"紧张",sad:"失落",angry:"不服气"
   };
-  // The game's real AI dialogue stays in its original DOM nodes,
-  // but is presented inside the optional character-detail popover.
-  if(banter)popup.appendChild(banter);
+  // AI speech data remains in #aiBanter for existing engines; no modal is opened.
   let lastQuote=byId("aiBanterText")?.textContent||"";
   let reactiveMood=null,reactiveText="",reactiveUntil=0,clickCount=0,updateQueued=false;
   const xiaokePersona=window.MMJJXiaokePersona?.createPersona();
@@ -82,11 +79,10 @@
     const moodText=xiaoke?"模型待接入":moodNames[emotion];
     if(moodLabel&&moodLabel.textContent!==moodText)moodLabel.textContent=moodText;
     if(speech.textContent!==message)speech.textContent=message;
-    if(detail.textContent!==expandedText)detail.textContent=expandedText;
     guide.classList.toggle("mascot-ai-mode",isAI);
     guide.classList.toggle("mascot-xiaodi",xiaodi);
     guide.classList.toggle("mascot-xiaoke",xiaoke);
-    face.setAttribute("aria-label",xiaoke?"和小克互动，查看符号对白":"和角色互动，查看详细对话");
+    face.setAttribute("aria-label",xiaoke?"点击小克切换符号对白":"点击角色切换简短对白");
     guide.hidden=!isAI;
   };
   function requestUpdate(){
@@ -107,22 +103,16 @@
     const e=byId(id);if(!e)return;
     watch.observe(e,{attributes:true,attributeFilter:["class","hidden","data-direction","data-open"],childList:true,characterData:true,subtree:true});
   });
-  let open=false;
-  const show=next=>{
-    open=!!next;
-    popup.hidden=!open;
-    face.setAttribute("aria-expanded",String(open));
-    if(open)requestUpdate();
-  };
+  // Clicking the face changes only the compact inline bubble. Never cover the board.
   face.addEventListener("click",()=>{
-    if(open){show(false);return;}
     if(byId("ai-xiaoke")?.classList.contains("selected")&&xiaokePersona){
-      xiaokeLine=xiaokePersona.nextLine("tap");requestUpdate();show(true);return;
+      xiaokeLine=xiaokePersona.nextLine("tap");
+      requestUpdate();
+      return;
     }
     if(window.MMJJPersona?.isXiaodi()){
       const line=window.MMJJPersona.nextLine();
       react(window.MMJJPersona.currentMood(),line,2000);
-      show(true);
       return;
     }
     clickCount++;
@@ -134,11 +124,7 @@
     ];
     const [emotion,text]=messages[(clickCount-1)%messages.length];
     react(emotion,text,1900);
-    show(true);
   });
-  dismiss?.addEventListener("click",e=>{e.stopPropagation();show(false);face.focus({preventScroll:true})});
-  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&open){show(false);face.focus({preventScroll:true})}});
-  document.addEventListener("pointerdown",e=>{if(open&&!guide.contains(e.target))show(false)},{passive:true});
   const settingsHelp=byId("settingsHelp");
   settingsHelp?.addEventListener("click",()=>{byId("settingsCloseBtn")?.click();byId("helpTop")?.click()});
   document.querySelectorAll(".settings-jump a").forEach(link=>{

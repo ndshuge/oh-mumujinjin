@@ -71,3 +71,14 @@
  .xiaoke-avatar-wrap img{width:76px;height:76px}.xiaoke-speech-box p{font-size:22px}}
 @media(prefers-reduced-motion:reduce){.xiaoke-avatar-wrap,.xiaoke-avatar-wrap.xiaoke-bounce{animation:none!important;
   transition:none!important}.xiaoke-next:active{transform:none}}
+
+/* Clawd: an intentionally pixel-accurate crab silhouette, no giant dialogue overlay. */
+#aiBanter{display:none!important}
+.mascot-v8.mascot-xiaoke .xiaoke-photo img,
+.xiaoke-avatar-wrap img,
+.xiaoke-preview-trigger img{
+  image-rendering:pixelated;
+  image-rendering:crisp-edges;
+}
+.mascot-v8.mascot-xiaoke .xiaoke-photo{background:linear-gradient(160deg,#fff8ee,#f5e0d3)}
+.mascot-v8.mascot-xiaoke .xiaoke-photo img{width:88%;height:88%;filter:none}

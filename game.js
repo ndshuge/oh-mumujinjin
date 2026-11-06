@@ -1189,7 +1189,6 @@
     $("playAI").classList.toggle("selected",state.playMode==="cpu");
     $("aiDifficulty").hidden=state.playMode!=="cpu";
     $("xiaokePendingHint").hidden=!(state.playMode==="cpu"&&state.aiLevel==="xiaoke");
-    $("xiaokeStatusNotice").hidden=!(state.playMode==="cpu"&&state.aiLevel==="xiaoke");
     ["easy","normal","hard","hell","xiaodi","zhongdi","xiaoke"].forEach(function(level){
       $("ai-"+level).classList.toggle("selected",state.aiLevel===level);
       if(typeof $("ai-"+level).setAttribute==="function")$("ai-"+level).setAttribute("aria-pressed",state.aiLevel===level?"true":"false");

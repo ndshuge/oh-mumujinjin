@@ -81,8 +81,8 @@
           <div class="board-version"><span class="tiny-dot"></span><span id="boardVersion">经典战场</span></div>
         </div>
           <div class="mascot-guide mascot-v8 mascot-xiaoke mascot-ai-mode" aria-label="小克，AI 对手">
-            <button class="mascot-face mascot-avatar" id="mascotTap" type="button" aria-label="和小克互动，查看详细对话" aria-expanded="false" aria-controls="mascotExpanded" data-emotion="calm" data-persona="xiaoke">
-              <span class="xiaodi-photo" aria-hidden="true"></span><span class="xiaoke-photo" aria-hidden="true"><img src="./claude-avatar.svg" alt=""></span><svg class="mumu-character" viewBox="0 0 120 124" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <button class="mascot-face mascot-avatar" id="mascotTap" type="button" aria-label="点击角色切换简短对白" data-emotion="calm" data-persona="xiaoke">
+              <span class="xiaodi-photo" aria-hidden="true"></span><span class="xiaoke-photo" aria-hidden="true"><img src="./xiaoke-clawd.svg" alt=""></span><svg class="mumu-character" viewBox="0 0 120 124" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <defs><linearGradient id="mumuBody" x1="0" y1="0" x2=".95" y2="1"><stop offset="0" stop-color="#B9EDC9"/><stop offset=".58" stop-color="#88D5AA"/><stop offset="1" stop-color="#57B990"/></linearGradient><linearGradient id="mumuBelly" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#F5FFF0"/><stop offset="1" stop-color="#E0F8DB"/></linearGradient></defs>
               <ellipse class="mumu-ground" cx="61" cy="113" rx="38" ry="7" fill="#38885D" opacity=".16"/>
               <g class="mumu-creature"><g class="mumu-sprout"><path d="M58 20Q51 4 36 8Q38 23 58 25Z" fill="#55B47B"/><path d="M63 21Q65 7 80 5Q82 21 62 27Z" fill="#75CC88"/><path d="M58 29Q60 23 63 18" fill="none" stroke="#428E65" stroke-width="3.5" stroke-linecap="round"/></g>
@@ -102,9 +102,7 @@
               </g></svg>
             </button>
             <div class="mascot-speech"><div class="mascot-speech-top"><strong id="mascotRole">小克 · AI 对手</strong><span id="mascotEmotion" class="mascot-emotion">模型待接入</span></div><p id="mascotMessage">⌁∿⟡‽</p></div>
-            <div id="mascotExpanded" class="mascot-expanded" hidden><div class="mascot-expanded-title">角色对话 <button id="mascotDismiss" type="button" aria-label="收起角色对话">×</button></div><p id="mascotDetail">⌁∿⟡‽</p></div>
           </div>
-        <p id="xiaokeStatusNotice" class="xiaoke-status-note" role="status">小克已就位 · AI 模型接入中。棋盘可预览；想现在对弈可选中迪或小迪。</p>
         <nav id="mapQuickTools" class="map-v2-quicktools" aria-label="地图绘制快捷工具" hidden>
           <button id="quickEditorAdd" type="button">障碍</button>
           <button id="quickEditorPortal" type="button">传送门</button>
@@ -205,7 +203,7 @@
           </div>
           <div id="aiDifficulty" class="ai-difficulty">
             <button id="xiaokePreviewBtn" class="xiaoke-preview-trigger" type="button" aria-haspopup="dialog" aria-controls="xiaokePreviewDialog">
-              <img src="./claude-avatar.svg" alt="" aria-hidden="true"><span>小克 · 角色预览</span>
+              <img src="./xiaoke-clawd.svg" alt="" aria-hidden="true"><span>小克 · 角色预览</span>
               <span class="xiaoke-preview-hint">仅看头像与对白 ↗</span>
             </button>
             <p id="xiaokePendingHint" class="xiaoke-pending-hint">小克模型正在接入，暂不能开始人机对局。可先查看头像和台词；选择中迪、小迪可立即下棋。</p>
@@ -292,7 +290,7 @@
 <dialog id="xiaokePreviewDialog" class="xiaoke-preview-dialog" aria-labelledby="xiaokeTitle" aria-describedby="xiaokePreviewNote">
   <div class="xiaoke-preview-inner">
     <div class="xiaoke-preview-top"><span class="xiaoke-preview-kicker">GUEST · CHARACTER PREVIEW</span><button class="xiaoke-preview-close" id="xiaokeClose" type="button" aria-label="关闭小克预览">×</button></div>
-    <div class="xiaoke-avatar-wrap" id="xiaokeAvatar"><img src="./claude-avatar.svg" alt="Claude 风格标志，小克头像"></div>
+    <div class="xiaoke-avatar-wrap" id="xiaokeAvatar"><img src="./xiaoke-clawd.svg" alt="小克，Clawd 风格像素小螃蟹头像"></div>
     <h2 class="xiaoke-preview-title" id="xiaokeTitle">小克</h2>
     <p class="xiaoke-preview-sub">即将加入棋局的神秘对手</p>
     <div class="xiaoke-speech-box"><p id="xiaokeSpeech" aria-live="polite">⌁∿⟡‽</p></div>
@@ -313,7 +311,7 @@
 <link rel="stylesheet" href="./ui-mascot-v8.css?v=20261015">
 <link rel="stylesheet" href="./ui-ai-v9.css?v=mode-visibility-v10-20261015">
 <link rel="stylesheet" href="./zhongdi-ui.css?v=20261015">
-<link rel="stylesheet" href="./xiaoke-preview.css?v=20261106">
+<link rel="stylesheet" href="./xiaoke-preview.css?v=clawd-20261106-v2">
 <script defer src="./viewport-guard.js?v=20261106"></script>
 <script defer src="./ui-touch-v6.js?v=20261015"></script>
 <script defer src="./board-skin.js?v=ui-v5-20261015"></script>
@@ -325,7 +323,7 @@
 <script defer src="./ui-wall-split-v7.js?v=20261015"></script>
 <script defer src="./xiaoke-persona.js?v=20261106"></script>
 <script defer src="./ui-ai-presets-v9.js?v=xiaoke-20261106-r2"></script>
-<script defer src="./ui-mascot-v8.js?v=xiaoke-20261106-r2"></script>
+<script defer src="./ui-mascot-v8.js?v=clawd-20261106-v2"></script>
 <script defer src="./xiaoke-preview.js?v=20261106"></script>
 </body>
 </html>
