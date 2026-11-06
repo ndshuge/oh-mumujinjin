@@ -1,0 +1,36 @@
+{
+  "label": "ab8-e2rc",
+  "kind": "ab",
+  "lazyWalls": true,
+  "tieRun": true,
+  "infExact": true,
+  "wallCurve": [
+    0,
+    540,
+    900,
+    1180,
+    1428,
+    1650
+  ],
+  "advLazy": true,
+  "wallCurveAdv": [
+    0,
+    674,
+    1074,
+    1386,
+    1676,
+    1812
+  ],
+  "e2root": true,
+  "e2w": 30,
+  "e2cap": 12,
+  "e2slots": 24,
+  "wallCurveRunner": [
+    0,
+    265,
+    615,
+    982,
+    1312,
+    1650
+  ]
+}

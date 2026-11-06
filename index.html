@@ -101,7 +101,7 @@
               <path class="mumu-spark" d="M102 15l2.3 6.7 6.6 2.4-6.6 2.1-2.3 6.9-2.5-6.9-6.3-2.1 6.3-2.4Z" fill="#F2C569"/>
               </g></svg>
             </button>
-            <div class="mascot-speech"><div class="mascot-speech-top"><strong id="mascotRole">小克 · AI 对手</strong><span id="mascotEmotion" class="mascot-emotion">模型待接入</span></div><p id="mascotMessage">⌁∿⟡‽</p></div>
+            <div class="mascot-speech"><div class="mascot-speech-top"><strong id="mascotRole">小克 · AI 对手</strong><span id="mascotEmotion" class="mascot-emotion">双模式 AI 已上线</span></div><p id="mascotMessage">⌁∿⟡‽</p></div>
           </div>
         <nav id="mapQuickTools" class="map-v2-quicktools" aria-label="地图绘制快捷工具" hidden>
           <button id="quickEditorAdd" type="button">障碍</button>
@@ -206,12 +206,12 @@
               <img src="./xiaoke-clawd.svg" alt="" aria-hidden="true"><span>小克 · 角色预览</span>
               <span class="xiaoke-preview-hint">仅看头像与对白 ↗</span>
             </button>
-            <p id="xiaokePendingHint" class="xiaoke-pending-hint">小克模型正在接入，暂不能开始人机对局。可先查看头像和台词；选择中迪、小迪可立即下棋。</p>
+            <p id="xiaokePendingHint" class="xiaoke-pending-hint">小克已可实战：经典模式由 C-ab8-e2rc 执棋，进阶模式由 C-f5-ab8 执棋。双方猜拳决定先后手，浏览器本地运行。</p>
             <div class="difficulty-label">电脑难度 <span>无需联网，手机本地计算</span></div>
             <div class="ai-levels" role="group" aria-label="人机难度">
               <button class="ai-level" id="ai-easy" type="button" hidden aria-hidden="true" tabindex="-1">入门</button>
               <button class="ai-level" id="ai-normal" type="button" hidden aria-hidden="true" tabindex="-1">策略</button>
-              <button class="ai-level" id="ai-hard" type="button" hidden aria-hidden="true" tabindex="-1">挑战</button><button class="ai-level hell-level" id="ai-hell" type="button">小白</button><button class="ai-level hell-level" id="ai-xiaodi" type="button" title="G4-h13 冻结冠军 · 本地运行">小迪</button><button class="ai-level hell-level" id="ai-zhongdi" type="button" title="G5 phase-defense · 训练谱系挑战者，离线运行">中迪</button><button class="ai-level hell-level selected" id="ai-xiaoke" type="button" title="小克 · Claude 角色，AI 模型待接入">小克</button>
+              <button class="ai-level" id="ai-hard" type="button" hidden aria-hidden="true" tabindex="-1">挑战</button><button class="ai-level hell-level" id="ai-hell" type="button">小白</button><button class="ai-level hell-level" id="ai-xiaodi" type="button" title="G4-h13 冻结冠军 · 本地运行">小迪</button><button class="ai-level hell-level" id="ai-zhongdi" type="button" title="G5 phase-defense · 训练谱系挑战者，离线运行">中迪</button><button class="ai-level hell-level selected" id="ai-xiaoke" type="button" title="小克：经典 C-ab8-e2rc / 进阶 C-f5-ab8，浏览器本地搜索">小克</button>
             </div>
           </div>
           </div><p class="settings-foot">切换玩法或对手会重置当前棋局。所有原有规则保持不变。</p>
@@ -303,7 +303,7 @@
       <button type="button" data-xiaoke-event="lose" aria-pressed="false">失利</button>
     </div>
     <button type="button" class="xiaoke-next" id="xiaokeNextLine">再听一句 ↗</button>
-    <p class="xiaoke-preview-note" id="xiaokePreviewNote">这里只展示小克的形象与对白。经典 / 进阶模型尚未接入，不会改变当前 AI 对局。</p>
+    <p class="xiaoke-preview-note" id="xiaokePreviewNote">此处展示小克的形象与对白；关闭预览后，可在棋盘选择小克实战。经典 / 进阶使用两套不同的 C 组策略。</p>
   </div>
 </dialog>
 <link rel="stylesheet" href="./ui-focus-v6.css?v=20261015">
@@ -319,12 +319,13 @@
 <script defer src="./random-map.js?v=verified-random-20261016"></script>
 <script defer src="./ai-engine-loader.js?v=boot-20261106"></script>
 
-<script defer src="./game.js?v=boot-20261106-v1"></script>
+<script defer src="./xiaoke-ai-client.js?v=champions-20261106-2"></script>
+<script defer src="./game.js?v=boot-20261106-v2-champions"></script>
 <script defer src="./mobile.js?v=xiaoke-20261106-r2"></script>
 <script defer src="./ui-wall-split-v7.js?v=20261015"></script>
 <script defer src="./xiaoke-persona.js?v=20261106"></script>
 <script defer src="./ui-ai-presets-v9.js?v=xiaoke-20261106-r2"></script>
 <script defer src="./ui-mascot-v8.js?v=clawd-20261106-v2"></script>
-<script defer src="./xiaoke-preview.js?v=20261106"></script>
+<script defer src="./xiaoke-preview.js?v=champions-20261106"></script>
 </body>
 </html>

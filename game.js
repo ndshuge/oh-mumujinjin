@@ -590,7 +590,7 @@
     return Math.floor(Math.random()*3);
   }
   function beginRps(){
-    if(state&&state.aiLevel==="xiaoke")return;
+    // XiaoKe follows the same rock-paper-scissors opening as other CPU opponents.
     if(state.playMode!=="cpu")return;
     state.phase="rps";state.rps={winner:null,human:null,computer:null,rounds:0};state.humanSide=0;
     $("rpsResult").textContent="选择石头、剪刀或布。平局重新猜拳。";
@@ -683,7 +683,7 @@
     var playMode=state.playMode||"local",aiLevel=state.aiLevel||"xiaoke";
     state=newGame(variant||state.variant);
     state.playMode=playMode;state.aiLevel=aiLevel;
-    closeAll();if(playMode==="cpu"&&aiLevel!=="xiaoke")beginRps();else {state.phase=playMode==="cpu"?"waiting-ai":"pick-attack";commit();}
+    closeAll();if(playMode==="cpu")beginRps();else {state.phase="pick-attack";commit();}
     preloadSelectedEngine();
   }
   function confirmSwitch(variant){
@@ -886,7 +886,7 @@
   }
   function canvasClick(event){
     if(editing){if(suppressEditorClick){suppressEditorClick=false;return;}editCell(tileAt(pointerPos(event)));return;}
-    if(state.playMode==="cpu"&&state.phase==="play"&&state.turn===1)return;
+    if(state.playMode==="cpu"&&state.phase==="play"&&state.turn===cpuSide())return;
     if(state.phase==="finished"||state.pending)return;
     var p=pointerPos(event),t=tileAt(p);
     if(state.phase==="pick-attack"||state.phase==="pick-defend"){
@@ -1068,8 +1068,39 @@
     var engine={terrain:{CAMPS:CAMPS,PORTALS:PORTALS,ICE:ICE,BOOST:BOOST},setRocks:function(){},movementOptions:movementOptions,computerDistance:computerDistance,hellWallAllowed:hellWallAllowed,hellApply:hellApply,hellEvaluate:hellEvaluate,hellCandidates:hellCandidates,portal:portal};
     return window.MumuZhongdi.choose(engine,snapshot,side,{rocks:ROCKS,map:mapCurrent(),fingerprint:mapFingerprint(mapCurrent())});
   }
+  // Search runs in a browser Worker. Validate moves against the live rule engine.
+  function xiaokeChooseTurn(token){
+    if(!window.MMJJXiaokeAI){notice('小克模型未加载，请刷新网页。');return;}
+    var snap=copy({variant:state.variant,phase:state.phase,players:state.players,
+      slideDir:state.slideDir,walls:state.walls,left:state.left,turn:state.turn,
+      moves:state.moves,repetitions:state.repetitions,map:mapCurrent()});
+    var atTurn=state.turn,atMoves=state.moves,atMap=mapFingerprint(mapCurrent());
+    window.MMJJXiaokeAI.choose({state:snap,budgetMs:3000}).then(function(reply){
+      if(token!==cpuScheduleToken||state.playMode!=='cpu'||state.aiLevel!=='xiaoke'||
+         state.phase!=='play'||state.turn!==atTurn||state.moves!==atMoves||state.pending||
+         mapFingerprint(mapCurrent())!==atMap)return;
+      if(!reply||(reply.info&&reply.info.warning))throw Error(reply&&reply.info&&reply.info.warning||'无动作');
+      var a=reply.action;if(!a)throw Error('小克没有返回动作');
+      if(a.type==='wall'){
+        var w={x:a.x,y:a.y,o:a.o};
+        if(!validWall(w))throw Error('小克返回非法筑墙');
+        placeWall(w);return;
+      }
+      if(a.type==='move'){
+        var move=availableMoves().find(function(m){return m.p.x===a.x&&m.p.y===a.y;});
+        if(!move)throw Error('小克返回非法移动');
+        playerMove(move);if(state.pending)choosePortal(a.warp===true);return;
+      }
+      throw Error('小克返回不支持的动作 '+a.type);
+    }).catch(function(e){
+      if(token===cpuScheduleToken&&state.playMode==='cpu'&&state.aiLevel==='xiaoke'&&
+         state.phase==='play'&&state.turn===cpuSide())
+        notice('小克搜索失败：'+String(e.message||e)+'。请重新开始对局。');
+    });
+  }
   function computerTakeTurn(){
-    if(state.playMode!=="cpu"||state.aiLevel==="xiaoke"||state.phase!=="play"||state.turn!==cpuSide()||state.pending)return;
+    if(state.playMode!=="cpu"||state.phase!=="play"||state.turn!==cpuSide()||state.pending)return;
+    if(state.aiLevel==="xiaoke"){xiaokeChooseTurn(cpuScheduleToken);return;}
     var level=state.aiLevel||"zhongdi";
     var tactical=level==="zhongdi"?zhongdiChooseAction(cpuSide()):level==="xiaodi"?xiaodiChooseAction(cpuSide()):level==="hell"&&cpuSide()===1?hellChooseAction():null;
     if(cpuSide()===0&&!tactical){
@@ -1105,7 +1136,7 @@
   }
   function scheduleComputerTurn(){
     var token=++cpuScheduleToken;
-    if(editing||state.playMode!=="cpu"||state.aiLevel==="xiaoke"||typeof window.setTimeout!=="function")return;
+    if(editing||state.playMode!=="cpu"||typeof window.setTimeout!=="function")return;
     var engineName=state.aiLevel==="zhongdi"?"MumuZhongdi":state.aiLevel==="xiaodi"?"MumuXiaodi":null;
     if(engineName&&!window[engineName]){
       if(typeof window.MMJJEnsureAIEngine==="function"){
@@ -1168,7 +1199,7 @@
     $("mapNameActive").textContent=editorName;
     var title=state.phase==="waiting-ai"?"小克正在准备中":state.phase==="rps"?"猜拳决定先后手":state.phase==="pick-attack"?"金方选择起点":state.phase==="pick-defend"?"木方选择起点":
       state.phase==="finished"?(state.winner===null?"平局":NAMES[state.winner]+"赢得胜利"):NAMES[state.turn]+"的回合";
-    var help=state.phase==="waiting-ai"?"小克的 AI 模型尚未接入。可先查看棋盘与角色，或切换中迪、小迪开始对局。":state.phase==="rps"?"选择石头、剪刀或布，赢的一方决定先后手。":state.phase==="pick-attack"?"点击棋盘右下角的任一金色营地格，作为金方出生点。":
+    var help=state.phase==="waiting-ai"?"小克 AI 准备中。经典模式为 C-ab8-e2rc，进阶模式为 C-f5-ab8。":state.phase==="rps"?"选择石头、剪刀或布，赢的一方决定先后手。":state.phase==="pick-attack"?"点击棋盘右下角的任一金色营地格，作为金方出生点。":
       state.phase==="pick-defend"?"点击棋盘左上角的任一青色营地格，作为木方出生点。":
       state.phase==="finished"?"本局对战结束。可以悔棋或再来一局。":
       state.action==="wall"?"在棋盘上点击修筑两格长的墙。修墙会结束当前回合。":"点击棋盘内发光的格子行动。一次移动或筑墙即结束回合。";
@@ -1212,7 +1243,7 @@
     $("aiOpponentNameBadge").textContent=aiOpponentName();
     $("aiOpponentChatName").textContent=aiOpponentName()+" · 电脑对手";
 
-    if(state.playMode==="cpu")$("player"+cpuSide()+"Label").textContent=state.aiLevel==="xiaoke"?"小克 · 模型待接入":aiOpponentName()+(state.phase==="play"&&state.turn===cpuSide()?"思考中":"执"+NAMES[cpuSide()]);
+    if(state.playMode==="cpu")$("player"+cpuSide()+"Label").textContent=state.aiLevel==="xiaoke"?"小克 · "+(state.variant==="classic"?"C-ab8-e2rc":"C-f5-ab8"):aiOpponentName()+(state.phase==="play"&&state.turn===cpuSide()?"思考中":"执"+NAMES[cpuSide()]);
     $("playLocal").classList.toggle("selected",state.playMode!=="cpu");
     $("playAI").classList.toggle("selected",state.playMode==="cpu");
     $("aiDifficulty").hidden=state.playMode!=="cpu";
@@ -1667,8 +1698,8 @@
   try{aiDialogueDisabled=localStorage.getItem("mumujinjin-ai-quiet")==="1";}catch(e){}
   state.playMode=state.playMode==="cpu"?"cpu":"local";
   state.aiLevel=["easy","normal","hard","hell","xiaodi","zhongdi","xiaoke"].indexOf(state.aiLevel)>=0?state.aiLevel:"xiaoke";
-  if(state.playMode==="cpu"&&state.aiLevel==="xiaoke"&&state.moves===0){state.phase="waiting-ai";state.rps=null;}
-  bindEvents();if(!loadedAtBoot&&state.playMode==="cpu"&&state.aiLevel!=="xiaoke")beginRps();drawUI();drawBoard();preloadSelectedEngine();
+  if(state.playMode==="cpu"&&state.aiLevel==="xiaoke"&&state.phase==="waiting-ai"&&state.moves===0){state.phase="rps";state.rps=null;}
+  bindEvents();if(state.playMode==="cpu"&&state.phase==="rps"&&!state.rps)beginRps();else if(!loadedAtBoot&&state.playMode==="cpu"&&state.phase!=="rps")beginRps();drawUI();drawBoard();preloadSelectedEngine();
   if(state.playMode==="cpu"&&state.phase==="play")showAIQuote("opening",true);
   if(state.playMode==="cpu"&&state.phase==="rps")setModal("rpsModal",true);
   if(state.phase==="finished"&&state.winner!==null){
