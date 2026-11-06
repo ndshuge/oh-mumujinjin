@@ -312,7 +312,9 @@
       if(window.MumuOnline&&window.MumuOnline.reject)window.MumuOnline.reject(event.message);
       return;
     }
-    if(event.type==='reconnecting'){message('连接中断，正在自动重新连接…');return;}
+    if(event.type==='reconnecting'){
+      $('mmjjReadyRoom').disabled=true;
+      $('mmjjStartRoom').disabled=true;message('连接中断，正在自动重新连接…');return;}
     if(event.type==='connected'){message('房间连接已恢复。');return;}
     if(event.type==='close'){
       message('连接已断开，可以使用房间码重新加入。');
@@ -323,7 +325,8 @@
       var data=event.room;
       setRoomInfo({code:data.code,state:data.status==='playing'?'对局进行中':data.status==='ready'?'双方已就绪':'等待玩家准备',
         playerText:(data.players||[]).map(function(p,i){return (i===0?'房主':'好友')+'：'+(p.connected?'在线':'未连接')+(p.ready?' · 已准备':'');}).join('　'),
-        readyAllowed:data.status!=='playing',startAllowed:!!event.owner&&data.status==='ready',
+        readyAllowed:data.status!=='playing'&&!!(data.players||[])[event.owner?0:1]?.connected,
+        startAllowed:!!event.owner&&data.status==='ready',
         isReady:!!(data.players||[])[event.owner?0:1]?.ready});
       message('房间设置与地图将以服务器状态为准。');
     }
@@ -343,7 +346,7 @@
       var settings=roomSettings(); client=transport();
       if(!client)throw Error('联机客户端未加载');
       var data=await client.create(settings,onRoomEvent);
-      setRoomInfo({code:data.code,readyAllowed:true,startAllowed:false});
+      setRoomInfo({code:data.code,readyAllowed:false,startAllowed:false});
       message('房间已创建，可以复制邀请链接。');
     }catch(e){message(e.message||'创建房间失败');}
   }
@@ -353,7 +356,7 @@
       if(!/^[A-Z0-9]{6}$/.test(code))throw Error('请输入有效的 6 位房间码');
       client=transport();if(!client)throw Error('联机客户端未加载');
       var data=await client.join(code,onRoomEvent);
-      setRoomInfo({code:data.code,readyAllowed:true,startAllowed:false});
+      setRoomInfo({code:data.code,readyAllowed:false,startAllowed:false});
       message('已加入，等待双方准备。');
     }catch(e){message(e.message||'加入失败');}
   }
