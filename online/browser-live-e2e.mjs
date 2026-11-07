@@ -11,7 +11,8 @@ const port=await new Promise((resolve,reject)=>{const server=createServer();serv
 const executable='C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 const profile=mkdtempSync(join(tmpdir(),'mmjj-real-pvp-'));
 const chrome=spawn(executable,['--headless=new','--disable-gpu','--no-first-run',
- '--no-default-browser-check','--disable-extensions','--no-proxy-server',
+ '--no-default-browser-check','--disable-extensions',
+ ...(process.env.MMJJ_E2E_PROXY?['--proxy-server='+process.env.MMJJ_E2E_PROXY]:['--no-proxy-server']),
  '--remote-allow-origins=*','--remote-debugging-port='+port,
  '--user-data-dir='+profile,'--window-size=390,844','about:blank'],
  {stdio:'ignore',windowsHide:true});
