@@ -1,0 +1,1 @@
+{"name":"mmjj-cn-im-auth","private":true,"version":"0.1.0","description":"CloudBase event function for Tencent IM UserSig","main":"index.js","dependencies":{"tls-sig-api-v2":"1.0.2"}}

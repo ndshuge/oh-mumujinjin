@@ -58,6 +58,14 @@
         <div id="mmjjRoomsPane" hidden>
           <div class="mmjj-section-head"><div><h2>好友对战</h2><p>创建房间，分享链接，两个人在不同设备上下棋。</p></div></div>
           <div id="mmjjRoomSetup" class="mmjj-room-form">
+            <div class="mmjj-form-row">
+              <label for="mmjjNetwork">联机线路</label>
+              <select id="mmjjNetwork">
+                <option value="cn">国内线路 · 腾讯云 IM</option>
+                <option value="cf">国际线路 · Cloudflare</option>
+              </select>
+              <small id="mmjjNetworkNote">国内线路尚未开通；国际线路需要能够连接 Cloudflare。</small>
+            </div>
             <div class="mmjj-form-row"><label for="mmjjVariant">游戏模式</label>
               <select id="mmjjVariant"><option value="classic">经典策略</option><option value="advanced">跑道挑战</option></select></div>
             <div class="mmjj-form-row"><label for="mmjjMapSource">地图类型</label>
@@ -325,7 +333,8 @@
     room=data;
     $('mmjjRoomSetup').hidden=true;$('mmjjRoomLive').hidden=false;
     $('mmjjLiveCode').textContent=data.code;
-    $('mmjjRoomLink').value=location.origin+location.pathname+'?room='+encodeURIComponent(data.code);
+    $('mmjjRoomLink').value=location.origin+location.pathname+'?room='+encodeURIComponent(data.code)
+      +'&net='+encodeURIComponent($('mmjjNetwork').value);
     $('mmjjRoomState').textContent=data.state||'等待好友加入';
     $('mmjjRoomPlayers').textContent=data.playerText||'房主已加入 · 等待好友';
     var summary=$('mmjjLiveMapSummary');
@@ -346,9 +355,26 @@
     refreshRoomMap(false);
     message('房间需要联机服务；无服务时不会生成假房间。');
   }
+  function domesticAvailable(){
+    return !!(window.MumuCNRooms&&window.MumuCNRooms.available&&window.MumuCNRooms.available());
+  }
+  function selectedNetwork(){
+    var picked=$('mmjjNetwork').value;
+    if(picked==='cn'&&!domesticAvailable())throw Error('国内线路尚未开通，当前请选择国际联机');
+    return picked;
+  }
   function transport(){
-    return window.MumuFriendRooms && window.MumuFriendRooms.createClient
-      ? window.MumuFriendRooms.createClient() : null;
+    var network=selectedNetwork();
+    return network==='cn'?window.MumuCNRooms.createClient()
+      :(window.MumuFriendRooms&&window.MumuFriendRooms.createClient?window.MumuFriendRooms.createClient():null);
+  }
+  function refreshNetwork(){
+    var canCN=domesticAvailable(),menu=$('mmjjNetwork');
+    menu.querySelector('option[value="cn"]').disabled=!canCN;
+    if(!canCN&&menu.value==='cn')menu.value='cf';
+    $('mmjjNetworkNote').textContent=canCN
+      ?'国内线路适合不使用 VPN 的朋友对战。也可手动选择国际线路。'
+      :'国内线路等待腾讯云 IM 账号和鉴权服务完成配置；国际线路仍可使用。';
   }
   var client=null;
   function onRoomEvent(event){
@@ -469,7 +495,9 @@
     var button=this;
     button.disabled=true;message('正在测试与联机服务器的连接…');
     try{
-      var status=await window.MumuFriendRooms.checkConnection(window.MMJJ_ROOM_SERVER_URL);
+      var status=selectedNetwork()==='cn'
+        ?await window.MumuCNRooms.checkConnection()
+        :await window.MumuFriendRooms.checkConnection(window.MMJJ_ROOM_SERVER_URL);
       message(status.ok?'联机服务连接正常。若加入仍失败，请检查房间码是否过期。':'联机服务不可用。');
     }catch(error){message(error.message||'联机服务连接失败');}
     finally{button.disabled=false;}
@@ -503,7 +531,14 @@
     $('rpsShortcutFriends').addEventListener('click',function(){open('rooms');});
     $('rpsShortcutMaps').addEventListener('click',function(){open('maps');});
   }
-  var code=new URL(location.href).searchParams.get('room');
+  refreshNetwork();
+  $('mmjjNetwork').addEventListener('change',refreshNetwork);
+  var invite=new URL(location.href),requestedNet=invite.searchParams.get('net');
+  if(requestedNet==='cn'&&domesticAvailable())$('mmjjNetwork').value='cn';
+  else if(requestedNet==='cf')$('mmjjNetwork').value='cf';
+  else if(domesticAvailable())$('mmjjNetwork').value='cn';
+  refreshNetwork();
+  var code=invite.searchParams.get('room');
   if(code){$('mmjjRoomCode').value=code.toUpperCase();open('rooms');message('收到好友邀请，点击加入房间即可连接。');}
   window.MumuFriendsUI=Object.freeze({
     open:open,store:store,leave:leaveRoom,

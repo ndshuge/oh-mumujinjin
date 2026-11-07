@@ -129,6 +129,11 @@ try{
  const overflow=await evalJS('document.documentElement.scrollWidth > window.innerWidth + 1');
  assert.equal(overflow,false,'main lobby must not overflow horizontally');
  console.log('PASS responsive lobby has no horizontal overflow');
+ const sdkAvailable=await evalJS('import("./vendor/tencent-chat.mjs").then(mod=>!!(mod.default&&mod.default.TYPES&&mod.default.EVENT&&mod.default.TYPES.GRP_MEETING))');
+ assert.equal(sdkAvailable,true,'Tencent Chat SDK must load as lazy ESM on Chrome');
+ assert.equal(await evalJS('document.getElementById("mmjjNetwork").value'),'cf',
+   'without production credentials, international provider must remain the default');
+ console.log('PASS on-demand Tencent Chat SDK and safe international fallback');
  console.log('BROWSER SMOKE PASS');
 }finally{
  if(socket)socket.close();
