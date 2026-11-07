@@ -9,9 +9,9 @@
   <link rel="stylesheet" href="./style.css?v=rps-20261105">
   <link rel="stylesheet" href="./mobile.css?v=boot-20261106-v1">
   <link rel="icon" type="image/svg+xml" href="./brand-mark-v8.svg">
-  <link rel="stylesheet" href="./friends-hub.css?v=mmjj-mature-20261107-v1">
+  <link rel="stylesheet" href="./friends-hub.css?v=hotfix-20261107">
   <link rel="stylesheet" href="./zhixu-v5-bridge.css?v=20261106">
-  <link rel="stylesheet" href="./home-lobby.css?v=mmjj-mature-20261107-v1">
+  <link rel="stylesheet" href="./home-lobby.css?v=hotfix-20261107">
 
 </head>
 <body>
@@ -273,7 +273,10 @@
     <div class="win-laurel">✦　✧　✦</div><span class="modal-kicker">VICTORY</span>
     <h2 id="winTitle">金方获胜！</h2><p id="winDesc">突破层层封锁，成功抵达对方营地。</p>
     <div class="win-stats"><div><strong id="winTurns">0</strong><span>总回合</span></div><div><strong id="winWalls">0</strong><span>已筑高墙</span></div></div>
-    <button id="playAgainBtn" class="primary-btn" type="button">再来一局 ↗</button>
+    <div id="mmjjRematchStatus" class="mmjj-rematch-status" hidden aria-live="polite">
+      <div id="mmjjRematchMine">我：未准备</div><div id="mmjjRematchFriend">好友：未准备</div>
+    </div>
+    <button id="playAgainBtn" class="primary-btn" type="button">再来一局</button>
   </div>
 </div>
 <nav id="mobileMapDock" class="mobile-map-dock" aria-label="地图工坊快捷工具">
@@ -321,7 +324,7 @@
 <script defer src="./ai-engine-loader.js?v=boot-20261106"></script>
 
 <script defer src="./xiaoke-ai-client.js?v=champions-20261106-2"></script>
-<script defer src="./game.js?v=mmjj-mature-20261107-v1"></script>
+<script defer src="./game.js?v=hotfix-20261107"></script>
 <script defer src="./mobile.js?v=xiaoke-20261106-r2"></script>
 <script defer src="./ui-wall-split-v7.js?v=20261015"></script>
 <script defer src="./xiaoke-persona.js?v=20261106"></script>
@@ -330,9 +333,10 @@
 <script defer src="./xiaoke-preview.js?v=champions-20261106"></script>
 <script defer src="./map-collection.js?v=1"></script>
 <script defer src="./online-config.js?v=mmjj-mature-20261107-v1"></script>
-<script defer src="./friend-rooms.js?v=mmjj-mature-20261107-v1"></script>
-<script defer src="./friends-hub.js?v=mmjj-mature-20261107-v1"></script>
-<script defer src="./home-lobby.js?v=mmjj-mature-20261107-v1"></script>
+<script defer src="./friend-rooms.js?v=hotfix-20261107"></script>
+<script defer src="./map-repair.js?v=hotfix-20261107"></script>
+<script defer src="./friends-hub.js?v=hotfix-20261107"></script>
+<script defer src="./home-lobby.js?v=hotfix-20261107"></script>
 
 
 </body>

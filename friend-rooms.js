@@ -21,10 +21,27 @@
     }
     async function post(path, body) {
       ensure();
-      var res=await doFetch(endpoint+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});
-      var data=await res.json().catch(function(){return{};});
-      if(!res.ok)throw Error(data.error || '房间服务暂时不可用');
-      return data;
+      var controller=typeof AbortController!=='undefined'?new AbortController():null;
+      var timer=controller?setTimeout(function(){controller.abort();},12000):null;
+      try{
+        var res;
+        try{
+          res=await doFetch(endpoint+path,{method:'POST',
+            headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{}),
+            signal:controller&&controller.signal});
+        }catch(error){
+          var offline=typeof navigator!=='undefined'&&navigator.onLine===false;
+          if(offline)throw Error('当前设备没有网络连接，请检查网络后重试。');
+          if(error&&error.name==='AbortError')throw Error('联机服务器响应超时（12 秒）。请切换 Wi-Fi／移动数据后重试。');
+          if(error instanceof TypeError||error&&/fetch|network|load failed/i.test(error.message||'')){
+            throw Error('无法连接联机服务器。当前网络可能无法访问 workers.dev；请先点「检测联机网络」，或切换 Wi-Fi／移动数据重试。');
+          }
+          throw error;
+        }
+        var data=await res.json().catch(function(){return{};});
+        if(!res.ok)throw Error(data.error || '房间服务返回错误（'+res.status+'）');
+        return data;
+      }finally{if(timer!==null)clearTimeout(timer);}
     }
     function connect(data,onEvent,isOwner) {
       manuallyClosed=true;
@@ -93,5 +110,23 @@
     return Object.freeze({create:create,join:join,ready:ready,start:start,resign:resign,rematch:rematch,sendAction:sendAction,close:close,
       getState:function(){return currentState;},getCode:function(){return code;},isOwner:function(){return owner;}});
   }
-  return Object.freeze({createClient:createClient});
+  async function checkConnection(endpoint){
+    var base=String(endpoint||'').replace(/\/+$/,'');
+    if(!/^https?:\/\//.test(base))throw Error('联机服务地址未配置');
+    var controller=typeof AbortController!=='undefined'?new AbortController():null;
+    var timer=controller?setTimeout(function(){controller.abort();},8000):null;
+    try{
+      var res=await fetch(base+'/api/health',{method:'GET',mode:'cors',cache:'no-store',
+        signal:controller&&controller.signal});
+      if(!res.ok)throw Error('联机服务响应异常（'+res.status+'）');
+      var data=await res.json();
+      if(!data.ok)throw Error('联机服务未就绪');
+      return data;
+    }catch(error){
+      if(error.name==='AbortError')throw Error('联机检测超时。当前网络可能无法访问服务器，建议换 Wi-Fi／移动数据重试。');
+      if(error instanceof TypeError)throw Error('当前网络无法访问联机服务器（workers.dev）。这不是房间码错误；可以换网络、检查 DNS 或使用可访问的网络重试。');
+      throw error;
+    }finally{if(timer!==null)clearTimeout(timer);}
+  }
+  return Object.freeze({createClient:createClient,checkConnection:checkConnection});
 });

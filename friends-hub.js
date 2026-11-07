@@ -7,6 +7,10 @@
     var result = api.validate(input);
     return result.ok ? result.map : null;
   }, api.fingerprint);
+  if(window.MumuCompetitiveMaps){
+    try{window.MumuCompetitiveMaps.migrate(store,api,localStorage);}catch(_){}
+  }
+  var roomPreviewCache=Object.create(null),roomPreviewToken=0;
   var focusReturn = null, selected = null, category = 'mine', room = null, rpsWasOpen = false;
   var $ = function (id) { return document.getElementById(id); };
   var root = document.createElement('div');
@@ -44,6 +48,7 @@
             <div class="mmjj-detail-layout"><div id="mmjjDetailPreview" class="mmjj-detail-visual"></div>
             <div class="mmjj-detail-aside"><p id="mmjjDetailInfo"></p><p id="mmjjFairNote" class="mmjj-fairnote"></p>
               <button type="button" id="mmjjUseMap" class="mmjj-primary">使用此地图</button>
+              <button type="button" id="mmjjRepairMap" class="mmjj-secondary" hidden>生成可竞技的公平版本</button>
               <button type="button" id="mmjjEditMap" class="mmjj-secondary">进入地图编辑器</button>
               <label for="mmjjRenameField">地图名称</label><div class="mmjj-inline"><input type="text" id="mmjjRenameField" maxlength="40"><button type="button" id="mmjjRenameMap" class="mmjj-secondary">重命名</button></div>
               <div class="mmjj-detail-aux"><button type="button" id="mmjjExportMap" class="mmjj-ghost">导出 JSON</button><button type="button" id="mmjjDeleteMap" class="mmjj-danger">删除地图</button></div>
@@ -59,6 +64,7 @@
               <select id="mmjjMapSource"><option value="random-battle">全随机地图</option><option value="random-rocks">随机障碍</option><option value="official">官方经典地图</option><option value="saved">我的预设地图</option><option value="current">当前地图</option></select></div>
             <div id="mmjjPresetRow" class="mmjj-form-row" hidden><label for="mmjjPreset">我的地图</label><select id="mmjjPreset"></select></div>
             <div id="mmjjSelectedMapPreview" class="mmjj-room-map-preview"></div>
+            <button type="button" class="mmjj-secondary" id="mmjjRoomReroll" hidden>换一张随机地图 ↻</button>
             <div class="mmjj-form-split">
               <div class="mmjj-form-row"><label for="mmjjSide">我选哪一边</label><select id="mmjjSide"><option value="random">随机分配</option><option value="gold">金方 · 右下角</option><option value="wood">木方 · 左上角</option></select></div>
               <div class="mmjj-form-row"><label for="mmjjFirst">先后手</label><select id="mmjjFirst"><option value="random">随机</option><option value="host">我先手</option><option value="guest">好友先手</option></select></div>
@@ -76,7 +82,8 @@
             <div class="mmjj-inline"><button id="mmjjReadyRoom" class="mmjj-secondary" type="button">我已准备</button><button id="mmjjStartRoom" class="mmjj-primary" type="button">开始对局</button></div>
             <button id="mmjjLeaveRoom" class="mmjj-ghost" type="button">退出房间</button>
           </div>
-          <p id="mmjjRoomNotice" class="mmjj-room-notice" role="status" aria-live="polite">房间需要联机服务；无服务时不会生成假房间。</p>
+          <p id="mmjjRoomNotice" class="mmjj-room-notice" role="status" aria-live="polite">请选择模式和地图创建好友房间。</p>
+          <button type="button" id="mmjjTestConnection" class="mmjj-ghost">检测联机网络</button>
         </div>
       </div>
     </section>`;
@@ -185,6 +192,7 @@
     var fair=api.auditFair(map);
     $('mmjjFairNote').textContent=fair.ok?'通过竞技公平性检查':'仅供地图研究：'+(fair.reason||'未通过公平性检查');
     $('mmjjUseMap').disabled=!fair.ok;
+    $('mmjjRepairMap').hidden=fair.ok;
     $('mmjjEditMap').hidden=origin==='random';
     $('mmjjRenameField').disabled=origin!=='mine';$('mmjjRenameMap').hidden=origin!=='mine';
     $('mmjjDeleteMap').hidden=origin!=='mine';
@@ -257,13 +265,39 @@
     if(src==='official')return api.official();
     return null;
   }
-  function refreshRoomMap(){
+  function refreshRoomMap(recreate){
     refreshPresetSelect();
     var src=$('mmjjMapSource').value;
     $('mmjjPresetRow').hidden=src!=='saved';
     var preview=$('mmjjSelectedMapPreview');preview.replaceChildren();
     var map=resolveRoomMap();
-    if(src==='saved'&&!map){preview.textContent='没有可用的收藏地图，请先到地图中心保存。';return;}
+    var random=src==='random-battle'||src==='random-rocks';
+    $('mmjjRoomReroll').hidden=!random;
+    if(random){
+      if(recreate)delete roomPreviewCache[src];
+      if(roomPreviewCache[src])map=roomPreviewCache[src];
+      else{
+        var token=++roomPreviewToken;
+        $('mmjjCreateRoom').disabled=true;
+        preview.textContent='正在生成公平地图…';
+        setTimeout(function(){
+          if(token!==roomPreviewToken || $('mmjjMapSource').value!==src)return;
+          try{
+            var seed=(Date.now()^Math.floor(Math.random()*4294967296))>>>0;
+            roomPreviewCache[src]=src==='random-rocks'?api.generateRandomRocks(seed):api.generateBalanced(seed);
+            refreshRoomMap(false);
+          }catch(error){preview.textContent=error.message||'生成失败';message('地图生成失败，请重试。');}
+        },20);
+        return;
+      }
+    }
+    if(src==='saved'&&!map){
+      $('mmjjCreateRoom').disabled=true;
+      preview.textContent='没有可用的收藏地图，请先到地图中心保存。';return;
+    }
+    var fairness=map&&api.auditFair(map);
+    $('mmjjCreateRoom').disabled=!!(map&&fairness&&!fairness.ok&&src!=='official');
+    if(map&&fairness&&!fairness.ok)message('这张地图未通过竞技公平性检查。可以在地图中心生成公平版。');
     if(map){
       var badge=document.createElement('span');badge.className='mmjj-room-map-thumb';badge.appendChild(svgMap(map));
       var txt=document.createElement('div');var strong=document.createElement('strong');strong.textContent=map.name;
@@ -276,8 +310,8 @@
   function roomSettings(){
     var src=$('mmjjMapSource').value;
     var map=resolveRoomMap();
-    if(src==='random-battle')map=api.generateBalanced((Date.now()^Math.floor(Math.random()*4294967296))>>>0);
-    if(src==='random-rocks')map=api.generateRandomRocks((Date.now()^Math.floor(Math.random()*4294967296))>>>0);
+    if(src==='random-battle'||src==='random-rocks')map=roomPreviewCache[src]||null;
+    if((src==='random-battle'||src==='random-rocks')&&!map)throw Error('地图尚未生成，请稍后重试');
     if(src==='saved'&&!map)throw Error('请先选择一张已保存地图');
     if(map){
       var valid=api.validate(map);
@@ -304,11 +338,12 @@
       details.append(heading,caption);summary.append(thumb,details);
     }
     $('mmjjReadyRoom').disabled=!data.readyAllowed;
-    $('mmjjReadyRoom').textContent=data.isReady?'取消准备':'我已准备';
+    $('mmjjReadyRoom').textContent=data.isReady?'我已准备 ✓（点击取消）':'点击准备';
     $('mmjjStartRoom').disabled=!data.startAllowed;
   }
   function resetRoom(){
     room=null;$('mmjjRoomSetup').hidden=false;$('mmjjRoomLive').hidden=true;
+    refreshRoomMap(false);
     message('房间需要联机服务；无服务时不会生成假房间。');
   }
   function transport(){
@@ -334,7 +369,7 @@
     if(event.type==='state'){
       var data=event.room;
       setRoomInfo({code:data.code,map:data.settings&&data.settings.map,variant:data.settings&&data.settings.variant,state:data.status==='finished'?'本局已结束':data.status==='playing'?'对局进行中':data.status==='ready'?'双方已就绪':'等待玩家准备',
-        playerText:(data.players||[]).map(function(p,i){return (i===0?'房主':'好友')+'：'+(p.connected?'在线':'未连接')+(p.ready?' · 已准备':'');}).join('　'),
+        playerText:(data.players||[]).map(function(p,i){return (i===0?'房主':'好友')+'：'+(p.connected?'在线':'未连接')+' · '+(p.ready?'已准备 ✓':'未准备');}).join('　'),
         readyAllowed:(data.status==='waiting'||data.status==='ready')&&!!(data.players||[])[event.owner?0:1]?.connected,
         startAllowed:!!event.owner&&data.status==='ready',
         isReady:!!(data.players||[])[event.owner?0:1]?.ready});
@@ -354,25 +389,41 @@
     if(event.type==='action'&&window.MumuOnline&&window.MumuOnline.apply)window.MumuOnline.apply(event);
     if(event.type==='state'&&['playing','finished'].includes(event.room.status)&&window.MumuOnline&&window.MumuOnline.sync)
       window.MumuOnline.sync(event.room.game,event.room.revision);
+    if(event.type==='state'&&window.MumuOnline&&window.MumuOnline.setRematch)
+      window.MumuOnline.setRematch(event.room,!!event.owner);
   }
   async function createRoom(){
     try{
+      var button=$('mmjjCreateRoom');
+      button.disabled=true;button.textContent='正在创建房间…';
+      message('正在联系联机服务器，最多等待 12 秒…');
       var settings=roomSettings(); client=transport();
       if(!client)throw Error('联机客户端未加载');
       var data=await client.create(settings,onRoomEvent);
-      setRoomInfo({code:data.code,readyAllowed:false,startAllowed:false});
+      setRoomInfo({code:data.code,map:settings.map,variant:settings.variant,readyAllowed:false,startAllowed:false});
       message('房间已创建，可以复制邀请链接。');
-    }catch(e){message(e.message||'创建房间失败');}
+    }catch(e){
+      if(client)client.close();client=null;
+      message(e.message||'创建房间失败，请检测网络');
+    }finally{
+      var btn=$('mmjjCreateRoom');btn.textContent='创建好友房间';
+      if(btn.disabled && !room)refreshRoomMap(false);
+    }
   }
   async function joinRoom(){
     try{
       var code=$('mmjjRoomCode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
       if(!/^[A-Z0-9]{6}$/.test(code))throw Error('请输入有效的 6 位房间码');
+      var button=$('mmjjJoinRoom');button.disabled=true;button.textContent='正在加入…';
+      message('正在联系联机服务器，最多等待 12 秒…');
       client=transport();if(!client)throw Error('联机客户端未加载');
       var data=await client.join(code,onRoomEvent);
       setRoomInfo({code:data.code,readyAllowed:false,startAllowed:false});
       message('已加入，等待双方准备。');
-    }catch(e){message(e.message||'加入失败');}
+    }catch(e){
+      if(client)client.close();client=null;
+      message(e.message||'加入失败，请检测网络');
+    }finally{$('mmjjJoinRoom').disabled=false;$('mmjjJoinRoom').textContent='加入房间';}
   }
   $('mmjjClose').addEventListener('click',close);
   root.querySelector('[data-hub-close]').addEventListener('click',close);
@@ -394,6 +445,15 @@
   $('mmjjSaveCurrent').addEventListener('click',saveCurrent);
   $('mmjjDetailBack').addEventListener('click',function(){$('mmjjMapDetail').hidden=true;});
   $('mmjjUseMap').addEventListener('click',useMap);
+  $('mmjjRepairMap').addEventListener('click',function(){
+    if(!selected||!window.MumuCompetitiveMaps)return;
+    try{
+      var map=window.MumuCompetitiveMaps.repairedMap(selected.map,api,store.identity);
+      map.name=(selected.map.name+'（竞技版）').slice(0,40);
+      var saved=store.save(map);
+      category='mine';renderMaps();showDetail(saved,'mine');
+    }catch(error){window.alert(error.message||'生成公平版失败');}
+  });
   $('mmjjRenameMap').addEventListener('click',rename);
   $('mmjjDeleteMap').addEventListener('click',deleteMap);
   $('mmjjExportMap').addEventListener('click',exportMap);
@@ -401,9 +461,19 @@
     if(selected && selected.origin==='mine'&&useSaved(selected.map,true)){close();$('board').scrollIntoView({behavior:'smooth'});}
     else if(selected&&selected.origin==='official'){close();clickGame('mapEditorButton');}
   });
-  $('mmjjMapSource').addEventListener('change',refreshRoomMap);
-  $('mmjjPreset').addEventListener('change',refreshRoomMap);
+  $('mmjjMapSource').addEventListener('change',function(){roomPreviewToken++;refreshRoomMap(false);});
+  $('mmjjPreset').addEventListener('change',function(){refreshRoomMap(false);});
+  $('mmjjRoomReroll').addEventListener('click',function(){refreshRoomMap(true);});
   $('mmjjCreateRoom').addEventListener('click',createRoom);
+  $('mmjjTestConnection').addEventListener('click',async function(){
+    var button=this;
+    button.disabled=true;message('正在测试与联机服务器的连接…');
+    try{
+      var status=await window.MumuFriendRooms.checkConnection(window.MMJJ_ROOM_SERVER_URL);
+      message(status.ok?'联机服务连接正常。若加入仍失败，请检查房间码是否过期。':'联机服务不可用。');
+    }catch(error){message(error.message||'联机服务连接失败');}
+    finally{button.disabled=false;}
+  });
   $('mmjjJoinRoom').addEventListener('click',joinRoom);
   $('mmjjReadyRoom').addEventListener('click',function(){
     if(client)try{client.ready();}catch(e){message(e.message);}

@@ -39,6 +39,8 @@ export default {
     if(allowOrigin(request,env)===false)return inputError('不允许的请求来源',403);
     if(method==='OPTIONS')return addCors(request,env,new Response(null,{status:204}));
     try{
+      if(method==='GET'&&pathname==='/api/health')
+        return addCors(request,env,response({ok:true,service:'mmjj-friends',version:'20261107-hotfix'}));
       if(method==='POST'&&pathname==='/api/rooms'){
         const body=await jsonBody(request),settings=body.settings;
         if(!settings||!['classic','advanced'].includes(settings.variant)||!['gold','wood','random'].includes(settings.side)

@@ -6,7 +6,7 @@ el('board').getContext=()=>new Proxy({},{get:(o,k)=>k in o?o[k]:()=>{}});
 const doc={getElementById:el,querySelectorAll:()=>[],createElement:()=>({value:'',textContent:''}),addEventListener(){}};
 const localStorage={getItem:k=>mem[k]||null,setItem:(k,v)=>mem[k]=v};
 const window={confirm:()=>true,setTimeout:()=>{}};
-const probe='window.test={cleanMap,validateMap,mapFingerprint,mapCurrent,installMap,findPath,portal,ice,boost,sha256,mapMetrics,randomMap,randomRocks,reproduceMap,openEditor,editCell,mapDraft,saveMap,shareMap,state:()=>state,mapMode:()=>mapMode};state=load()||newGame("classic");';
+const probe='window.test={auditFairMap,rotationallySymmetricMap,defaultMap,cleanMap,validateMap,mapFingerprint,mapCurrent,installMap,findPath,portal,ice,boost,sha256,mapMetrics,randomMap,randomRocks,reproduceMap,openEditor,editCell,mapDraft,saveMap,shareMap,state:()=>state,mapMode:()=>mapMode};state=load()||newGame("classic");';
 assert(src.includes('state=load()||newGame("classic");'));
 vm.runInNewContext(src.replace('state=load()||newGame("classic");',probe),{window,document:doc,localStorage,Set,Math,Number,JSON,Uint8Array,TextEncoder,TextDecoder,btoa,atob,Date:{now:()=>123456789},location:{hash:'',origin:'https://test',pathname:'/'},navigator:{},console},{filename:'game.js'});
 const t=window.test,copy=x=>JSON.parse(JSON.stringify(x));
@@ -28,6 +28,17 @@ const custom=copy(changed);custom.ice=[{x:4,y:6}];custom.boost=[{x:4,y:7}];custo
 assert(t.installMap(custom));t.state().variant='advanced';assert(t.ice({x:4,y:6})&&t.boost({x:4,y:7}));
 assert(!t.ice(migrated.ice[0]));
 const a=t.randomMap(20261105),b=t.randomMap(20261105);
+assert(t.auditFairMap(t.defaultMap()).ok,'Official map must pass competitive audit');
+assert(!t.rotationallySymmetricMap(t.defaultMap()),'Official map must be asymmetric');
+for(const seed of [20261107,3212026,731337,2112026]){
+ const candidate=t.randomMap(seed);assert(t.auditFairMap(candidate).ok,`seed ${seed} unfair`);
+ assert(!t.rotationallySymmetricMap(candidate),`seed ${seed} symmetric`);
+}
+for(const seed of [20261107,123321]){
+ const candidate=t.randomRocks(seed);assert(t.auditFairMap(candidate).ok,`rocks seed ${seed} unfair`);
+ assert(!t.rotationallySymmetricMap(candidate),`rocks seed ${seed} symmetric`);
+}
+console.log('PASS: official and sampled generated maps are asymmetric, fair and playable');
 assert.equal(t.mapFingerprint(a),t.mapFingerprint(b));assert.equal(JSON.stringify(a),JSON.stringify(b));
 assert(t.validateMap(a).ok);assert.equal(a.portals.length,3);assert.equal(a.ice.length,5);assert.equal(a.boost.length,4);
 assert(a.generation&&a.generation.parameters.rocks===10,'Generator parameters must survive');
