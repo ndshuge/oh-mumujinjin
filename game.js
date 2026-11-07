@@ -1524,24 +1524,60 @@
     line(x1,y1,x2,y2,"#0d1620",17);line(x1,y1,x2,y2,c,10);
     ctx.shadowBlur=0;line(x1,y1,x2,y2,"#ffffff42",2);ctx.restore();
   }
+  // Presentation-only animation: the logical game state remains authoritative.
+  var pieceVisual=[null,null],pieceFrame=0,pieceAnimating=false;
   function drawPawn(i){
-    var p=state.players[i];if(!p)return;
-    var sameCell=state.players[1-i]&&same(p,state.players[1-i]);
-    var x=X+(p.x+.5)*STEP+(sameCell?(i===0?-13:13):0),y=Y+(p.y+.5)*STEP;
-    var color=i===0?"#ffd18e":"#a0e9d9",shadow=i===0?"#f1a64d":"#62cabb";
-    ctx.save();ctx.shadowColor=shadow;ctx.shadowBlur=state.turn===i?18:8;
-    ctx.beginPath();ctx.arc(x,y,sameCell?17:23,0,Math.PI*2);ctx.fillStyle=i===0?"#6e4a32":"#1d5154";ctx.fill();
-    ctx.lineWidth=3;ctx.strokeStyle=color;ctx.stroke();ctx.restore();
-    text(i===0?"金":"木",x,y+2,sameCell?16:21,color);
-    if(state.variant==="advanced"&&ice(p)&&state.slideDir[i]){
-      var d=state.slideDir[i],arrow=d.x>0?"→":d.x<0?"←":d.y>0?"↓":"↑";
-      text(arrow,x+17,y-21,18,"#ffffff");
+    var p=state.players[i];
+    if(!p){pieceVisual[i]=null;return;}
+    var crowded=state.players[1-i]&&same(p,state.players[1-i]);
+    var tx=X+(p.x+.5)*STEP+(crowded?(i===0?-13:13):0),ty=Y+(p.y+.5)*STEP;
+    var now=typeof performance!=='undefined'&&performance.now?performance.now():Date.now(),reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim=pieceVisual[i];
+    if(!anim){anim={x:tx,y:ty,toX:tx,toY:ty,fromX:tx,fromY:ty,start:0};pieceVisual[i]=anim;}
+    if(anim.toX!==tx||anim.toY!==ty){
+      anim.fromX=anim.x;anim.fromY=anim.y;anim.toX=tx;anim.toY=ty;anim.start=reduced?0:now;
+      if(reduced){anim.x=tx;anim.y=ty;}
     }
-    if(state.phase==="play"&&state.turn===i&&!state.pending){
-      ctx.beginPath();ctx.arc(x,y,sameCell?22:29,0,Math.PI*2);ctx.strokeStyle=color+"65";ctx.lineWidth=1.5;ctx.stroke();
+    if(anim.start){
+      var t=Math.min(1,(now-anim.start)/240),eased=1-Math.pow(1-t,3);
+      anim.x=anim.fromX+(anim.toX-anim.fromX)*eased;
+      anim.y=anim.fromY+(anim.toY-anim.fromY)*eased;
+      if(t<1){pieceAnimating=true;}else{anim.start=0;anim.x=tx;anim.y=ty;}
+    }
+    var x=anim.x,y=anim.y,travel=anim.start?Math.min(1,(now-anim.start)/240):1;
+    var lift=anim.start?Math.sin(Math.PI*travel)*7:0;
+    var gold=i===0,front=gold?'#ffcd77':'#77d4ad',rim=gold?'#bd7a2e':'#287d61';
+    ctx.save();ctx.translate(x,y);ctx.scale(crowded?.78:1,crowded?.78:1);
+    ctx.globalAlpha=.22;ctx.fillStyle='#1c3c37';
+    ctx.beginPath();ctx.ellipse(1,22,23,7,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+    ctx.translate(0,-lift);
+    ctx.fillStyle=rim;ctx.beginPath();ctx.roundRect(-22,-18,44,43,15);ctx.fill();
+    var skin=ctx.createLinearGradient(-22,-23,24,26);
+    if(skin && typeof skin.addColorStop==='function'){
+      skin.addColorStop(0,gold?'#fff0c6':'#d8ffeb');
+      skin.addColorStop(.52,front);skin.addColorStop(1,gold?'#eaa74c':'#3ba582');
+      ctx.fillStyle=skin;
+    }else ctx.fillStyle=front;ctx.beginPath();ctx.roundRect(-22,-25,44,44,16);ctx.fill();
+    ctx.lineWidth=2;ctx.strokeStyle=gold?'#ffe4a8':'#b2f2d3';ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.38)';ctx.beginPath();ctx.ellipse(-8,-15,10,5,-.35,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=gold?'#8c4d23':'#205844';
+    ctx.beginPath();ctx.arc(-7,0,2.7,0,Math.PI*2);ctx.arc(7,0,2.7,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(0,5,5,.1,Math.PI-.1);ctx.lineWidth=1.8;ctx.strokeStyle=gold?'#9d592e':'#286f53';ctx.stroke();
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.font="900 15px 'Arial Rounded MT Bold','PingFang SC',sans-serif";
+    ctx.fillStyle=gold?'#8a4e26':'#276850';ctx.fillText(gold?'金':'木',0,-15);
+    if(state.phase==='play'&&state.turn===i&&!state.pending){
+      ctx.beginPath();ctx.arc(0,-2,30,0,Math.PI*2);
+      ctx.strokeStyle=gold?'#e9a747':'#50b98c';ctx.lineWidth=2.6;ctx.stroke();
+    }
+    ctx.restore();
+    if(state.variant==='advanced'&&ice(p)&&state.slideDir[i]){
+      var d=state.slideDir[i],arrow=d.x>0?'→':d.x<0?'←':d.y>0?'↓':'↑';
+      text(arrow,x+20,y-23,17,'#ffffff');
     }
   }
   function drawBoard(){
+    pieceAnimating=false;
     if(!state)return;
     drawBase();
     drawTargets();
@@ -1565,6 +1601,9 @@
       ctx.save();ctx.fillStyle="#0b1424af";rounded(X+100,Y+350,W*STEP-200,118,8,"#0a1629df","#9d8d66");
       text(NAMES[state.winner]+" 获 胜",360,Y+403,35,state.winner===0?"#f6c180":"#9ce8dc");
       ctx.restore();
+    }
+    if(pieceAnimating && !pieceFrame && typeof requestAnimationFrame==='function'){
+      pieceFrame=requestAnimationFrame(function(){pieceFrame=0;if(!editing)drawBoard();});
     }
     if($("boardLoading"))$("boardLoading").hidden=true;
   }

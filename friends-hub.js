@@ -32,6 +32,7 @@
       <div class="mmjj-scroll">
         <div id="mmjjMapsPane">
           <div class="mmjj-section-head"><div><h2>地图中心</h2><p>收藏喜欢的布局，下次点开就能使用。</p></div></div>
+          <button id="mmjjCreateMap" class="mmjj-primary mmjj-map-create" type="button">＋ 创建地图</button>
           <div class="mmjj-compact-form"><label for="mmjjSaveName">收藏当前地图</label><div class="mmjj-inline">
              <input id="mmjjSaveName" type="text" maxlength="40" aria-label="新地图名称" placeholder="给地图起一个名字">
              <button id="mmjjSaveCurrent" class="mmjj-primary" type="button">保存</button>
@@ -60,8 +61,8 @@
           <div id="mmjjRoomSetup" class="mmjj-room-form">
             <div class="mmjj-form-row"><label for="mmjjNetwork">联机线路</label>
               <select id="mmjjNetwork">
-                <option value="sb">国内试用 · 学院 Supabase（测试中）</option>
-                <option value="cf" selected>国际线路 · Cloudflare（稳定）</option>
+                <option value="sb" selected>国内试用 · 学院 Supabase（测试中）</option>
+                <option value="cf">国际线路 · Cloudflare（稳定）</option>
               </select>
               <small id="mmjjNetworkHint">Supabase 免费额度内免登录；房主负责校验。国内手机网络兼容性尚待实测。</small>
             </div>
@@ -87,6 +88,7 @@
             <div id="mmjjLiveMapSummary" class="mmjj-room-map-preview" hidden></div>
             <div class="mmjj-inline"><input id="mmjjRoomLink" readonly aria-label="房间邀请链接"><button id="mmjjCopyRoom" class="mmjj-secondary">复制邀请</button></div>
             <div class="mmjj-inline"><button id="mmjjReadyRoom" class="mmjj-secondary" type="button">我已准备</button><button id="mmjjStartRoom" class="mmjj-primary" type="button">开始对局</button></div>
+            <button id="mmjjRetryRoom" class="mmjj-secondary" type="button" hidden>重新连接房间</button>
             <button id="mmjjLeaveRoom" class="mmjj-ghost" type="button">退出房间</button>
           </div>
           <p id="mmjjRoomNotice" class="mmjj-room-notice" role="status" aria-live="polite">请选择模式和地图创建好友房间。</p>
@@ -232,6 +234,20 @@
     close();
     var board=$('board');if(board)board.scrollIntoView({behavior:'smooth',block:'center'});
   }
+  function createNewMap(){
+    if(window.MumuOnline&&window.MumuOnline.active&&window.MumuOnline.active()){
+      message('请先结束好友对局，再创建新地图');return;
+    }
+    $('mmjjMapDetail').hidden=true;
+    if(window.MumuLobby&&window.MumuLobby.hide)window.MumuLobby.hide();
+    rpsWasOpen=false;
+    close();
+    if($('mapEditor').hidden)clickGame('mapEditorButton');
+    if($('mapEditor').hidden)return;
+    clickGame('editorClear');
+    if($('editorName'))$('editorName').value='我的新地图';
+    var board=$('board');if(board)board.scrollIntoView({behavior:'smooth',block:'center'});
+  }
   function saveCurrent() {
     try{
       var map=api.get(); map.name=$('mmjjSaveName').value.trim().slice(0,40);
@@ -329,6 +345,7 @@
     return {variant:$('mmjjVariant').value,mapSource:src,map:JSON.parse(JSON.stringify(map)),side:$('mmjjSide').value,first:$('mmjjFirst').value};
   }
   function setRoomInfo(data){
+    root.classList.add('mmjj-room-active');
     room=data;
     $('mmjjRoomSetup').hidden=true;$('mmjjRoomLive').hidden=false;
     $('mmjjLiveCode').textContent=data.code;
@@ -345,10 +362,13 @@
       details.append(heading,caption);summary.append(thumb,details);
     }
     $('mmjjReadyRoom').disabled=!data.readyAllowed;
+    $('mmjjReadyRoom').classList.toggle('is-ready',!!data.isReady);
     $('mmjjReadyRoom').textContent=data.isReady?'我已准备 ✓（点击取消）':'点击准备';
     $('mmjjStartRoom').disabled=!data.startAllowed;
   }
   function resetRoom(){
+    root.classList.remove('mmjj-room-active');
+    $('mmjjRetryRoom').hidden=true;
     room=null;$('mmjjRoomSetup').hidden=false;$('mmjjRoomLive').hidden=true;
     refreshRoomMap(false);
     message('房间需要联机服务；无服务时不会生成假房间。');
@@ -427,20 +447,42 @@
       if(btn.disabled && !room)refreshRoomMap(false);
     }
   }
+  function showInvitePending(code){
+    room=null;
+    root.classList.add('mmjj-room-active');
+    $('mmjjRoomSetup').hidden=true;
+    $('mmjjRoomLive').hidden=false;
+    $('mmjjLiveCode').textContent=code;
+    $('mmjjRoomState').textContent='正在连接房间…';
+    $('mmjjRoomPlayers').textContent='正在同步双方状态与地图';
+    $('mmjjRoomLink').value=location.origin+location.pathname+'?room='+encodeURIComponent(code)+'&net='+encodeURIComponent($('mmjjNetwork').value);
+    $('mmjjReadyRoom').disabled=true;
+    $('mmjjStartRoom').disabled=true;
+    $('mmjjRetryRoom').hidden=true;
+    $('mmjjLiveMapSummary').hidden=true;
+  }
   async function joinRoom(){
     try{
       var code=$('mmjjRoomCode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
       if(!/^[A-Z0-9]{6}$/.test(code))throw Error('请输入有效的 6 位房间码');
       var button=$('mmjjJoinRoom');button.disabled=true;button.textContent='正在加入…';
       message('正在联系联机服务器，最多等待 12 秒…');
+      showInvitePending(code);
       client=transport();if(!client)throw Error('联机客户端未加载');
       var data=await client.join(code,onRoomEvent);
-      setRoomInfo({code:data.code,readyAllowed:false,startAllowed:false});
-      message('已加入，等待双方准备。');
+      if(!room)setRoomInfo({code:data.code,readyAllowed:false,startAllowed:false});
+      $('mmjjRetryRoom').hidden=true;
+      message('已加入房间，请点击准备。');
     }catch(e){
       if(client)client.close();client=null;
       message(await roomErrorMessage(e));
-    }finally{$('mmjjJoinRoom').disabled=false;$('mmjjJoinRoom').textContent='加入房间';}
+    }finally{
+      if(!room){
+        $('mmjjRoomState').textContent='加入房间失败';
+        $('mmjjRoomPlayers').textContent='请检查房间码和房主连接状态';
+        $('mmjjRetryRoom').hidden=false;
+      }
+      $('mmjjJoinRoom').disabled=false;$('mmjjJoinRoom').textContent='加入房间';}
   }
   $('mmjjClose').addEventListener('click',close);
   root.querySelector('[data-hub-close]').addEventListener('click',close);
@@ -459,6 +501,7 @@
   $('mmjjTabMaps').addEventListener('click',function(){switchTab('maps');});
   $('mmjjTabRooms').addEventListener('click',function(){switchTab('rooms');});
   document.querySelectorAll('[data-map-filter]').forEach(function(btn){btn.addEventListener('click',function(){category=btn.dataset.mapFilter;renderMaps();});});
+  $('mmjjCreateMap').addEventListener('click',createNewMap);
   $('mmjjSaveCurrent').addEventListener('click',saveCurrent);
   $('mmjjDetailBack').addEventListener('click',function(){$('mmjjMapDetail').hidden=true;});
   $('mmjjUseMap').addEventListener('click',useMap);
@@ -500,6 +543,7 @@
     finally{button.disabled=false;}
   });
   $('mmjjJoinRoom').addEventListener('click',joinRoom);
+  $('mmjjRetryRoom').addEventListener('click',function retry(){joinRoom();});
   $('mmjjReadyRoom').addEventListener('click',function(){
     if(client)try{client.ready();}catch(e){message(e.message);}
   });
@@ -534,7 +578,12 @@
     if(network==='sb'||network==='cf')$('mmjjNetwork').value=network;
     $('mmjjNetwork').dispatchEvent(new Event('change'));
     $('mmjjRoomCode').value=code.toUpperCase();open('rooms');
-    message('收到好友邀请，点击加入房间即可连接。');
+    if(/^[A-HJ-NP-Z2-9]{6}$/.test(code.toUpperCase())){
+      showInvitePending(code.toUpperCase());
+      message('收到好友邀请，正在自动加入房间…');
+      joinRoom();
+    }else message('房间码无效，请检查邀请链接。');
+
   }
   window.MumuFriendsUI=Object.freeze({
     open:open,store:store,leave:leaveRoom,
