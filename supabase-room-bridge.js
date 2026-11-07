@@ -31,30 +31,16 @@
    });
  }
  async function checkConnection(){
-   if(!available())throw Error('Supabase Realtime 未配置');
-   const {RealtimeClient}=await import('./vendor/realtime.mjs');
-   const backend=new RealtimeClient(config().url.replace(/\/$/,'')+'/realtime/v1',
-    {params:{apikey:config().anonKey},accessToken:async()=>config().anonKey,
-      timeout:8500});
-   const topic='mmjj:ping:'+Date.now()+':'+Math.floor(Math.random()*1e8);
-   const channel=backend.channel(topic,{config:{broadcast:{self:false,ack:true},private:false}});
-   try{
-     await new Promise((resolve,reject)=>{
-       let done=false;
-       const timer=setTimeout(()=>{if(!done){done=true;reject(Error('Realtime 连接超时'))}},9000);
-       channel.subscribe((status,err)=>{
-         if(done)return;
-         if(status==='SUBSCRIBED'){done=true;clearTimeout(timer);resolve()}
-         else if(['TIMED_OUT','CLOSED','CHANNEL_ERROR'].includes(status)){
-           done=true;clearTimeout(timer);reject(Error('Realtime 连接失败：'+(err?.message||status)));
-         }
-       });
-     });
-     return {ok:true,provider:'supabase-realtime'};
-   }finally{
-     try{await backend.removeChannel(channel)}catch(_){}
-     try{backend.disconnect()}catch(_){}
-   }
+   if(!available())throw Error('Supabase 线路未配置');
+   const {diagnoseSupabase}=await import('./supabase-network-check.mjs');
+   return diagnoseSupabase({
+     url:config().url,anonKey:config().anonKey,
+     createRealtime:async()=>{
+       const {RealtimeClient}=await import('./vendor/realtime.mjs');
+       return new RealtimeClient(config().url.replace(/\/$/,'')+'/realtime/v1',
+         {params:{apikey:config().anonKey},accessToken:async()=>config().anonKey,timeout:8500});
+     }
+   });
  }
  root.MumuSupabaseRooms=Object.freeze({available,createClient,checkConnection});
 })(window);

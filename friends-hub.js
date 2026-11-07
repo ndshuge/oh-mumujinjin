@@ -488,7 +488,7 @@
       var status=$('mmjjNetwork').value==='sb'
         ? await window.MumuSupabaseRooms.checkConnection()
         : await window.MumuFriendRooms.checkConnection(window.MMJJ_ROOM_SERVER_URL);
-      message(status.ok?'联机服务连接正常。若加入仍失败，请检查房间码是否过期。':'联机服务不可用。');
+      message(status.detail || (status.ok?'联机服务连接正常。若加入仍失败，请检查房间码是否过期。':'联机服务不可用。'));
     }catch(error){message(error.message||'联机服务连接失败');}
     finally{button.disabled=false;}
   });
