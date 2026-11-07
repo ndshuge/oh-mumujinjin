@@ -61,10 +61,27 @@ function createApp(cfg=process.env,signer){
    }catch(_){return reply(500,{error:'身份服务暂不可用'},origin);}
  };
 }
-let instance=null;
+/* CloudBase SDK callFunction sends the data object directly, not an HTTP event.
+ * Deploy with function rule {"mmjj-cn-auth":{"invoke":"auth != null"}}.
+ * CloudBase validates the anonymous session before calling this function.
+ */
+function createCloudBaseHandler(cfg=process.env,signer){
+ const http=createApp(cfg,signer);
+ return async(event)=>{
+   if(!event||typeof event!=='object'||Array.isArray(event))return {statusCode:400,body:'{"error":"请求格式无效"}'};
+   const allowed=String(cfg.ALLOWED_ORIGINS||'https://ndshuge.github.io').split(',')[0].trim();
+   return http({httpMethod:'POST',headers:{origin:allowed},body:JSON.stringify(event)});
+ };
+}
+let instance=null,callable=null;
 exports.main=async(event,context)=>{
- if(!instance)instance=createApp();
- return instance(event,context);
+ if(event&&(event.httpMethod||event.requestContext?.httpMethod||event.method)){
+   if(!instance)instance=createApp();
+   return instance(event,context);
+ }
+ if(!callable)callable=createCloudBaseHandler();
+ return callable(event,context);
 };
 exports.createApp=createApp;
+exports.createCloudBaseHandler=createCloudBaseHandler;
 exports.verifyTicket=verifyTicket;

@@ -133,7 +133,9 @@ try{
  assert.equal(sdkAvailable,true,'Tencent Chat SDK must load as lazy ESM on Chrome');
  assert.equal(await evalJS('document.getElementById("mmjjNetwork").value'),'cf',
    'without production credentials, international provider must remain the default');
- console.log('PASS on-demand Tencent Chat SDK and safe international fallback');
+ assert.equal(await evalJS('import("./vendor/cloudbase.mjs").then(mod=>typeof mod.default.init==="function")'),true,
+   'CloudBase SDK must load for anonymous domestic identity');
+ console.log('PASS on-demand Tencent/CloudBase SDKs and safe international fallback');
  console.log('BROWSER SMOKE PASS');
 }finally{
  if(socket)socket.close();

@@ -1,5 +1,5 @@
 const test=require('node:test'),assert=require('node:assert/strict');
-const {createApp}=require('./index.js');
+const {createApp,createCloudBaseHandler}=require('./index.js');
 const cfg={IM_APP_ID:'1400000000',IM_SECRET_KEY:'im-test-key-only',IM_SESSION_SECRET:'f'.repeat(48),
  ALLOWED_ORIGINS:'https://ndshuge.github.io'};
 const genSig=async({userID})=>'SIGN_'+userID;
@@ -27,6 +27,17 @@ test('refuses forbidden origin, invalid ticket, missing secrets and GET requests
  assert.equal(get.statusCode,405);
  assert.throws(()=>createApp({...cfg,IM_SECRET_KEY:''},genSig),/IM_SECRET_KEY/);
 });
+test('CloudBase callable returns UserSig with anonymous SDK session and without an HTTP domain',async()=>{
+ const handler=createCloudBaseHandler(cfg,genSig);
+ const response=await handler({});
+ assert.equal(response.statusCode,200);
+ const data=JSON.parse(response.body);
+ assert.equal(data.userSig,'SIGN_'+data.userID);
+ assert.equal(data.sdkAppID,1400000000);
+ const resumed=await handler({ticket:data.ticket});
+ assert.equal(JSON.parse(resumed.body).userID,data.userID);
+});
+
 test('OPTIONS preflight only allows configured origin',async()=>{
  const handler=createApp(cfg,genSig);
  const allow=await handler({httpMethod:'OPTIONS',headers:{origin:'https://ndshuge.github.io'}});
