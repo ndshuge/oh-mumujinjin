@@ -102,3 +102,9 @@ body.mmjj-hub-open{overflow:hidden}
  .mmjj-launch-row button{font-size:12px;padding-inline:6px}
 }
 @media(prefers-reduced-motion:reduce){.mmjj-hub *, .mmjj-hub *:before,.mmjj-hub *:after{transition:none!important;scroll-behavior:auto!important}}
+
+/* Explicit pending state and two-party ready confirmations. */
+#mmjjRoomNotice{white-space:normal;overflow-wrap:anywhere}
+#mmjjReadyRoom,#mmjjJoinRoom,#mmjjCreateRoom{transition:opacity .15s ease}
+.mmjj-rematch-status{display:grid;gap:8px;margin:16px 0;padding:14px;border-radius:12px;background:#eaf3ef;color:#215b4b;font:600 13px/1.5 system-ui,sans-serif}
+.mmjj-rematch-status[hidden]{display:none!important}

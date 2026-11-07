@@ -3,7 +3,7 @@
   'use strict';
   if (!window.MumuMapV2 || !window.MumuLobbyGame) return;
   var api=window.MumuMapV2,game=window.MumuLobbyGame;
-  var activeMode='cpu',visible=false,createdPreview=null;
+  var activeMode=null,visible=false,previewCache=Object.create(null);
   var $=function(id){return document.getElementById(id);};
   var root=document.createElement('div');
   root.id='mmjjLobby';root.className='mmjj-lobby';root.hidden=true;
@@ -23,9 +23,9 @@
           <section class="mmjj-mode-column" aria-label="选择对战方式">
             <h2>选择玩法 <small>PLAY</small></h2>
             <div class="mmjj-mode-cards">
-              <button type="button" class="mmjj-mode-card selected" id="mmjjModeAI" data-mode="cpu" aria-pressed="true">
+              <button type="button" class="mmjj-mode-card" id="mmjjModeAI" data-mode="cpu" aria-pressed="false">
                 <span class="mmjj-mode-icon mmjj-ai-icon"><img src="./xiaoke-clawd.svg" alt=""></span>
-                <span class="mmjj-mode-description"><strong>挑战小克 <em>推荐</em></strong><small>与本地最强 AI 交锋，磨练战术。</small></span>
+                <span class="mmjj-mode-description"><strong>挑战小克</strong><small>与本地最强 AI 交锋，磨练战术。</small></span>
                 <span class="mmjj-card-chevron" aria-hidden="true">›</span>
               </button>
               <button type="button" class="mmjj-mode-card" id="mmjjModeFriends" data-mode="friends" aria-pressed="false">
@@ -46,7 +46,8 @@
             </div>
             <div class="mmjj-lobby-hint">公平随机地图 · 9 × 13 棋盘 · 浏览器即玩</div>
           </section>
-          <section class="mmjj-config-column" aria-label="开局配置">
+          <section class="mmjj-config-column" aria-label="开局配置" hidden>
+            <button class="mmjj-lobby-back" id="mmjjLobbyBack" type="button">‹ 返回游戏大厅</button>
             <div class="mmjj-lobby-panel-head"><div><small>QUICK MATCH</small><h2>开局配置</h2></div><span class="mmjj-config-badge">01 / 02</span></div>
             <label class="mmjj-lobby-label" for="mmjjLobbyVariant">游戏模式</label>
             <div class="mmjj-lobby-segments" role="group" aria-label="游戏模式">
@@ -115,8 +116,11 @@
   function fillSelect(){
     var select=$('mmjjLobbySavedSelect'),past=select.value;
     select.replaceChildren();
-    libraryMaps().forEach(function(map){select.add(new Option(map.name,api.fingerprint(map)));});
-    if(past)select.value=past;
+    libraryMaps().forEach(function(map){
+      var fair=api.auditFair(map).ok;
+      select.add(new Option(map.name+(fair?'':'（需修复）'),api.fingerprint(map)));
+    });
+    if(past && [].some.call(select.options,function(option){return option.value===past;}))select.value=past;
   }
   function refreshMap(recreate){
     var src=$('mmjjLobbyMapSource').value,reroll=$('mmjjLobbyReroll');
@@ -134,7 +138,7 @@
       return;
     }
     if(src==='official'){displayMap(api.official());return;}
-    if(!recreate&&createdPreview&&createdPreview.type===src){displayMap(createdPreview.map);return;}
+    if(!recreate&&previewCache[src]){displayMap(previewCache[src]);return;}
     var token=++generationToken;
     $('mmjjLobbyMapName').textContent='生成公平地图中…';
     $('mmjjLobbyMapStat').textContent='正在检查双方出生点和路径';
@@ -145,9 +149,21 @@
       try{
         var seed=(Date.now()^Math.floor(Math.random()*4294967296))>>>0;
         var map=src==='random-rocks'?api.generateRandomRocks(seed):api.generateBalanced(seed);
-        createdPreview={type:src,map:map};displayMap(map);
+        previewCache[src]=map;displayMap(map);
       }catch(e){feedback(e.message||'地图生成失败，请重试');}
     },20);
+  }
+  function leaveConfiguration(){
+    activeMode=null;
+    root.classList.remove('mmjj-lobby-configuring');
+    $('mmjjModeAI').setAttribute('aria-pressed','false');
+    document.querySelectorAll('#mmjjLobby [data-mode]').forEach(function(button){
+      button.classList.remove('selected');button.setAttribute('aria-pressed','false');
+    });
+    root.querySelector('.mmjj-mode-column').hidden=false;
+    root.querySelector('.mmjj-config-column').hidden=true;
+    root.querySelector('.mmjj-lobby-intro').hidden=false;
+    $('mmjjLobbyBack').hidden=true;
   }
   function setOpponent(mode){
     if(mode==='friends'){
@@ -158,12 +174,16 @@
       if(window.MumuFriendsUI)window.MumuFriendsUI.open('maps');
       return;
     }
+    if(mode!=='cpu'&&mode!=='local')return;
     activeMode=mode;
-    document.querySelectorAll('#mmjjLobby [data-mode]').forEach(function(button){
-      var selected=button.dataset.mode===mode;
-      button.classList.toggle('selected',selected);button.setAttribute('aria-pressed',String(selected));
-    });
+    root.classList.add('mmjj-lobby-configuring');
+    root.querySelector('.mmjj-mode-column').hidden=true;
+    root.querySelector('.mmjj-config-column').hidden=false;
+    root.querySelector('.mmjj-lobby-intro').hidden=true;
+    $('mmjjLobbyBack').hidden=false;
     $('mmjjLobbyStart').firstChild.nodeValue=mode==='cpu'?'挑战小克 ':'开始本地双人 ';
+    refreshMap(false);
+    root.scrollTo({top:0,behavior:'instant'});
   }
   function setVariant(value){
     currentVariant=value;
@@ -179,10 +199,11 @@
       window.MumuFriendsUI.leave();
     }
     visible=true;root.hidden=false;document.body.classList.add('mmjj-lobby-open');
+    leaveConfiguration();
     var info=game.info();$('mmjjLobbyResume').hidden=!(info.moves>0 && info.phase!=='finished');
-    refreshMap(false);
   }
   function begin(){
+    if(!activeMode){feedback('请先从大厅选择玩法');return;}
     if(!currentMap){feedback('请先选择或生成地图');return;}
     var selectedMap=JSON.parse(JSON.stringify(currentMap));
     var result=game.start({map:selectedMap,variant:currentVariant,opponent:activeMode});
@@ -196,15 +217,18 @@
   }
   document.querySelectorAll('#mmjjLobby [data-mode]').forEach(function(b){b.addEventListener('click',function(){setOpponent(b.dataset.mode);});});
   document.querySelectorAll('#mmjjLobby [data-variant]').forEach(function(b){b.addEventListener('click',function(){setVariant(b.dataset.variant);});});
-  $('mmjjLobbyMapSource').addEventListener('change',function(){createdPreview=null;refreshMap(true);});
+  $('mmjjLobbyMapSource').addEventListener('change',function(){generationToken++;refreshMap(false);});
   $('mmjjLobbySavedSelect').addEventListener('change',function(){refreshMap(false);});
   $('mmjjLobbyReroll').addEventListener('click',function(){refreshMap(true);});
+  $('mmjjLobbyBack').addEventListener('click',leaveConfiguration);
   $('mmjjLobbyStart').addEventListener('click',begin);
   $('mmjjLobbyResume').addEventListener('click',resume);
   $('mmjjLobbyInfo').addEventListener('click',function(){
     hide();var button=$('helpTop');if(button)button.click();
   });
-  window.MumuLobby=Object.freeze({show:show,hide:hide,isVisible:function(){return visible;}});
+  window.MumuLobby=Object.freeze({show:show,hide:hide,isVisible:function(){return visible;},
+    isConfiguring:function(){return root.classList.contains('mmjj-lobby-configuring');},
+    preview:function(){return currentMap;}});
   // Always land on the lobby, including for invited friends (room hub opens above).
   show();
 })();

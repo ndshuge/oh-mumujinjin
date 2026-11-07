@@ -63,7 +63,9 @@ try{
  await cmd('Runtime.enable');await cmd('Page.enable');
  await awaitTruthy('!!(window.MumuLobby && window.MumuFriendsUI && document.getElementById("mmjjLobbyStart"))',12000);
  assert.equal(await evalJS('MumuLobby.isVisible()'),true,'should open game lobby first');
- console.log('PASS opening to main lobby');
+ assert.equal(await evalJS('document.querySelectorAll("#mmjjLobby .mmjj-mode-card.selected").length'),0);
+ assert.equal(await evalJS('document.querySelector(".mmjj-config-column").hidden'),true);
+ console.log('PASS four equal lobby cards; none selected');
  await evalJS('document.getElementById("mmjjModeFriends").click()');
  assert.equal(await evalJS('!document.getElementById("mmjjHub").hidden'),true);
  await evalJS('document.getElementById("mmjjClose").click()');
@@ -80,6 +82,8 @@ try{
  await evalJS('document.getElementById("mmjjClose").click()');
  console.log('PASS saved-map cards, detail view and rename');
  await evalJS('document.getElementById("mmjjModeLocal").click()');
+ assert.equal(await evalJS('MumuLobby.isConfiguring()'),true);
+ assert.equal(await evalJS('document.querySelector(".mmjj-mode-column").hidden'),true);
  await awaitTruthy('!document.getElementById("mmjjLobbyStart").disabled',20000);
  await evalJS('document.getElementById("mmjjLobbyStart").click()');
  assert.equal(await evalJS('MumuLobby.isVisible()'),false);
@@ -95,6 +99,7 @@ try{
  assert.equal(await evalJS('MumuLobby.isVisible()'),false);
  console.log('PASS challenge AI after choosing mode');
  await evalJS('document.getElementById("mmjjBackToLobby").click()');
+ await evalJS('document.getElementById("mmjjModeLocal").click()');
  await evalJS('document.getElementById("mmjjLobbyMapSource").value="official";document.getElementById("mmjjLobbyMapSource").dispatchEvent(new Event("change",{bubbles:true}))');
  assert.equal(await evalJS('document.getElementById("mmjjLobbyStart").disabled'),false,'official map should be playable');
  assert.equal(await evalJS('document.getElementById("mmjjLobbyMapName").textContent'),'经典地图');
@@ -104,6 +109,7 @@ try{
  assert.equal(await evalJS('MumuMapV2.fingerprint(MumuMapV2.get())===MumuMapV2.fingerprint(MumuMapV2.official())'),true);
  console.log('PASS advanced match uses exact official map');
  await evalJS('document.getElementById("mmjjBackToLobby").click()');
+ await evalJS('document.getElementById("mmjjModeLocal").click()');
  await evalJS('document.getElementById("mmjjLobbyMapSource").value="saved";document.getElementById("mmjjLobbyMapSource").dispatchEvent(new Event("change",{bubbles:true}))');
  assert.equal(await evalJS('document.getElementById("mmjjLobbyStart").disabled'),false,'saved map should be playable');
  const selectedName=await evalJS('document.getElementById("mmjjLobbyMapName").textContent');
@@ -112,6 +118,13 @@ try{
  assert.equal(await evalJS('MumuLobby.isVisible()'),false);
  assert.equal(await evalJS('MumuMapV2.get().name'),selectedName);
  console.log('PASS named saved map opens as exact playable terrain');
+ await evalJS('document.getElementById("mmjjBackToLobby").click();document.getElementById("mmjjModeAI").click()');
+ await evalJS('document.getElementById("mmjjLobbyMapSource").value="random-battle";document.getElementById("mmjjLobbyMapSource").dispatchEvent(new Event("change",{bubbles:true}))');
+ await awaitTruthy('!document.getElementById("mmjjLobbyStart").disabled',20000);
+ const beforeMap=await evalJS('MumuMapV2.fingerprint(MumuLobby.preview())');
+ await evalJS('document.getElementById("mmjjLobbyBack").click();document.getElementById("mmjjModeLocal").click()');
+ assert.equal(await evalJS('MumuMapV2.fingerprint(MumuLobby.preview())'),beforeMap);
+ console.log('PASS random map remains the same across navigation');
  await evalJS('document.getElementById("mmjjBackToLobby").click()');
  const overflow=await evalJS('document.documentElement.scrollWidth > window.innerWidth + 1');
  assert.equal(overflow,false,'main lobby must not overflow horizontally');

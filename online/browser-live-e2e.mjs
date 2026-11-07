@@ -72,8 +72,11 @@ try{
  console.log('PASS host and guest preview the same immutable room map');
  await owner.until('document.getElementById("mmjjReadyRoom").disabled===false',2500);
  await friend.until('document.getElementById("mmjjReadyRoom").disabled===false',2500);
+ assert.equal(await owner.evaluate('document.getElementById("mmjjReadyRoom").textContent'),'点击准备');
  await owner.evaluate('document.getElementById("mmjjReadyRoom").click()');
+ await owner.until('document.getElementById("mmjjReadyRoom").textContent.includes("我已准备")',7000);
  await friend.evaluate('document.getElementById("mmjjReadyRoom").click()');
+ await friend.until('document.getElementById("mmjjReadyRoom").textContent.includes("我已准备")',7000);
  try{await owner.until('document.getElementById("mmjjStartRoom").disabled===false',9000);}
  catch(error){
   const dump=async p=>await p.evaluate('JSON.stringify({notice:document.getElementById("mmjjRoomNotice").textContent,players:document.getElementById("mmjjRoomPlayers").textContent,state:document.getElementById("mmjjRoomState").textContent,ready:document.getElementById("mmjjReadyRoom").disabled,start:document.getElementById("mmjjStartRoom").disabled})');
@@ -121,7 +124,11 @@ try{
  await owner.until('MumuLobbyGame.info().phase==="finished"',8000);
  await friend.until('MumuLobbyGame.info().phase==="finished"',8000);
  console.log('PASS owner resigns; both clients receive finished game');
+ assert.equal(await owner.evaluate('document.getElementById("playAgainBtn").textContent'),'再来一局');
  await owner.evaluate('document.getElementById("playAgainBtn").click()');
+ await owner.until('document.getElementById("playAgainBtn").textContent.includes("我已准备")',7000);
+ await friend.until('document.getElementById("mmjjRematchFriend").textContent.includes("已准备") || document.getElementById("mmjjRematchMine").textContent.includes("已准备")',7000);
+ assert.equal(await owner.evaluate('document.getElementById("playAgainBtn").disabled'),true);
  await friend.evaluate('document.getElementById("playAgainBtn").click()');
  await owner.until('MumuLobbyGame.info().phase==="pick-defend"',9000);
  await friend.until('MumuLobbyGame.info().phase==="pick-defend"',9000);

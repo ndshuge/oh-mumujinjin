@@ -131,3 +131,19 @@ body.mmjj-lobby-open{overflow:hidden}
 @media(prefers-reduced-motion:reduce){
  .mmjj-lobby *{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
+
+/* Four equally weighted choices: no default selection or match form in the entrance. */
+.mmjj-lobby [hidden]{display:none!important}
+.mmjj-lobby:not(.mmjj-lobby-configuring) .mmjj-lobby-columns{display:block}
+.mmjj-lobby:not(.mmjj-lobby-configuring) .mmjj-mode-column{max-width:930px;margin:0 auto}
+.mmjj-lobby:not(.mmjj-lobby-configuring) .mmjj-mode-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.mmjj-lobby:not(.mmjj-lobby-configuring) .mmjj-mode-card{min-height:150px;padding:22px}
+.mmjj-lobby:not(.mmjj-lobby-configuring) .mmjj-mode-icon{flex-basis:64px;width:64px;height:64px}
+.mmjj-lobby.mmjj-lobby-configuring .mmjj-lobby-columns{display:block}
+.mmjj-lobby.mmjj-lobby-configuring .mmjj-config-column{max-width:640px;margin:0 auto}
+.mmjj-lobby-back{min-height:42px;border:0;background:transparent;color:#267c6c;font-weight:700;margin:0 0 14px;padding:6px 2px}
+@media(max-width:820px){
+ .mmjj-lobby:not(.mmjj-lobby-configuring) .mmjj-mode-cards{gap:11px}
+ .mmjj-lobby:not(.mmjj-lobby-configuring) .mmjj-mode-card{min-height:157px;padding:14px}
+ .mmjj-lobby:not(.mmjj-lobby-configuring) .mmjj-mode-icon{flex-basis:47px;width:47px;height:47px}
+}

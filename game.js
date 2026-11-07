@@ -1926,7 +1926,10 @@
       setModal("winModal",true);
     }
     onlineResignButton.hidden=state.phase==="finished";
-    if(state.phase==="finished")$("playAgainBtn").textContent="再来一局（双方确认）";
+    if(state.phase==="finished")$("playAgainBtn").textContent="再来一局";
+    $("playAgainBtn").disabled=false;
+    $("mmjjRematchStatus").hidden=state.phase!=="finished";
+
     drawUI();drawBoard();
   }
   window.MumuOnline=Object.freeze({
@@ -1973,6 +1976,17 @@
     },
     active:function(){return !!onlineSession;},
     hint:function(message){if(onlineSession)notice(message);},
+    setRematch:function(room,owner){
+      if(!onlineSession||!room)return;
+      var status=$("mmjjRematchStatus"),button=$("playAgainBtn");
+      if(room.status!=="finished"){status.hidden=true;button.textContent="再来一局";return;}
+      var mine=owner?0:1,other=1-mine,votes=room.rematchVotes||[false,false];
+      status.hidden=false;
+      $("mmjjRematchMine").textContent="我："+(votes[mine]?"我已准备 ✓":"未准备");
+      $("mmjjRematchFriend").textContent="对方："+(votes[other]?"已准备 ✓":"未准备");
+      button.textContent=votes[mine]?"我已准备 ✓ · 等待对方":"再来一局";
+      button.disabled=!!votes[mine];
+    },
     sync:function(game,revision){
       if(!onlineSession||!game)return;
       onlineSession.revision=revision;onlineSession.awaiting=false;onlineHydrate(game);
@@ -1980,6 +1994,7 @@
     stop:function(){
       onlineResignButton.hidden=true;
       $("playAgainBtn").textContent="再来一局";
+      $("playAgainBtn").disabled=false;$("mmjjRematchStatus").hidden=true;
       onlineSession=null;onlineApplying=false;closeAll();state.playMode="local";
       var status=document.querySelector(".connection-tag");
       if(status&&status.hasAttribute("data-original")){
