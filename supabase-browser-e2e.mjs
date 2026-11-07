@@ -59,6 +59,10 @@ try{
  const code=await owner.evaluate('document.getElementById("mmjjLiveCode").textContent');
  assert.match(code,/^[A-Z0-9]{6}$/);
  console.log('PASS browser A created real Supabase room '+code);
+ const hostIdentity=await owner.evaluate('localStorage.getItem("mmjj-sb-user")');
+ const guestIdentity='p_guest_e2e_identity_0000000000000001';
+ assert.ok(hostIdentity&&hostIdentity!==guestIdentity,'host and guest need independent anonymous identities');
+ await owner.evaluate('localStorage.setItem("mmjj-sb-user","'+guestIdentity+'")');
  const friend=await tab(web+'?room='+code+'&net=sb');
  await friend.until('!!window.MumuLobby && !!window.MumuFriendsUI');
  assert.equal(await friend.evaluate('document.getElementById("mmjjRoomCode").value'),code);

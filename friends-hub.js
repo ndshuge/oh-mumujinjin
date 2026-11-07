@@ -61,10 +61,10 @@
           <div id="mmjjRoomSetup" class="mmjj-room-form">
             <div class="mmjj-form-row"><label for="mmjjNetwork">联机线路</label>
               <select id="mmjjNetwork">
-                <option value="sb" selected>国内试用 · 学院 Supabase（测试中）</option>
-                <option value="cf">国际线路 · Cloudflare（稳定）</option>
+                <option value="sb" selected>国内默认线路 · Supabase</option>
+                <option value="cf">国际备用线路 · Cloudflare</option>
               </select>
-              <small id="mmjjNetworkHint">Supabase 免费额度内免登录；房主负责校验。国内手机网络兼容性尚待实测。</small>
+              <small id="mmjjNetworkHint">当前可用的国内联机线路，默认使用 Supabase；邀请链接会保留创建房间时选择的线路。</small>
             </div>
             <div class="mmjj-form-row"><label for="mmjjVariant">游戏模式</label>
               <select id="mmjjVariant"><option value="classic">经典策略</option><option value="advanced">跑道挑战</option></select></div>
@@ -526,9 +526,9 @@
   $('mmjjRoomReroll').addEventListener('click',function(){refreshRoomMap(true);});
   $('mmjjNetwork').addEventListener('change',function(){
     $('mmjjNetworkHint').textContent=this.value==='sb'
-      ?'学院现有 Supabase 项目；免费额度内使用，无须登录。等待国内移动网络实测。'
-      :'现有 Cloudflare 房间服务器，国内可能需要代理。';
-    message('已选择'+(this.value==='sb'?'Supabase 国内试用':'Cloudflare 国际线路')+'，新建的房间会使用该线路。');
+      ?'当前默认国内线路：Supabase Realtime。使用现有项目，无需单独登录。'
+      :'国际备用线路：Cloudflare 房间服务器。两位玩家需要使用同一条线路。';
+    message('已选择'+(this.value==='sb'?'国内 Supabase 默认线路':'Cloudflare 国际备用线路')+'，新建的房间会使用该线路。');
   });
   $('mmjjCreateRoom').addEventListener('click',createRoom);
   $('mmjjTestConnection').addEventListener('click',async function(){

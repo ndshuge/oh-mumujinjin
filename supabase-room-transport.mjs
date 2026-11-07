@@ -140,11 +140,14 @@ export function createClient(options={}){
    ownerID=room.ownerId;
    // If we were previously in the room, hello recovered state; otherwise ask host to admit us.
    if(!room.players.some(x=>x.id===identity)){
-     await send({v:1,type:'intent',actor:identity,intent:{type:'join'}});
-     await new Promise((resolve,reject)=>{
+     const admission=new Promise((resolve,reject)=>{
        joinTimer=setTimeout(()=>{joining=null;reject(Error('Host did not accept joining'))},options.joinTimeout||9000);
        joining={stage:'admit',resolve:()=>{clearTimeout(joinTimer);joinTimer=null;resolve()}};
      });
+     try{await send({v:1,type:'intent',actor:identity,intent:{type:'join'}});}
+     catch(err){if(joinTimer)clearTimeout(joinTimer);joinTimer=null;joining=null;throw err;}
+     if(room?.players.some(x=>x.id===identity)&&joining){const finish=joining.resolve;joining=null;finish();}
+     await admission;
    }
    onEvent({type:'connected'});
    return {code,owner:false};

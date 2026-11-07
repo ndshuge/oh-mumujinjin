@@ -3,7 +3,7 @@
    Deploy separately; GitHub Pages remains a static frontend. */
 import {newMatch, applyAction} from '../online-rules.mjs';
 
-const ROOM_LIFETIME_MS=12*60*60*1000;
+const ROOM_LIFETIME_MS=24*60*60*1000;
 function randomString(size,alphabet){
   const bytes=new Uint8Array(size);crypto.getRandomValues(bytes);
   return [...bytes].map(b=>alphabet[b%alphabet.length]).join('');
@@ -77,9 +77,23 @@ export default {
 };
 
 export class GameRoom {
-  constructor(ctx,env){this.ctx=ctx;this.env=env;}
+  constructor(ctx,env){this.ctx=ctx;this.env=env;this.mutationQueue=Promise.resolve();}
+  enqueueMutation(work){
+    const next=this.mutationQueue.then(work,work);
+    this.mutationQueue=next.catch(()=>{});
+    return next;
+  }
+  touch(room,seat){
+    const now=Date.now();
+    room.updatedAt=now;
+    room.expiresAt=now+ROOM_LIFETIME_MS;
+    if(Number.isInteger(seat)&&room.players[seat])room.players[seat].lastSeenAt=now;
+  }
   async getRoom(){return await this.ctx.storage.get('room');}
-  async save(room){await this.ctx.storage.put('room',room);}
+  async save(room){
+    await this.ctx.storage.put('room',room);
+    if(Number.isFinite(room?.expiresAt))await this.ctx.storage.setAlarm(room.expiresAt);
+  }
   clean(room){return room && room.expiresAt>Date.now();}
   publicRoom(room){
     return {code:room.code,status:room.status,revision:room.revision,rematchVotes:room.rematchVotes||[false,false],
@@ -92,7 +106,8 @@ export class GameRoom {
     }
   }
   broadcastState(room){this.broadcast(room,{type:'room_state',room:this.publicRoom(room)});}
-  async fetch(request){
+  fetch(request){return this.enqueueMutation(()=>this.handleFetch(request));}
+  async handleFetch(request){
     const url=new URL(request.url),path=url.pathname,room=await this.getRoom();
     if(path==='/init'&&request.method==='POST'){
       if(room&&this.clean(room))return inputError('房间号重复',409);
@@ -100,7 +115,7 @@ export class GameRoom {
       newMatch(settings.map,settings.variant,0);
       const ownerToken=token(),now=Date.now();
       const next={code,settings,createdAt:now,expiresAt:now+ROOM_LIFETIME_MS,
-        players:[{token:ownerToken,connected:false,ready:false},{token:null,connected:false,ready:false}],
+        players:[{token:ownerToken,connected:false,ready:false,lastSeenAt:null},{token:null,connected:false,ready:false,lastSeenAt:null}],
         status:'waiting',revision:0,game:null,seatSide:null,rematchVotes:[false,false]};
       await this.save(next);await this.ctx.storage.setAlarm(next.expiresAt);
       return response({code,token:ownerToken,owner:true});
@@ -109,7 +124,7 @@ export class GameRoom {
     if(path==='/join'&&request.method==='POST'){
       const body=await jsonBody(request),presented=body.token;
       const existing=room.players.findIndex(p=>p.token&&p.token===presented);
-      if(existing>=0)return response({code:room.code,token:room.players[existing].token,owner:existing===0});
+      if(existing>=0){this.touch(room,existing);await this.save(room);return response({code:room.code,token:room.players[existing].token,owner:existing===0});}
       if(room.players[1].token)return inputError('房间已有两位玩家',409);
       if(room.status==='playing')return inputError('对局已经开始',409);
       const guestToken=token();room.players[1].token=guestToken;
@@ -124,7 +139,7 @@ export class GameRoom {
       const pair=new WebSocketPair(),client=pair[0],server=pair[1];
       this.ctx.acceptWebSocket(server);
       server.serializeAttachment({seat});
-      room.players[seat].connected=true;await this.save(room);
+      room.players[seat].connected=true;this.touch(room,seat);await this.save(room);
       server.send(JSON.stringify({type:'room_state',room:this.publicRoom(room)}));
       if(room.status==='playing'){
         server.send(JSON.stringify({type:'match_start',room:this.publicRoom(room),
@@ -135,17 +150,21 @@ export class GameRoom {
     }
     return inputError('无效的房间操作',404);
   }
-  async webSocketMessage(socket,raw){
+  webSocketMessage(socket,raw){return this.enqueueMutation(()=>this.handleWebSocketMessage(socket,raw));}
+  async handleWebSocketMessage(socket,raw){
     const attachment=socket.deserializeAttachment(),seat=attachment&&attachment.seat;
     let room=await this.getRoom();
     if(!this.clean(room)||![0,1].includes(seat))return;
     try{
       if(String(raw).length>2048)throw Error('操作数据过大');
       const msg=JSON.parse(String(raw));
-      if(msg.type==='ping'){socket.send(JSON.stringify({type:'pong'}));return;}
+      if(msg.type==='ping'){
+        room.players[seat].connected=true;this.touch(room,seat);await this.save(room);
+        socket.send(JSON.stringify({type:'pong'}));this.broadcastState(room);return;
+      }
       if(msg.type==='ready'){
         if(room.status==='playing'||room.status==='finished')throw Error('对局已开始');
-        room.players[seat].ready=!room.players[seat].ready;
+        room.players[seat].ready=!room.players[seat].ready;this.touch(room,seat);
         room.status=room.players.every(p=>p.token&&p.ready&&p.connected)?'ready':'waiting';
         await this.save(room);this.broadcastState(room);return;
       }
@@ -158,7 +177,7 @@ export class GameRoom {
         const first=room.settings.first;
         const firstSide=first==='host'?hostSide:first==='guest'?1-hostSide:Math.floor(Math.random()*2);
         room.game=newMatch(room.settings.map,room.settings.variant,firstSide);
-        room.status='playing';room.rematchVotes=[false,false];await this.save(room);
+        room.status='playing';room.rematchVotes=[false,false];this.touch(room,seat);await this.save(room);
         for(const peer of this.ctx.getWebSockets()){
           const who=peer.deserializeAttachment()?.seat;
           try{peer.send(JSON.stringify({type:'match_start',room:this.publicRoom(room),
@@ -169,13 +188,13 @@ export class GameRoom {
       if(msg.type==='resign'){
         if(room.status!=='playing'||!room.game||room.game.phase==='finished')throw Error('当前没有进行中的对局');
         room.game.phase='finished';room.game.winner=1-room.seatSide[seat];
-        room.status='finished';room.revision++;room.rematchVotes=[false,false];
+        room.status='finished';room.revision++;room.rematchVotes=[false,false];this.touch(room,seat);
         await this.save(room);this.broadcastState(room);return;
       }
       if(msg.type==='rematch'){
         if(room.status!=='finished'||!room.game||room.game.phase!=='finished')throw Error('请先结束当前对局');
         if(!room.rematchVotes)room.rematchVotes=[false,false];
-        room.rematchVotes[seat]=true;
+        room.rematchVotes[seat]=true;this.touch(room,seat);
         if(room.rematchVotes[0]&&room.rematchVotes[1]){
           room.seatSide=[room.seatSide[1],room.seatSide[0]];
           const firstSide=1-room.game.firstSide;
@@ -194,7 +213,7 @@ export class GameRoom {
         if(room.status!=='playing'||!room.game)throw Error('对局尚未开始');
         if(msg.revision!==room.revision)throw Error('棋盘版本已更新，请同步房间');
         const next=applyAction(room.game,room.seatSide[seat],msg.action);
-        room.game=next;room.revision++;if(next.phase==='finished'){room.status='finished';room.rematchVotes=[false,false];}
+        room.game=next;room.revision++;if(next.phase==='finished'){room.status='finished';room.rematchVotes=[false,false];}this.touch(room,seat);
         await this.save(room);
         this.broadcast(room,{type:'action_accepted',action:msg.action,
           by:room.seatSide[seat],revision:room.revision,game:next});
@@ -203,7 +222,8 @@ export class GameRoom {
       throw Error('不支持的房间操作');
     }catch(error){try{socket.send(JSON.stringify({type:'error',error:error.message||'操作失败'}));}catch(_){}}
   }
-  async webSocketClose(socket){
+  webSocketClose(socket){return this.enqueueMutation(()=>this.handleWebSocketClose(socket));}
+  async handleWebSocketClose(socket){
     const seat=socket.deserializeAttachment()?.seat;
     let room=await this.getRoom();
     if(!this.clean(room)||![0,1].includes(seat))return;
@@ -213,7 +233,8 @@ export class GameRoom {
     await this.save(room);this.broadcastState(room);
   }
   async webSocketError(socket){await this.webSocketClose(socket);}
-  async alarm(){
+  alarm(){return this.enqueueMutation(()=>this.handleAlarm());}
+  async handleAlarm(){
     const room=await this.getRoom();
     if(room&&room.expiresAt<=Date.now()){
       for(const socket of this.ctx.getWebSockets()){try{socket.close(1000,'Room expired');}catch(_){}}
