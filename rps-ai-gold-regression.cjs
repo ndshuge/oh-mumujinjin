@@ -11,17 +11,19 @@ function drain(){let n=0;while(timers.length){assert(++n<25,'timer loop');timers
 t.setAILevel('normal');assert.equal(t.state().phase,'rps');
 t.playRps('paper'); // AI uses scissors, wins.
 assert.equal(t.state().rps.winner,'cpu');
-assert.equal(t.state().humanSide,1);
+assert.equal(t.state().humanSide,0,'Human stays gold/bottom-right');
+assert.equal(t.state().firstTurn,1);
 drain();
-assert.equal(t.state().phase,'pick-defend');
-assert(t.state().players[0],'AI gold spawn');
-t.selectOrigin({x:1,y:0});drain();
+assert.equal(t.state().phase,'pick-attack');
+assert(t.state().players[1],'Computer selected wood from the top-left camp');
+assert.equal(t.state().players[1].y,0);
+t.selectOrigin({x:7,y:12});drain();
 assert.equal(t.state().phase,'play');
-assert.equal(t.state().turn,1,'AI starts gold, then human wood');
-assert.equal(t.state().moves,1,'AI gold should already have made the first move');
+assert.equal(t.state().turn,0,'Computer moves first, then human gold');
+assert.equal(t.state().moves,1,'Computer must make the first move');
 const move=t.availableMoves()[0];assert(move);
 t.playerMove(move);if(t.state().pending)t.choosePortal(false);
 drain();
-assert.equal(t.state().moves,3,'AI gold must take its next turn');
-assert.equal(t.state().turn,1,'return to human wood turn');
-console.log('PASS: AI wins RPS, becomes gold, chooses spawn and executes gold turn');
+assert.equal(t.state().moves,3,'Computer makes its next move');
+assert.equal(t.state().turn,0,'Return to human gold');
+console.log('PASS: computer starts as top-left wood, then human moves from right-bottom gold');

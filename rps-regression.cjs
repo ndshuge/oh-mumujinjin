@@ -9,9 +9,9 @@ vm.runInNewContext(src.replace('state=load()||newGame("classic");',probe),{windo
 const t=window.rpsTest;
 t.state().playMode='cpu';t.state().aiLevel='zhongdi';t.beginRps();assert.equal(t.state().phase,'rps');
 t.playRps('rock');assert.equal(t.state().rps.winner,'human');
-t.decideRpsSide('second');assert.equal(t.state().humanSide,1);
-assert.equal(t.state().phase,'pick-attack');
-assert.equal(t.state().turn,0);
+t.decideRpsSide('second');assert.equal(t.state().humanSide,0);
+assert.equal(t.state().phase,'pick-defend');
+assert.equal(t.state().turn,1);
 assert.equal(t.state().playMode,'cpu');
 assert.equal(t.state().rps.winner,'human');
 t.resetGame('advanced');assert.equal(t.state().phase,'rps');

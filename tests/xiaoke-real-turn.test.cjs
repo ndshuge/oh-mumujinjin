@@ -29,7 +29,7 @@ function harness(){
  const ctx={window,document,localStorage,Set,Math,Number,Date,JSON,Uint8Array,TextEncoder,TextDecoder,
    btoa,atob,navigator:{},location:{origin:'https://test.local',pathname:'/',hash:''},console};
  vm.runInNewContext(script.replace(anchor,hook+anchor),ctx,{timeout:15000});
- return {window,timers,aiReplies:()=>aiReplies,runTimer(){const fn=timers.shift();assert.ok(fn,'missing scheduled CPU turn');fn();}};
+ return {window,timers,aiReplies:()=>aiReplies,async runTimer(){const fn=timers.shift();assert.ok(fn,'missing scheduled CPU turn');fn();await new Promise(setImmediate);}};
 }
 async function play(mode){
  const t=harness(),api=t.window.testAPI;
@@ -39,7 +39,7 @@ async function play(mode){
  assert.equal(api.get().phase,'pick-attack');
  api.selectOrigin({x:7,y:12});
  assert.equal(api.get().phase,'pick-defend');
- t.runTimer();
+ await t.runTimer();
  assert.equal(api.get().phase,'play');
  assert.equal(api.cpuSide(),1);
  assert.equal(api.get().turn,0);
@@ -48,7 +48,7 @@ async function play(mode){
  api.playerMove(moves[0]);
  if(api.get().pending)api.choosePortal(false);
  assert.equal(api.get().turn,1);
- t.runTimer();
+ await t.runTimer();
  await new Promise(setImmediate);
  assert.ok(t.aiReplies()>0,'real C policy should have searched');
  assert.equal(api.get().moves,2,'the XiaoKe model should play an actual legal move');
