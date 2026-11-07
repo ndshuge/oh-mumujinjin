@@ -32,7 +32,7 @@
  }
  async function checkConnection(){
    if(!available())throw Error('Supabase 线路未配置');
-   const {diagnoseSupabase}=await import('./supabase-network-check.mjs');
+   const {diagnoseSupabase}=await import('./supabase-network-check.mjs?v=sb-recovery-20261107-r3');
    return diagnoseSupabase({
      url:config().url,anonKey:config().anonKey,
      createRealtime:async()=>{

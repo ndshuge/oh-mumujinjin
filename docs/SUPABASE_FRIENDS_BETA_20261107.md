@@ -1,5 +1,28 @@
 # Supabase Realtime 好友联机试用 — 交付说明
 
+## 最新状态（2026-11-07，覆盖下方早期故障记录）
+
+- 原项目 `python-academy` 于 2026-10-06 因不活跃被暂停；用户已于 2026-11-07 在原项目控制台恢复，没有创建替代项目。
+- 恢复后 DNS 已返回 A 记录；`/auth/v1/health` 和 `/auth/v1/settings` 均为 HTTP 200。
+- 正式 `diagnoseSupabase()` 结果：`{ok:true,httpsOk:true,websocketOk:true}`；Realtime 成功收到 `SUBSCRIBED`。
+- 两个独立 Supabase 客户端已完成真实网络 E2E：创建六码房间、加入、双方准备、开局、首步走棋同步，全部通过。
+- 验收边界：两个客户端运行在同一 Windows 主机，属于真实双 WebSocket E2E；还不是两台物理手机，也不是中国大陆不开 VPN 的网络验收。
+- 正式 Pages 目前仍加载旧脚本缓存版本（friends-hub r1 / supabase-room-bridge r2）；PR #6 合并后等待 Pages 部署，再核验线上版本。
+- 未创建/修改学院数据库表，未读取学院学习数据，未更换项目 URL 或密钥。
+
+
+
+## 2026-11-07：服务不可达，尚未完成公网恢复
+
+- 根目录 `supabase-config.js` 里的 `yycokuphczoxfntcwizi.supabase.co` 与鼠哥学院 `ndshuge/ndshuge-academy/design/python3-build/cloud.js` 的项目 URL 一致。
+- 原项目 `python-academy` 在 **2026-10-06** 已收到 Supabase 官方暂停通知，通知中的项目引用与当前代码完全一致。2026-11-07 再检查，域名仍然 NXDOMAIN，和暂停造成的现象吻合；恢复前不能把它标为国内可用。此状态是项目层面的已知故障，不应只建议玩家换网络。
+- **优先原地恢复**：用项目拥有者账号打开 `https://supabase.com/dashboard/project/yycokuphczoxfntcwizi`，选择 `Resume project`，等待项目状态成为 `Active`，不要新建同名空库替换学院原有数据库。若项目不存在或已无法恢复，先核对账号、项目删除状态及数据备份，严禁直接改写学院 URL 或公开密钥。
+- 如原项目地址确有变化，仅在核验新项目是原数据与鉴权的正确迁移结果后更新项目 URL 和公开 anon/publishable Key；**不要**将 service_role / 数据库密码提交到公开仓库。
+- 恢复后使用「检测联机网络」验证 HTTPS 与 WebSocket，随后实际用两台关闭 VPN 的设备完成创建、加入、准备、开局和走棋。**恢复 DNS 或本地测试通过都不等于国内公网联机验收通过。**
+- 这一轮只改善了创建/加入失败的中文指引与诊断提示；没有更换项目、迁移数据、修改数据库，也没有宣称 Supabase 已恢复。
+
+
+
 ## 目标与隔离
 - 复用「鼠哥学院」已在用的 Supabase 项目，只读取其**公开**项目 URL 和 anon/publishable Key。
 - **不调用**学院的登录 API、不读取任何学业记录、不创建/更改数据库表，不增加 CloudBase。
