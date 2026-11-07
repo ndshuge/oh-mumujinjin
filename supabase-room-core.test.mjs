@@ -1,0 +1,30 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {codeToGroup,createRoom,applyIntent} from './supabase-room-core.mjs';
+const map={version:2,rulesVersion:'map-v2-r1',name:'test',rocks:[],ice:[],boost:[],portals:[]};
+const settings={variant:'classic',side:'gold',first:'host',map};
+test('room codes have deterministic names',()=>{assert.equal(codeToGroup('4ZV9KH'),'MMJJ_4ZV9KH');assert.throws(()=>codeToGroup('XY'))});
+test('host starts only after both players confirm',()=>{
+ let r=createRoom('ABC987','host',settings);
+ assert.throws(()=>applyIntent(r,'host',{type:'start'}));
+ r=applyIntent(r,'guest',{type:'join'});
+ assert.throws(()=>applyIntent(r,'third',{type:'join'}));
+ r=applyIntent(r,'host',{type:'ready'});
+ r=applyIntent(r,'guest',{type:'ready'});
+ r=applyIntent(r,'host',{type:'start'});
+ assert.equal(r.status,'playing');
+});
+test('resignation and rematch swap seats only after two votes',()=>{
+ let r=createRoom('ABC987','host',settings);
+ r=applyIntent(r,'guest',{type:'join'});
+ r=applyIntent(r,'host',{type:'ready'});
+ r=applyIntent(r,'guest',{type:'ready'});
+ r=applyIntent(r,'host',{type:'start'});
+ r=applyIntent(r,'host',{type:'resign'});
+ assert.equal(r.game.winner,1);
+ r=applyIntent(r,'guest',{type:'rematch'});
+ assert.equal(r.status,'finished');
+ r=applyIntent(r,'host',{type:'rematch'});
+ assert.equal(r.status,'playing');
+ assert.deepEqual(r.seatSide,[1,0]);
+});

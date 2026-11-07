@@ -1,0 +1,2 @@
+/* Public Supabase anon key, reused from the Academy public browser app. No user sessions. */
+window.MMJJ_SB_CONFIG=Object.freeze({"enabled":true,"url":"https://yycokuphczoxfntcwizi.supabase.co","anonKey":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5Y29rdXBoY3pveGZudGN3aXppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc0MDM3MzgsImV4cCI6MjEwMjk3OTczOH0.1vm61oyqeBmc2lL_q0-rgJT2x6TsOn_DXsQo1GQJbSM"});
