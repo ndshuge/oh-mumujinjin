@@ -1,0 +1,133 @@
+/* Game-first landing page, informed by mature chess lobby hierarchy and
+   Zhixu AI Academy V5 surface, typography, selection and segmented controls. */
+.mmjj-lobby[hidden]{display:none!important}
+body.mmjj-lobby-open{overflow:hidden}
+.mmjj-lobby{
+ position:fixed;inset:0;z-index:50000;overflow-y:auto;overscroll-behavior:contain;
+ background:#f6f6f8;color:#24272a;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;
+ -webkit-font-smoothing:antialiased;
+}
+.mmjj-lobby *{box-sizing:border-box}
+.mmjj-lobby button,.mmjj-lobby select{font:inherit;cursor:pointer}
+.mmjj-lobby button:disabled{opacity:.5;cursor:not-allowed}
+.mmjj-lobby button:focus-visible,.mmjj-lobby select:focus-visible{outline:3px solid #7bc6b5;outline-offset:3px}
+.mmjj-lobby-shell{max-width:1210px;min-height:100dvh;margin:auto;padding:0 clamp(20px,4.5vw,57px);display:flex;flex-direction:column}
+.mmjj-lobby-header{height:87px;border-bottom:1px solid #e4e5e8;display:flex;justify-content:space-between;align-items:center;gap:20px;flex:none}
+.mmjj-lobby-brand{display:flex;align-items:center;gap:13px}
+.mmjj-lobby-logo{display:grid;place-items:center;width:47px;height:47px;background:#e5f1ec;color:#13796e;font-size:28px;font-weight:750;border-radius:14px}
+.mmjj-lobby-brand strong{display:block;font-size:19px;font-weight:750;letter-spacing:-.04em;color:#282a2d}
+.mmjj-lobby-brand small{display:block;font-size:9px;color:#8d9696;letter-spacing:.15em;margin-top:3px;font-weight:650}
+.mmjj-lobby-text-btn{border:1px solid #e1e4e5;background:#fff;padding:11px 17px;border-radius:13px;color:#586662;font-weight:680;min-height:43px}
+.mmjj-lobby-content{flex:1;padding:clamp(32px,5vw,63px) 0 clamp(32px,5vw,50px)}
+.mmjj-lobby-intro{margin-bottom:30px}
+.mmjj-lobby-kicker{display:flex;align-items:center;gap:9px;font-size:11px;color:#418c78;letter-spacing:.12em;font-weight:740;margin:0 0 11px}
+.mmjj-dot{width:7px;height:7px;border-radius:50%;background:#49ae85}
+.mmjj-lobby-intro h1{font-weight:780;font-size:clamp(35px,4.9vw,59px);letter-spacing:-.07em;line-height:1.18;margin:0 0 13px;color:#252729}
+.mmjj-lobby-intro h1 span{color:#168475}
+.mmjj-lobby-subtitle{margin:0;color:#757a7d;font-size:15px;line-height:1.75}
+.mmjj-lobby-columns{display:grid;grid-template-columns:minmax(0,1.17fr) minmax(345px,.83fr);gap:23px;align-items:start}
+.mmjj-mode-column h2{font-size:18px;margin:0 0 14px;color:#313538;font-weight:740;letter-spacing:-.04em}
+.mmjj-mode-column h2 small{font-size:10px;color:#a1aaa9;letter-spacing:.12em;margin-left:9px;vertical-align:middle}
+.mmjj-mode-cards{display:grid;gap:10px}
+.mmjj-mode-card{
+ appearance:none;display:flex;align-items:center;gap:17px;min-width:0;width:100%;
+ text-align:left;background:#fff;border:1px solid #e4e6e7;border-radius:19px;
+ min-height:101px;padding:17px 19px;box-shadow:0 4px 22px #10151b05;
+ transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease;
+}
+.mmjj-mode-card:hover{transform:translateY(-2px);border-color:#a1c8bc;box-shadow:0 11px 23px #30695714}
+.mmjj-mode-card.selected{border:1.5px solid #89c5b3;background:#f3f9f6;box-shadow:0 4px 21px #2f7b5810}
+.mmjj-mode-icon{flex:0 0 61px;width:61px;height:61px;border-radius:17px;background:#eef1f1;display:grid;place-items:center;font-size:27px;font-weight:770;color:#44877a}
+.mmjj-ai-icon{background:#e8f4e9}
+.mmjj-ai-icon img{width:51px;height:51px;object-fit:contain;filter:drop-shadow(0 4px 3px #20654c16)}
+.mmjj-friends-icon{background:#e8f4ef;color:#258e6a}
+.mmjj-local-icon{background:#f1f0fa;color:#817bb7}
+.mmjj-maps-icon{background:#f9f3e7;color:#b28c50}
+.mmjj-mode-description{min-width:0;flex:1}
+.mmjj-mode-description strong{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:730;color:#2b3134;letter-spacing:-.04em;line-height:1.35}
+.mmjj-mode-description strong em{font-style:normal;background:#dff2e9;color:#188264;border-radius:5px;padding:3px 6px;font-size:10px;letter-spacing:0;white-space:nowrap}
+.mmjj-mode-description small{display:block;color:#848e8c;font-size:12px;margin-top:7px;line-height:1.5}
+.mmjj-card-chevron{font:400 32px/1 system-ui,sans-serif;color:#b0bcba}
+.mmjj-mode-card.selected .mmjj-card-chevron{color:#32896e}
+.mmjj-lobby-hint{color:#a0a8a6;text-align:center;font-size:12px;margin-top:20px;letter-spacing:.02em}
+.mmjj-config-column{
+ background:#fff;border:1px solid #e5e7e9;border-radius:23px;
+ padding:26px 25px 25px;box-shadow:0 3px 24px #1b252a08;
+}
+.mmjj-lobby-panel-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:23px}
+.mmjj-lobby-panel-head small{font-weight:730;font-size:10px;letter-spacing:.12em;color:#168779}
+.mmjj-lobby-panel-head h2{font-size:23px;font-weight:750;letter-spacing:-.045em;margin:5px 0 0;color:#303338}
+.mmjj-config-badge{color:#aab2b4;font-size:11px;letter-spacing:.06em}
+.mmjj-lobby-label{display:block;font-size:13px;font-weight:690;color:#535a5d;margin:0 0 8px}
+.mmjj-lobby-segments{display:flex;gap:4px;background:#eeeff1;border-radius:13px;padding:4px;margin-bottom:21px}
+.mmjj-lobby-segments button{flex:1;min-height:41px;background:transparent;border:0;color:#78807e;border-radius:10px;font-size:13px;font-weight:650}
+.mmjj-lobby-segments button.selected{background:#fff;color:#147f72;box-shadow:0 2px 5px #0f161f14}
+.mmjj-lobby select{width:100%;background:#fdfdfd;border:1px solid #dee1e2;border-radius:12px;height:48px;padding:0 13px;color:#3d4648;font-size:13px;margin-bottom:15px}
+#mmjjLobbyPresetRow[hidden],.mmjj-lobby-reroll[hidden],.mmjj-lobby-resume[hidden]{display:none!important}
+.mmjj-lobby-preview{display:flex;align-items:center;gap:15px;border-radius:16px;background:#f2f5f4;border:1px solid #e8efec;padding:14px;min-height:159px;margin:2px 0 11px}
+.mmjj-lobby-preview-board{display:grid;place-items:center;width:97px;min-height:129px;flex:0 0 97px;border-radius:10px;background:#e0e9e4}
+.mmjj-lobby-preview-board svg{height:121px;width:85px;filter:drop-shadow(0 5px 3px #38584916)}
+.mmjj-lobby-preview-copy{min-width:0}
+.mmjj-lobby-preview-copy>span{display:block;font-weight:660;font-size:11px;letter-spacing:.07em;color:#79968e;margin-bottom:8px}
+.mmjj-lobby-preview-copy strong{display:block;font-size:15px;font-weight:720;letter-spacing:-.035em;overflow-wrap:anywhere;color:#315a4e;line-height:1.4}
+.mmjj-lobby-preview-copy small{display:block;color:#82918e;font-size:11px;margin:7px 0 12px;line-height:1.5}
+.mmjj-lobby-reroll{background:#fff;border:1px solid #d3e1db;border-radius:9px;min-height:34px;padding:6px 10px;color:#3d8570;font-size:11px!important;font-weight:700}
+.mmjj-lobby-feedback{color:#a76b55;font-size:12px;line-height:1.5;margin:8px 0 0;min-height:0}
+.mmjj-lobby-feedback:empty{display:none}
+.mmjj-lobby-start{display:flex;align-items:center;justify-content:center;gap:17px;width:100%;background:#147d71;border:1px solid #137b70;color:#fff;font-size:15px!important;font-weight:750!important;border-radius:13px;min-height:53px;margin-top:14px;box-shadow:0 6px 16px #21816c19;transition:transform .17s,background .2s}
+.mmjj-lobby-start:hover{background:#0a7064}
+.mmjj-lobby-start:active{transform:scale(.988)}
+.mmjj-lobby-start span{font-size:22px;font-weight:400}
+.mmjj-lobby-resume{display:block;width:100%;min-height:41px;background:none;border:0;color:#498678;font-weight:680;font-size:12px!important;margin-top:10px}
+.mmjj-lobby-footer{display:flex;justify-content:space-between;align-items:center;gap:20px;border-top:1px solid #e4e5e8;padding:20px 0;font-size:11px;color:#9b9f9f}
+.mmjj-back-home{min-height:37px;border:1px solid #d2e3d9;color:#2b725d;background:#edf6f0;border-radius:11px;padding:7px 11px;white-space:nowrap;font:700 12px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif}
+@media(max-width:820px){
+ .mmjj-lobby-shell{padding:0 18px}
+ .mmjj-lobby-header{height:72px}
+ .mmjj-lobby-content{padding:33px 0 40px}
+ .mmjj-lobby-intro{margin-bottom:24px}
+ .mmjj-lobby-columns{grid-template-columns:1fr;gap:28px}
+ .mmjj-mode-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .mmjj-mode-card{min-height:135px;padding:14px;align-items:flex-start;flex-direction:column;gap:11px;position:relative}
+ .mmjj-mode-icon{width:47px;height:47px;flex-basis:47px;border-radius:13px;font-size:22px}
+ .mmjj-ai-icon img{width:42px;height:42px}
+ .mmjj-mode-description strong{font-size:15px}
+ .mmjj-mode-description small{font-size:11px;margin-top:5px}
+ .mmjj-card-chevron{position:absolute;right:13px;top:14px;font-size:26px}
+ .mmjj-config-column{padding:21px 18px}
+ .mmjj-lobby-footer{padding:19px 0 23px}
+}
+@media(max-width:420px){
+ .mmjj-lobby-brand strong{font-size:16px}
+ .mmjj-lobby-brand small{font-size:8px}
+ .mmjj-lobby-logo{width:42px;height:42px;border-radius:12px}
+ .mmjj-lobby-intro h1{font-size:39px}
+ .mmjj-lobby-intro h1 span{display:inline}
+ .mmjj-lobby-subtitle{font-size:13px}
+ .mmjj-mode-card{min-height:154px}
+ .mmjj-mode-description strong{font-size:14px}
+ .mmjj-mode-column h2{font-size:17px}
+ .mmjj-lobby-panel-head{margin-bottom:21px}
+ .mmjj-lobby-preview{min-height:145px}
+ .mmjj-lobby-text-btn{padding:9px 11px;font-size:11px!important}
+ .mmjj-back-home{padding:7px;font-size:11px}
+}
+@media(prefers-color-scheme:dark){
+ .mmjj-lobby{background:#12191c;color:#eef2f2}
+ .mmjj-lobby-header,.mmjj-lobby-footer{border-color:#34464a}
+ .mmjj-lobby-brand strong,.mmjj-lobby-intro h1,.mmjj-mode-column h2,.mmjj-lobby-panel-head h2,.mmjj-mode-description strong{color:#ebf2f1}
+ .mmjj-lobby-subtitle,.mmjj-lobby-hint,.mmjj-lobby-footer{color:#b0b9bb}
+ .mmjj-mode-card,.mmjj-config-column{background:#202a2e;border-color:#34464a}
+ .mmjj-mode-card.selected{background:#20433e;border-color:#3b8979}
+ .mmjj-lobby-text-btn,.mmjj-lobby-reroll{background:#243338;border-color:#425459;color:#bad1cb}
+ .mmjj-lobby-segments{background:#324044}
+ .mmjj-lobby-segments button.selected{background:#40585a;color:#dcf4ea}
+ .mmjj-lobby-label{color:#b8c9c7}
+ .mmjj-lobby select{background:#1b272b;border-color:#425359;color:#edf3f0}
+ .mmjj-lobby-preview{background:#283839;border-color:#3a4f4b}
+ .mmjj-lobby-preview-board{background:#334943}
+ .mmjj-lobby-preview-copy strong{color:#d1e8dc}
+}
+@media(prefers-reduced-motion:reduce){
+ .mmjj-lobby *{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}
