@@ -1,6 +1,12 @@
-# Supabase Unavailable Recovery Implementation Plan
+﻿# Supabase Unavailable Recovery Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+## Execution update 鈥?2026-11-07
+
+Completed on isolated branch. The original project was resumed by the owner. The formal diagnostic reports HTTPS and WebSocket healthy; two independent Realtime clients completed room creation, join, ready, start, and first-move synchronization. Remaining acceptance: physical devices, mainland no-VPN network, and production Pages cache/version check after merge.
+
+
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Make Supabase connectivity failures actionable in Chinese without masking unavailable service.
 
@@ -11,9 +17,9 @@
 **Spec:** docs/superpowers/specs/2026-11-07-supabase-unavailable-design.md
 
 ## Global Constraints
-- Production `main` stays untouched pending account verification / mobile E2E.
-- Never alter academy data or expose service_role credentials.
-- Never conflate local simulated room tests with successful public Supabase connectivity.
+- Keep academy data untouched; never expose service_role credentials.
+- Distinguish same-host two-client public Realtime E2E from physical-device / mainland no-VPN acceptance.
+- Merge and deploy the user-facing diagnostics only after live backend checks pass.
 
 ## Review Focus
 - Unknown error messages retain meaning and are not swallowed.
@@ -33,10 +39,10 @@
 - Export `describeSupabaseRoomError(error)` as a synchronous pure function returning a Chinese string.
 - `diagnoseSupabase()` retains shape `{ok,httpsOk,websocketOk,detail}`.
 
-- [ ] Write failing tests for provider unreachable, missing host, HTTP unauthorized and unknown errors, and dual-path failure recovery hint.
-- [ ] Verify RED: `node --test supabase-network-check.test.mjs`.
-- [ ] Implement the exported error formatter + append precise recovery guidance to dual-path failure.
-- [ ] In `friends-hub.js`, use formatter only on Supabase create/join error catches; ensure non-Supabase remains unchanged.
-- [ ] Verify GREEN and existing Supabase, lobby, room and release regressions.
-- [ ] Update beta doc with latest project DNS blocker, how to restore and honest test boundary.
-- [ ] Commit on isolated feature branch and offer PR; do not merge/deploy until service credentials/access verified.
+- [x] Write failing tests for provider unreachable, missing host, HTTP unauthorized and unknown errors, and dual-path failure recovery hint.
+- [x] Verify RED: `node --test supabase-network-check.test.mjs`.
+- [x] Implement the exported error formatter + append precise recovery guidance to dual-path failure.
+- [x] In `friends-hub.js`, use formatter only on Supabase create/join error catches; ensure non-Supabase remains unchanged.
+- [x] Verify GREEN and existing Supabase, lobby, room and release regressions.
+- [x] Update beta doc with latest project DNS blocker, how to restore and honest test boundary.
+- [x] Commit on isolated feature branch and offer PR; do not merge/deploy until service credentials/access verified.

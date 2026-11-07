@@ -1,5 +1,17 @@
 # Supabase Realtime 好友联机试用 — 交付说明
 
+## 最新状态（2026-11-07，覆盖下方早期故障记录）
+
+- 原项目 `python-academy` 于 2026-10-06 因不活跃被暂停；用户已于 2026-11-07 在原项目控制台恢复，没有创建替代项目。
+- 恢复后 DNS 已返回 A 记录；`/auth/v1/health` 和 `/auth/v1/settings` 均为 HTTP 200。
+- 正式 `diagnoseSupabase()` 结果：`{ok:true,httpsOk:true,websocketOk:true}`；Realtime 成功收到 `SUBSCRIBED`。
+- 两个独立 Supabase 客户端已完成真实网络 E2E：创建六码房间、加入、双方准备、开局、首步走棋同步，全部通过。
+- 验收边界：两个客户端运行在同一 Windows 主机，属于真实双 WebSocket E2E；还不是两台物理手机，也不是中国大陆不开 VPN 的网络验收。
+- 正式 Pages 目前仍加载旧脚本缓存版本（friends-hub r1 / supabase-room-bridge r2）；PR #6 合并后等待 Pages 部署，再核验线上版本。
+- 未创建/修改学院数据库表，未读取学院学习数据，未更换项目 URL 或密钥。
+
+
+
 ## 2026-11-07：服务不可达，尚未完成公网恢复
 
 - 根目录 `supabase-config.js` 里的 `yycokuphczoxfntcwizi.supabase.co` 与鼠哥学院 `ndshuge/ndshuge-academy/design/python3-build/cloud.js` 的项目 URL 一致。

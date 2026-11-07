@@ -2,10 +2,11 @@
 
 ## 当日状态补正（以后续证据为准）
 
-- **Cloudflare**：后续 GitHub Actions 已在 2026-11-07 成功执行 Worker 部署，旧文档的「未授权/未部署」只适用于早期检查；但 Windows 非代理网络到 `workers.dev` 仍超时/重置，且没有中国大陆免 VPN 双机验收，不能标为「国内稳定」。
-- **Supabase**：现用的 `python-academy` 项目于 2026-10-06 因不活跃被暂停（项目官方通知确认，同 `yycokuphczoxfntcwizi` 引用）。2026-11-07 再查仍为 NXDOMAIN；应优先从 `https://supabase.com/dashboard/project/yycokuphczoxfntcwizi` 恢复原项目，避免动学院的数据库与账号。恢复之前不要创建真实联机房间。
-- **客户端**：故障中文提示与缓存版本号修复保留在草稿 PR #6，尚未合并到正式 `main`。原始网页仍不是国内可用的联机交付。
-- **验收顺序**：恢复原项目 → 检查 HTTPS 状态与 Realtime 订阅 → 不开 VPN 的两台手机双机走棋 → 再决定合并 PR / 发布。不允许用自动化模拟通过替代双端联网证据。
+- **Cloudflare**：Worker 已部署，但 Windows 非代理网络仍有超时/重置记录；没有中国大陆免 VPN 双机验收，不能标为「国内稳定」。
+- **Supabase**：原 `python-academy` 项目已由用户从暂停状态恢复。当前 DNS 正常，HTTPS 健康检查 HTTP 200，Realtime WebSocket 已成功订阅。
+- **好友房间**：两个独立真实 Supabase 客户端已完成创建、加入、双方准备、开局及首步走棋同步；这是同一主机的双客户端网络 E2E，不等同于两台物理手机实测。
+- **客户端**：中文故障提示与缓存版本修复在 PR #6；准备合并后由 GitHub Pages 自动部署，并确认线上脚本版本。
+- **最终验收**：Pages 部署后，使用 iPhone Safari 和朋友设备，在中国大陆不开 VPN 的网络中完整走一局。未完成该项前，不把 Supabase 标记为「国内网络已验收」。
 
 
 
