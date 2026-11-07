@@ -129,6 +129,13 @@ try{
  const overflow=await evalJS('document.documentElement.scrollWidth > window.innerWidth + 1');
  assert.equal(overflow,false,'main lobby must not overflow horizontally');
  console.log('PASS responsive lobby has no horizontal overflow');
+ const supabaseAvailable=await evalJS('window.MumuSupabaseRooms.available() && typeof window.MumuSupabaseRooms.createClient==="function"');
+ assert.equal(supabaseAvailable,true,'configured Supabase room transport must be available');
+ assert.equal(await evalJS('document.getElementById("mmjjNetwork").value'),'sb',
+   'domestic Supabase must be the default provider');
+ assert.equal(await evalJS('document.querySelector("#mmjjNetwork option[value=cf]").disabled'),false,
+   'Cloudflare remains an explicit optional fallback');
+ console.log('PASS domestic Supabase default and optional Cloudflare fallback');
  console.log('BROWSER SMOKE PASS');
 }finally{
  if(socket)socket.close();

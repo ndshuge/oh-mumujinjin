@@ -1,5 +1,15 @@
 # Supabase Realtime 好友联机试用 — 交付说明
 
+## 最新补正（2026-11-08）
+
+- 当前好友联机默认使用现有国内 Supabase Realtime；Cloudflare 保留为手动选择的国际备用线路。邀请链接通过 \`net=sb\` / \`net=cf\` 固定双方线路。
+- 当前发布工作树仅保留 Supabase 与 Cloudflare 房间传输；Tencent IM / CloudBase 实验分支未纳入本次发布。
+- 修复 Supabase 好友加入竞态：在发送 join intent 前注册 admission waiter，避免服务端确认快照先到达、客户端随后一直等待的偶发故障。
+- 验收：Node 自动化 103/103；真实 Supabase 双 WebSocket Broadcast 探针通过；Supabase 双浏览器完整对局连续 3 次通过；大厅浏览器烟测通过。
+- 双浏览器 E2E 使用两个独立匿名玩家身份，但仍是同一台电脑上的 Chrome 测试，不等于两台物理手机。
+- 尚未完成：两台中国大陆手机不开 VPN 的实测；GitHub Pages 生产发布仍待合并 PR 后确认。
+
+
 ## 最新状态（2026-11-07，覆盖下方早期故障记录）
 
 - 原项目 `python-academy` 于 2026-10-06 因不活跃被暂停；用户已于 2026-11-07 在原项目控制台恢复，没有创建替代项目。

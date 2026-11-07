@@ -7,6 +7,10 @@
   function createClient(options) {
     options = options || {};
     var env = typeof window !== 'undefined' ? window : {};
+    var persistentStorage=options.storage||(typeof localStorage!=='undefined'?localStorage:null);
+    var legacyStorage=options.legacyStorage||(typeof sessionStorage!=='undefined'?sessionStorage:null);
+    var setTimer=options.setTimeout||setTimeout,clearTimer=options.clearTimeout||clearTimeout;
+    var setIntervalFn=options.setInterval||setInterval,clearIntervalFn=options.clearInterval||clearInterval;
     var endpoint = options.endpoint !== undefined ? options.endpoint : env.MMJJ_ROOM_SERVER_URL;
     if(!endpoint && typeof location!=='undefined' && /^(localhost|127\.0\.0\.1)$/.test(location.hostname))
       endpoint='http://localhost:8787';
@@ -14,7 +18,21 @@
     var doFetch=options.fetch || (typeof fetch === 'function' ? fetch.bind(globalThis) : null);
     var Socket=options.WebSocket || (typeof WebSocket !== 'undefined' ? WebSocket : null);
     var socket=null,token=null,code=null,owner=false,callback=function(){},currentState=null;
-    var reconnectTimer=null,reconnectAttempts=0,manuallyClosed=false;
+    var reconnectTimer=null,reconnectAttempts=0,manuallyClosed=false,heartbeatTimer=null;
+    function storageGet(key){
+      try{var value=persistentStorage&&persistentStorage.getItem(key);if(value)return value;}catch(_){}
+      try{var legacy=legacyStorage&&legacyStorage.getItem(key);if(legacy){try{persistentStorage&&persistentStorage.setItem(key,legacy);legacyStorage.removeItem(key);}catch(_){}return legacy;}}catch(_){}
+      return null;
+    }
+    function storageSet(key,value){try{persistentStorage&&persistentStorage.setItem(key,value);}catch(_){}try{legacyStorage&&legacyStorage.removeItem(key);}catch(_){}}
+    function rememberRoom(roomCode,roomToken){storageSet('mmjj-room-'+roomCode,roomToken);storageSet('mmjj-last-room-code',roomCode);}
+    function stopHeartbeat(){if(heartbeatTimer!==null){clearIntervalFn(heartbeatTimer);heartbeatTimer=null;}}
+    function startHeartbeat(){
+      stopHeartbeat();
+      heartbeatTimer=setIntervalFn(function(){
+        if(socket&&socket.readyState===1){try{socket.send(JSON.stringify({type:'ping'}));}catch(_){}}
+      },25000);
+    }
     function ensure() {
       if (!endpoint) throw Error('联机服务尚未配置，目前无法创建真实的线上房间。');
       if (!doFetch || !Socket) throw Error('当前浏览器不支持好友联机。');
@@ -45,7 +63,7 @@
     }
     function connect(data,onEvent,isOwner) {
       manuallyClosed=true;
-      if(reconnectTimer){clearTimeout(reconnectTimer);reconnectTimer=null;}
+      if(reconnectTimer!==null){clearTimer(reconnectTimer);reconnectTimer=null;}
       if(socket){socket.onclose=null;socket.close();}
       code=data.code;token=data.token;owner=!!isOwner;callback=onEvent;
       reconnectAttempts=0;manuallyClosed=false;
@@ -58,6 +76,7 @@
       socket=new Socket(ws);
       socket.onopen=function(){
         reconnectAttempts=0;
+        startHeartbeat();
         callback({type:'connected'});
       };
       socket.onmessage=function(e){
@@ -70,26 +89,26 @@
         }catch(error){callback({type:'error',message:'收到无效房间消息'});}
       };
       socket.onclose=function(){
+        stopHeartbeat();
         if(manuallyClosed)return;
         reconnectAttempts++;
-        if(reconnectAttempts>12){callback({type:'close'});return;}
         callback({type:'reconnecting',attempt:reconnectAttempts});
-        reconnectTimer=setTimeout(openSocket,Math.min(650*Math.pow(1.7,reconnectAttempts-1),12000));
+        reconnectTimer=setTimer(openSocket,Math.min(650*Math.pow(1.7,Math.min(reconnectAttempts-1,12)),30000));
       };
       socket.onerror=function(){callback({type:'error',message:'当前连接异常，正在尝试恢复。'});};
     }
     async function create(settings,onEvent) {
       var data=await post('/api/rooms',{settings:settings});
-      try{if(typeof sessionStorage!=='undefined')sessionStorage.setItem('mmjj-room-'+data.code,data.token);}catch(_){}
+      rememberRoom(data.code,data.token);
       return connect(data,onEvent,true);
     }
     async function join(input,onEvent) {
       var roomCode=String(input||'').trim().toUpperCase();
       if(!/^[A-Z0-9]{6}$/.test(roomCode))throw Error('房间码必须是 6 位字母或数字');
       var prior=null;
-      try{if(typeof sessionStorage!=='undefined')prior=sessionStorage.getItem('mmjj-room-'+roomCode);}catch(_){}
+      prior=storageGet('mmjj-room-'+roomCode);
       var data=await post('/api/rooms/'+roomCode+'/join',{token:prior||null});
-      try{if(typeof sessionStorage!=='undefined')sessionStorage.setItem('mmjj-room-'+roomCode,data.token);}catch(_){}
+      rememberRoom(roomCode,data.token);
       return connect(data,onEvent,!!data.owner);
     }
     function send(message) {
@@ -101,14 +120,19 @@
     function resign() {send({type:'resign'});}
     function rematch() {send({type:'rematch'});}
     function sendAction(action,revision) {send({type:'action',action:action,revision:revision});}
-    function close() {
+    function close(){
       manuallyClosed=true;
-      if(reconnectTimer){clearTimeout(reconnectTimer);reconnectTimer=null;}
+      if(reconnectTimer!==null){clearTimer(reconnectTimer);reconnectTimer=null;}
+      stopHeartbeat();
       if(socket){socket.onclose=null;socket.close();socket=null;}
       currentState=null;
     }
-    return Object.freeze({create:create,join:join,ready:ready,start:start,resign:resign,rematch:rematch,sendAction:sendAction,close:close,
-      getState:function(){return currentState;},getCode:function(){return code;},isOwner:function(){return owner;}});
+    function resumeLast(onEvent){var saved=lastRoom(persistentStorage);if(!saved)throw Error('没有可恢复的上次房间');return join(saved,onEvent);}
+    return Object.freeze({create:create,join:join,resumeLast:resumeLast,ready:ready,start:start,resign:resign,rematch:rematch,sendAction:sendAction,close:close,
+      getState:function(){return currentState;},getCode:function(){return code;},getLastRoom:function(){return lastRoom(persistentStorage);},isOwner:function(){return owner;}});
+  }
+  function lastRoom(storage){
+    try{var code=storage&&storage.getItem('mmjj-last-room-code');return /^[A-HJ-NP-Z2-9]{6}$/.test(code||'')?code:null;}catch(_){return null;}
   }
   async function checkConnection(endpoint){
     var base=String(endpoint||'').replace(/\/+$/,'');
@@ -128,5 +152,5 @@
       throw error;
     }finally{if(timer!==null)clearTimeout(timer);}
   }
-  return Object.freeze({createClient:createClient,checkConnection:checkConnection});
+  return Object.freeze({createClient:createClient,checkConnection:checkConnection,lastRoom:lastRoom});
 });
