@@ -27,6 +27,9 @@ body.mmjj-hub-open{overflow:hidden}
 .mmjj-tabs button.current{border-bottom-color:#2c8765;color:#185744}
 .mmjj-scroll{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:30px 36px max(30px,env(safe-area-inset-bottom))}
 .mmjj-section-head{display:flex;justify-content:space-between;gap:18px;margin-bottom:19px}
+.mmjj-map-create{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-bottom:16px;min-height:53px!important;font-size:16px!important;border-radius:14px!important;box-shadow:0 6px 0 #104c3c22,0 12px 20px #18594b13!important;transition:transform .16s cubic-bezier(.2,.9,.3,1),box-shadow .16s ease!important}
+.mmjj-map-create:not(:disabled):active{transform:translateY(3px)!important;box-shadow:0 2px 0 #104c3c22!important}
+@media(prefers-reduced-motion:reduce){.mmjj-map-create{transition:none!important}}
 .mmjj-section-head h2{font-size:27px;line-height:1.25;letter-spacing:-.7px;color:#153f36;margin:0 0 7px;font-weight:770}
 .mmjj-section-head p{font-size:13px;line-height:1.7;color:#71877b;margin:0}
 .mmjj-compact-form{padding:18px 22px;border:1px solid #deebe3;background:#fff;border-radius:16px;box-shadow:0 6px 20px #23553d08;margin-bottom:24px}
@@ -80,6 +83,12 @@ body.mmjj-hub-open{overflow:hidden}
 .mmjj-room-divider:before,.mmjj-room-divider:after{content:'';display:inline-block;width:18%;vertical-align:middle;border-top:1px solid #dce7dd;margin:0 12px}
 .mmjj-room-notice{padding:12px 15px;background:#eff6f0;border:1px solid #d7e8db;border-radius:12px;color:#5b806b;font-size:13px;line-height:1.7;margin:17px 0 0}
 .mmjj-room-live{display:grid;gap:18px;max-width:690px;border:1px solid #d6e9dc;background:#fff;border-radius:16px;padding:23px}
+.mmjj-hub.mmjj-room-active .mmjj-tabs{display:none}
+.mmjj-hub.mmjj-room-active .mmjj-sheet{max-width:760px}
+.mmjj-room-live #mmjjReadyRoom:not(:disabled):not(.is-ready){background:#237a5b;border-color:#237a5b;color:white;box-shadow:0 4px 0 #175c41}
+.mmjj-room-live #mmjjReadyRoom:not(:disabled):active{transform:translateY(2px)}
+.mmjj-room-live #mmjjReadyRoom.is-ready{background:#e2f7e8;border-color:#76b493;color:#216749}
+@media(prefers-reduced-motion:reduce){.mmjj-room-live #mmjjReadyRoom{transition:none!important}}
 .mmjj-room-badge{font-weight:700;color:#184e3e}.mmjj-room-badge strong{margin-left:6px;font-size:22px;letter-spacing:2px}
 .mmjj-room-live>p{margin:0;color:#638171}.mmjj-room-players{padding:14px;border-radius:10px;background:#f1f8f3;line-height:1.7;color:#345f4d}
 @media(max-width:750px){
