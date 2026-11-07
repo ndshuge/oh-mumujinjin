@@ -402,6 +402,13 @@
     if(event.type==='state'&&window.MumuOnline&&window.MumuOnline.setRematch)
       window.MumuOnline.setRematch(event.room,!!event.owner);
   }
+  async function roomErrorMessage(error){
+    if($('mmjjNetwork').value!=='sb')return error?.message||'联机服务连接失败';
+    try{
+      var mod=await import('./supabase-network-check.mjs?v=sb-recovery-20261107-r3');
+      return mod.describeSupabaseRoomError(error);
+    }catch(_){return error?.message||'Supabase 连接失败';}
+  }
   async function createRoom(){
     try{
       var button=$('mmjjCreateRoom');
@@ -414,7 +421,7 @@
       message('房间已创建，可以复制邀请链接。');
     }catch(e){
       if(client)client.close();client=null;
-      message(e.message||'创建房间失败，请检测网络');
+      message(await roomErrorMessage(e));
     }finally{
       var btn=$('mmjjCreateRoom');btn.textContent='创建好友房间';
       if(btn.disabled && !room)refreshRoomMap(false);
@@ -432,7 +439,7 @@
       message('已加入，等待双方准备。');
     }catch(e){
       if(client)client.close();client=null;
-      message(e.message||'加入失败，请检测网络');
+      message(await roomErrorMessage(e));
     }finally{$('mmjjJoinRoom').disabled=false;$('mmjjJoinRoom').textContent='加入房间';}
   }
   $('mmjjClose').addEventListener('click',close);

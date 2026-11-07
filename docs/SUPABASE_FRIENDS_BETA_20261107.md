@@ -1,5 +1,15 @@
 # Supabase Realtime 好友联机试用 — 交付说明
 
+## 2026-11-07：服务不可达，尚未完成公网恢复
+
+- 根目录 `supabase-config.js` 里的 `yycokuphczoxfntcwizi.supabase.co` 与鼠哥学院 `ndshuge/ndshuge-academy/design/python3-build/cloud.js` 的项目 URL 一致。
+- 在当前 Windows 连接环境里，普通 DNS、阿里云和 DNSPod 公共 DNS 均返回该项目子域 NXDOMAIN；Supabase HTTPS / Realtime 两条线路不可用。这无法从浏览器错误直接区分**项目暂停、删除、地址失效或 DNS 异常**，不应把全部责任归到用户网络。
+- 请先在 Supabase 控制台确认原项目还存在且为 Active；如果是 Paused，按控制台提示恢复；如地址已变动，核实项目 URL 和公开 anon/publishable Key，**不要**将 service_role / 数据库密码提交到公开仓库。
+- 恢复后使用「检测联机网络」验证 HTTPS 与 WebSocket，随后实际用两台关闭 VPN 的设备完成创建、加入、准备、开局和走棋。**恢复 DNS 或本地测试通过都不等于国内公网联机验收通过。**
+- 这一轮只改善了创建/加入失败的中文指引与诊断提示；没有更换项目、迁移数据、修改数据库，也没有宣称 Supabase 已恢复。
+
+
+
 ## 目标与隔离
 - 复用「鼠哥学院」已在用的 Supabase 项目，只读取其**公开**项目 URL 和 anon/publishable Key。
 - **不调用**学院的登录 API、不读取任何学业记录、不创建/更改数据库表，不增加 CloudBase。
