@@ -77,5 +77,17 @@ try{
  const resume=await recovered;
  assert.equal(resume.room.game.players[0].y,11);
  console.log('PASS reconnect preserves room token and canonical board state');
+ const finish=once(guestAgain,data=>data.type==='room_state'&&data.room.status==='finished');
+ host.send(JSON.stringify({type:'resign'}));
+ const finished=await finish;
+ assert.equal(finished.room.game.winner,1);
+ console.log('PASS room resignation declares the opponent winner');
+ const startHost=once(host,data=>data.type==='match_start'&&data.side===1);
+ const startFriend=once(guestAgain,data=>data.type==='match_start'&&data.side===0);
+ host.send(JSON.stringify({type:'rematch'}));
+ guestAgain.send(JSON.stringify({type:'rematch'}));
+ const rematched=await Promise.all([startHost,startFriend]);
+ assert.equal(rematched[0].room.game.moves,0);
+ console.log('PASS two-player rematch swaps sides and resets game');
  console.log('LIVE WEBSOCKET E2E PASS');
 }finally{for(const s of [host,guest,guestAgain])try{s?.close();}catch(_){} }

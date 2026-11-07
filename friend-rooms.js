@@ -81,6 +81,8 @@
     }
     function ready() {send({type:'ready'});}
     function start() {send({type:'start'});}
+    function resign() {send({type:'resign'});}
+    function rematch() {send({type:'rematch'});}
     function sendAction(action,revision) {send({type:'action',action:action,revision:revision});}
     function close() {
       manuallyClosed=true;
@@ -88,7 +90,7 @@
       if(socket){socket.onclose=null;socket.close();socket=null;}
       currentState=null;
     }
-    return Object.freeze({create:create,join:join,ready:ready,start:start,sendAction:sendAction,close:close,
+    return Object.freeze({create:create,join:join,ready:ready,start:start,resign:resign,rematch:rematch,sendAction:sendAction,close:close,
       getState:function(){return currentState;},getCode:function(){return code;},isOwner:function(){return owner;}});
   }
   return Object.freeze({createClient:createClient});

@@ -5,8 +5,9 @@ import {mkdtempSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import assert from 'node:assert/strict';
+import {createServer} from 'node:net';
 
-const port=9347;
+const port=await new Promise((resolve,reject)=>{const server=createServer();server.on("error",reject);server.listen(0,"127.0.0.1",()=>{const selected=server.address().port;server.close(()=>resolve(selected));});});
 const profile=mkdtempSync(join(tmpdir(),'mmjj-e2e-'));
 const executable='C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 const process=spawn(executable,[
@@ -21,7 +22,7 @@ try{
  let target=null;
  for(let attempt=0;attempt<45;attempt++){
    try{
-     const res=await fetch('http://127.0.0.1:'+port+'/json/new?http://127.0.0.1:8899/',{method:'PUT'});
+     const res=await fetch('http://127.0.0.1:'+port+'/json/new?'+(globalThis.process.env.MMJJ_WEB_SERVER||'http://127.0.0.1:8898/'),{method:'PUT'});
      if(res.ok){target=await res.json();break;}
    }catch(_){}
    await delay(250);

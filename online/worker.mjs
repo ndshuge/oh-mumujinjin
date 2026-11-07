@@ -80,7 +80,7 @@ export class GameRoom {
   async save(room){await this.ctx.storage.put('room',room);}
   clean(room){return room && room.expiresAt>Date.now();}
   publicRoom(room){
-    return {code:room.code,status:room.status,revision:room.revision,
+    return {code:room.code,status:room.status,revision:room.revision,rematchVotes:room.rematchVotes||[false,false],
       settings:room.settings,game:room.game,
       players:room.players.map(p=>({connected:!!p.connected,ready:!!p.ready}))};
   }
@@ -99,7 +99,7 @@ export class GameRoom {
       const ownerToken=token(),now=Date.now();
       const next={code,settings,createdAt:now,expiresAt:now+ROOM_LIFETIME_MS,
         players:[{token:ownerToken,connected:false,ready:false},{token:null,connected:false,ready:false}],
-        status:'waiting',revision:0,game:null,seatSide:null};
+        status:'waiting',revision:0,game:null,seatSide:null,rematchVotes:[false,false]};
       await this.save(next);await this.ctx.storage.setAlarm(next.expiresAt);
       return response({code,token:ownerToken,owner:true});
     }
@@ -142,7 +142,7 @@ export class GameRoom {
       const msg=JSON.parse(String(raw));
       if(msg.type==='ping'){socket.send(JSON.stringify({type:'pong'}));return;}
       if(msg.type==='ready'){
-        if(room.status==='playing')throw Error('对局已开始');
+        if(room.status==='playing'||room.status==='finished')throw Error('对局已开始');
         room.players[seat].ready=!room.players[seat].ready;
         room.status=room.players.every(p=>p.token&&p.ready&&p.connected)?'ready':'waiting';
         await this.save(room);this.broadcastState(room);return;
@@ -156,7 +156,7 @@ export class GameRoom {
         const first=room.settings.first;
         const firstSide=first==='host'?hostSide:first==='guest'?1-hostSide:Math.floor(Math.random()*2);
         room.game=newMatch(room.settings.map,room.settings.variant,firstSide);
-        room.status='playing';await this.save(room);
+        room.status='playing';room.rematchVotes=[false,false];await this.save(room);
         for(const peer of this.ctx.getWebSockets()){
           const who=peer.deserializeAttachment()?.seat;
           try{peer.send(JSON.stringify({type:'match_start',room:this.publicRoom(room),
@@ -164,11 +164,35 @@ export class GameRoom {
         }
         this.broadcastState(room);return;
       }
+      if(msg.type==='resign'){
+        if(room.status!=='playing'||!room.game||room.game.phase==='finished')throw Error('当前没有进行中的对局');
+        room.game.phase='finished';room.game.winner=1-room.seatSide[seat];
+        room.status='finished';room.revision++;room.rematchVotes=[false,false];
+        await this.save(room);this.broadcastState(room);return;
+      }
+      if(msg.type==='rematch'){
+        if(room.status!=='finished'||!room.game||room.game.phase!=='finished')throw Error('请先结束当前对局');
+        if(!room.rematchVotes)room.rematchVotes=[false,false];
+        room.rematchVotes[seat]=true;
+        if(room.rematchVotes[0]&&room.rematchVotes[1]){
+          room.seatSide=[room.seatSide[1],room.seatSide[0]];
+          const firstSide=1-room.game.firstSide;
+          room.game=newMatch(room.settings.map,room.settings.variant,firstSide);
+          room.status='playing';room.revision=0;room.rematchVotes=[false,false];
+          await this.save(room);
+          for(const peer of this.ctx.getWebSockets()){
+            const who=peer.deserializeAttachment()?.seat;
+            try{peer.send(JSON.stringify({type:'match_start',room:this.publicRoom(room),
+              side:room.seatSide[who],firstSide}));}catch(_){}
+          }
+        }else await this.save(room);
+        this.broadcastState(room);return;
+      }
       if(msg.type==='action'){
         if(room.status!=='playing'||!room.game)throw Error('对局尚未开始');
         if(msg.revision!==room.revision)throw Error('棋盘版本已更新，请同步房间');
         const next=applyAction(room.game,room.seatSide[seat],msg.action);
-        room.game=next;room.revision++;
+        room.game=next;room.revision++;if(next.phase==='finished'){room.status='finished';room.rematchVotes=[false,false];}
         await this.save(room);
         this.broadcast(room,{type:'action_accepted',action:msg.action,
           by:room.seatSide[seat],revision:room.revision,game:next});
@@ -183,7 +207,7 @@ export class GameRoom {
     if(!this.clean(room)||![0,1].includes(seat))return;
     const occupied=this.ctx.getWebSockets().some(other=>other!==socket&&other.deserializeAttachment()?.seat===seat);
     room.players[seat].connected=occupied;
-    if(!occupied&&room.status!=='playing'){room.players[seat].ready=false;room.status='waiting';}
+    if(!occupied&&room.status!=='playing'&&room.status!=='finished'){room.players[seat].ready=false;room.status='waiting';}
     await this.save(room);this.broadcastState(room);
   }
   async webSocketError(socket){await this.webSocketClose(socket);}

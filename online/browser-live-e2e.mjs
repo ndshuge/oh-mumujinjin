@@ -6,7 +6,8 @@ import {mkdtempSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import assert from 'node:assert/strict';
-const port=9368,base='http://127.0.0.1:'+port,web='http://127.0.0.1:8899/';
+import {createServer} from 'node:net';
+const port=await new Promise((resolve,reject)=>{const server=createServer();server.on("error",reject);server.listen(0,"127.0.0.1",()=>{const selected=server.address().port;server.close(()=>resolve(selected));});}),base='http://127.0.0.1:'+port,web=process.env.MMJJ_WEB_SERVER||'http://127.0.0.1:8898/';
 const executable='C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 const profile=mkdtempSync(join(tmpdir(),'mmjj-real-pvp-'));
 const chrome=spawn(executable,['--headless=new','--disable-gpu','--no-first-run',
@@ -63,6 +64,11 @@ try{
  await friend.evaluate('document.getElementById("mmjjJoinRoom").click()');
  await friend.until('document.getElementById("mmjjRoomLive").hidden===false',15000);
  console.log('PASS browser B opened invite URL and joined room');
+ await owner.until('document.getElementById("mmjjLiveMapSummary").hidden===false',5000);
+ await friend.until('document.getElementById("mmjjLiveMapSummary").hidden===false',5000);
+ const hostMap=await owner.evaluate('document.getElementById("mmjjLiveMapSummary").querySelector("strong").textContent');
+ assert.equal(hostMap,await friend.evaluate('document.getElementById("mmjjLiveMapSummary").querySelector("strong").textContent'));
+ console.log('PASS host and guest preview the same immutable room map');
  await owner.until('document.getElementById("mmjjReadyRoom").disabled===false',2500);
  await friend.until('document.getElementById("mmjjReadyRoom").disabled===false',2500);
  await owner.evaluate('document.getElementById("mmjjReadyRoom").click()');
@@ -80,10 +86,68 @@ try{
  assert.equal(await owner.evaluate('MumuLobbyGame.info().phase'),'pick-attack');
  assert.equal(await friend.evaluate('MumuLobbyGame.info().phase'),'pick-attack');
  console.log('PASS both browser clients entered synchronized gameplay; game lobby closed');
+ const mobileHeader=await owner.evaluate('JSON.stringify({viewport:innerWidth,page:document.documentElement.scrollWidth,headerRight:document.querySelector(".header-right").getBoundingClientRect().right,resignVisible:!document.getElementById("mmjjOnlineResign").hidden})');
+ const mobileLayout=JSON.parse(mobileHeader);
+ assert.equal(mobileLayout.resignVisible,true,'the resign option must be visible during a match');
+ assert.ok(mobileLayout.page<=mobileLayout.viewport+1,'online game must not overflow the mobile viewport: '+mobileHeader);
+ console.log('PASS active online controls fit the mobile layout');
+ const clickTile=async(client,x,y)=>{
+  return client.evaluate(`(() => {
+   const board=document.getElementById("board"),r=board.getBoundingClientRect();
+   const ax=67.5+( ${x}+.5)*65,ay=67.5+(${y}+.5)*65;
+   board.dispatchEvent(new MouseEvent("click",{bubbles:true,cancelable:true,
+     clientX:r.left+ax*r.width/720,clientY:r.top+ay*r.height/980}));
+  })()`);
+ };
+ await clickTile(owner,7,12);
+ await owner.until('MumuLobbyGame.info().phase==="pick-defend"',8000);
+ await friend.until('MumuLobbyGame.info().phase==="pick-defend"',8000);
+ await clickTile(friend,1,0);
+ await owner.until('MumuLobbyGame.info().phase==="play"',8000);
+ await friend.until('MumuLobbyGame.info().phase==="play"',8000);
+ await clickTile(owner,7,11);
+ await owner.until('MumuLobbyGame.info().moves===1',8000);
+ await friend.until('MumuLobbyGame.info().moves===1',8000);
+ console.log('PASS real board clicks: both birth positions + synchronized move');
+ await friend.evaluate('location.reload()');
+ await friend.until('!!window.MumuFriendsUI && document.getElementById("mmjjJoinRoom")',12000);
+ await friend.evaluate('document.getElementById("mmjjJoinRoom").click()');
+ await friend.until('window.MumuOnline.active()===true',12000);
+ assert.equal(await friend.evaluate('MumuLobbyGame.info().moves'),1);
+ assert.equal(await friend.evaluate('MumuLobby.isVisible()'),false);
+ console.log('PASS guest refreshes the browser and restores the ongoing match');
+ await owner.evaluate('window.confirm=()=>true;document.getElementById("mmjjOnlineResign").click()');
+ await owner.until('MumuLobbyGame.info().phase==="finished"',8000);
+ await friend.until('MumuLobbyGame.info().phase==="finished"',8000);
+ console.log('PASS owner resigns; both clients receive finished game');
+ await owner.evaluate('document.getElementById("playAgainBtn").click()');
+ await friend.evaluate('document.getElementById("playAgainBtn").click()');
+ await owner.until('MumuLobbyGame.info().phase==="pick-defend"',9000);
+ await friend.until('MumuLobbyGame.info().phase==="pick-defend"',9000);
+ assert.equal(await owner.evaluate('MumuOnline.active()'),true);
+ assert.equal(await friend.evaluate('MumuOnline.active()'),true);
+ console.log('PASS both players approve rematch and swap seats');
  await owner.evaluate('window.confirm=()=>true;document.getElementById("mmjjBackToLobby").click()');
  await owner.until('window.MumuOnline.active()===false');
  assert.equal(await owner.evaluate('MumuLobby.isVisible()'),true);
  console.log('PASS leaving online match returns to lobby');
+ const portalResult=await owner.evaluate(`(() => {
+   const map=MumuMapV2.official(),a=map.portals[0].a;
+   window.__mmjjPortalActions=[];
+   const game={variant:"classic",firstSide:0,phase:"play",
+     players:[{x:a.x,y:a.y},{x:1,y:0}],turn:0,walls:[],left:[5,5],
+     moves:3,slideDir:[null,null],pending:0,winner:null,repetitions:{}};
+   MumuOnline.start({room:{settings:{map:map,mapSource:"official"},game,revision:3},
+     side:0,firstSide:0,sendAction:(action)=>window.__mmjjPortalActions.push(action)});
+   const modalVisible=!document.getElementById("portalModal").hidden;
+   document.getElementById("stayBtn").click();
+   const actions=window.__mmjjPortalActions.slice();
+   MumuOnline.stop();
+   return {modalVisible,actions};
+ })()`);
+ assert.equal(portalResult.modalVisible,true,'first portal must open modal');
+ assert.deepEqual(portalResult.actions,[{kind:'portal',warp:false}],'first portal must allow a stay decision');
+ console.log('PASS first portal index 0 accepts a decision via UI');
  console.log('BROWSER PVP E2E PASS');
 }catch(error){
  console.error('BROWSER PVP E2E FAIL: '+error.stack);

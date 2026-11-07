@@ -4,7 +4,7 @@
 GitHub Pages 静态前端 + Cloudflare Workers SQLite Durable Objects。房间提供邀请码、双方准备、模式与地图配置、先后手、服务器合法走棋验证、重连和棋盘权威状态同步。地图存于浏览器本地。
 
 ## 本地验收
-在仓库根目录运行 `python -m http.server 8899 --bind 127.0.0.1`；在 `online/` 运行 `npx wrangler@4.158.0 dev --ip 127.0.0.1 --port 8787 --local`。
+在仓库根目录运行 `python -m http.server 8898 --bind 127.0.0.1`；在 `online/` 运行 `npx wrangler@4.158.0 dev --ip 127.0.0.1 --port 8787 --local`。
 测试命令：
 ```
 node online/realtime-e2e.mjs

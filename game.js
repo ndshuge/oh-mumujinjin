@@ -25,6 +25,22 @@
   var DIRS = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
   var state;
   var onlineSession = null, onlineApplying = false;
+  // The engine also runs in Node's minimal DOM test harness; UI remains optional.
+  var onlineResignButton={hidden:true};
+  if(typeof document.querySelector==="function"){
+    var roomNav=document.querySelector(".header-right");
+    if(roomNav&&typeof document.createElement==="function"){
+      onlineResignButton=document.createElement("button");
+      onlineResignButton.id="mmjjOnlineResign";onlineResignButton.type="button";
+      onlineResignButton.className="mmjj-back-home";onlineResignButton.hidden=true;
+      onlineResignButton.textContent="认输";
+      roomNav.insertBefore(onlineResignButton,roomNav.firstChild);
+      onlineResignButton.addEventListener("click",function(){
+        if(onlineSession&&state.phase!=="finished"&&window.confirm("确认认输？本局将直接判负。"))
+          window.MumuFriendsUI?.resign();
+      });
+    }
+  }
   function onlineIsMyTurn() {
     if(!onlineSession) return true;
     var required = state.phase==="pick-attack"?0:state.phase==="pick-defend"?1:state.turn;
@@ -1816,7 +1832,11 @@
     $("stayBtn").addEventListener("click",function(){choosePortal(false);});
     $("warpBtn").addEventListener("click",function(){choosePortal(true);});
     $("playAgainBtn").addEventListener("click",function(){
-      if(onlineSession){notice("请在好友房间中开始新一局");closeAll();return;}
+      if(onlineSession){
+        if(window.MumuFriendsUI?.requestRematch)window.MumuFriendsUI.requestRematch();
+        else notice("房间未连接，请重新加入");
+        closeAll();return;
+      }
       resetGame(state.variant);
     });
     document.querySelectorAll("[data-close]").forEach(function(b){
@@ -1890,10 +1910,12 @@
     ["phase","players","turn","walls","left","moves","slideDir","pending","winner","repetitions"].forEach(function(key){
       state[key]=JSON.parse(JSON.stringify(roomGame[key]));
     });
+    // Cloudflare sends a numeric portal index; UI expects an object even for index zero.
+    state.pending=Number.isInteger(roomGame.pending)?{index:roomGame.pending}:null;
     state.action="move";state.history=[];state.hover=null;
     closeAll();
     if(state.pending!==null){
-      $("portalIcon").textContent=(PORTALS[state.pending]||{}).symbol||"门";
+      $("portalIcon").textContent=(PORTALS[state.pending.index]||{}).symbol||"门";
       if(onlineIsMyTurn())setModal("portalModal",true);
     }
     if(state.phase==="finished"){
@@ -1903,6 +1925,8 @@
       $("winWalls").textContent=String(state.walls.length);
       setModal("winModal",true);
     }
+    onlineResignButton.hidden=state.phase==="finished";
+    if(state.phase==="finished")$("playAgainBtn").textContent="再来一局（双方确认）";
     drawUI();drawBoard();
   }
   window.MumuOnline=Object.freeze({
@@ -1948,11 +1972,14 @@
       if(reason)notice(reason);
     },
     active:function(){return !!onlineSession;},
+    hint:function(message){if(onlineSession)notice(message);},
     sync:function(game,revision){
       if(!onlineSession||!game)return;
       onlineSession.revision=revision;onlineSession.awaiting=false;onlineHydrate(game);
     },
     stop:function(){
+      onlineResignButton.hidden=true;
+      $("playAgainBtn").textContent="再来一局";
       onlineSession=null;onlineApplying=false;closeAll();state.playMode="local";
       var status=document.querySelector(".connection-tag");
       if(status&&status.hasAttribute("data-original")){

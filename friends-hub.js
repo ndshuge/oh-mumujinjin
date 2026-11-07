@@ -71,6 +71,7 @@
             <div class="mmjj-room-badge">好友房间 <strong id="mmjjLiveCode"></strong></div>
             <p id="mmjjRoomState">等待另一位玩家加入</p>
             <div id="mmjjRoomPlayers" class="mmjj-room-players"></div>
+            <div id="mmjjLiveMapSummary" class="mmjj-room-map-preview" hidden></div>
             <div class="mmjj-inline"><input id="mmjjRoomLink" readonly aria-label="房间邀请链接"><button id="mmjjCopyRoom" class="mmjj-secondary">复制邀请</button></div>
             <div class="mmjj-inline"><button id="mmjjReadyRoom" class="mmjj-secondary" type="button">我已准备</button><button id="mmjjStartRoom" class="mmjj-primary" type="button">开始对局</button></div>
             <button id="mmjjLeaveRoom" class="mmjj-ghost" type="button">退出房间</button>
@@ -293,6 +294,15 @@
     $('mmjjRoomLink').value=location.origin+location.pathname+'?room='+encodeURIComponent(data.code);
     $('mmjjRoomState').textContent=data.state||'等待好友加入';
     $('mmjjRoomPlayers').textContent=data.playerText||'房主已加入 · 等待好友';
+    var summary=$('mmjjLiveMapSummary');
+    summary.replaceChildren();summary.hidden=!data.map;
+    if(data.map){
+      var thumb=document.createElement('span');thumb.className='mmjj-room-map-thumb';thumb.appendChild(svgMap(data.map));
+      var details=document.createElement('div'),heading=document.createElement('strong'),caption=document.createElement('small');
+      heading.textContent=data.map.name;
+      caption.textContent=(data.variant==='advanced'?'进阶地形':'经典策略')+' · 双方共享同一张地图';
+      details.append(heading,caption);summary.append(thumb,details);
+    }
     $('mmjjReadyRoom').disabled=!data.readyAllowed;
     $('mmjjReadyRoom').textContent=data.isReady?'取消准备':'我已准备';
     $('mmjjStartRoom').disabled=!data.startAllowed;
@@ -323,12 +333,16 @@
     }
     if(event.type==='state'){
       var data=event.room;
-      setRoomInfo({code:data.code,state:data.status==='playing'?'对局进行中':data.status==='ready'?'双方已就绪':'等待玩家准备',
+      setRoomInfo({code:data.code,map:data.settings&&data.settings.map,variant:data.settings&&data.settings.variant,state:data.status==='finished'?'本局已结束':data.status==='playing'?'对局进行中':data.status==='ready'?'双方已就绪':'等待玩家准备',
         playerText:(data.players||[]).map(function(p,i){return (i===0?'房主':'好友')+'：'+(p.connected?'在线':'未连接')+(p.ready?' · 已准备':'');}).join('　'),
-        readyAllowed:data.status!=='playing'&&!!(data.players||[])[event.owner?0:1]?.connected,
+        readyAllowed:(data.status==='waiting'||data.status==='ready')&&!!(data.players||[])[event.owner?0:1]?.connected,
         startAllowed:!!event.owner&&data.status==='ready',
         isReady:!!(data.players||[])[event.owner?0:1]?.ready});
       message('房间设置与地图将以服务器状态为准。');
+      if(data.status==='finished'&&data.rematchVotes&&data.rematchVotes.some(Boolean)){
+        var msg=data.rematchVotes.every(Boolean)?'双方已同意重新对局':'已有玩家申请再来一局，等待另一方确认';
+        message(msg);if(window.MumuOnline?.hint)window.MumuOnline.hint(msg);
+      }
     }
     if(event.type==='started') {
       if(window.MumuLobby&&window.MumuLobby.hide)window.MumuLobby.hide();
@@ -338,7 +352,7 @@
       close();
     }
     if(event.type==='action'&&window.MumuOnline&&window.MumuOnline.apply)window.MumuOnline.apply(event);
-    if(event.type==='state'&&event.room.status==='playing'&&window.MumuOnline&&window.MumuOnline.sync)
+    if(event.type==='state'&&['playing','finished'].includes(event.room.status)&&window.MumuOnline&&window.MumuOnline.sync)
       window.MumuOnline.sync(event.room.game,event.room.revision);
   }
   async function createRoom(){
@@ -423,6 +437,14 @@
   if(code){$('mmjjRoomCode').value=code.toUpperCase();open('rooms');message('收到好友邀请，点击加入房间即可连接。');}
   window.MumuFriendsUI=Object.freeze({
     open:open,store:store,leave:leaveRoom,
+    requestRematch:function(){
+      if(!client)return message("房间已断开，请重新加入");
+      try{client.rematch();message("已请求再来一局，等待对方确认");}catch(error){message(error.message); }
+    },
+    resign:function(){
+      if(!client)return message("房间已断开，请重新加入");
+      try{client.resign();}catch(error){message(error.message);}
+    },
     isPlaying:function(){return !!(window.MumuOnline&&window.MumuOnline.active&&window.MumuOnline.active());}
   });
 })();
