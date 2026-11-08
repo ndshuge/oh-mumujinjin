@@ -42,6 +42,8 @@ body.mmjj-hub-open{overflow:hidden}
 .mmjj-primary{background:#18594b;border-color:#18594b;color:#fff;box-shadow:0 5px 13px #18594b15}
 .mmjj-secondary{color:#255d4a;background:#eaf5ed;border-color:#b9d8c4}
 .mmjj-ghost{color:#3e7560;background:transparent;border-color:#d5e5dc}
+.mmjj-network-deep-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;margin:10px 0 0 10px;font-size:13px}
+@media(max-width:640px){.mmjj-network-deep-link{display:flex;width:100%;margin:10px 0 0}}
 .mmjj-danger{color:#ab4a3d;background:#fff7f3;border-color:#f0d7d1}
 .mmjj-primary:not(:disabled):active,.mmjj-secondary:not(:disabled):active{transform:scale(.982)}
 .mmjj-filters{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}

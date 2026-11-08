@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f8f7">
+<title>好友联机 · 网络检测｜木木金金棋</title>
+<style>
+:root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft Yahei",sans-serif;color:#203d36;background:#f7f8f7}
+*{box-sizing:border-box}
+body{margin:0;padding:calc(22px + env(safe-area-inset-top)) 18px calc(30px + env(safe-area-inset-bottom))}
+.wrap{max-width:650px;margin:auto}.back{text-decoration:none;color:#266b59;font-size:14px;font-weight:650}
+h1{font-size:27px;letter-spacing:-.04em;margin:25px 0 10px}.lede{color:#63746e;line-height:1.7;margin:0 0 24px;font-size:15px}
+.card{background:white;border:1px solid #e2eae6;border-radius:21px;box-shadow:0 5px 25px rgba(16,58,43,.035);padding:22px;margin:14px 0}
+label{display:block;font-size:13px;font-weight:700;color:#526c61;margin:0 0 9px}
+select{width:100%;min-height:49px;border-radius:13px;border:1px solid #d8e3dd;padding:0 13px;background:#fff;font-size:16px;color:#274539}
+.methods{display:flex;flex-direction:column;gap:10px}.method{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #f0f4f1;padding:10px 0}.method:last-child{border-bottom:0}
+.method b{font-size:14px}.method small{display:block;margin-top:5px;color:#77887f;font-size:12px}
+.pill{padding:7px 10px;border-radius:100px;background:#edf1ef;color:#6b8177;font-size:12px;font-weight:700;white-space:nowrap}
+.pill.good{background:#def6e8;color:#1d7752}.pill.bad{background:#fff0ea;color:#a4492b}.pill.pending{background:#eaf1fb;color:#3c68a9}
+button{cursor:pointer;font:inherit;min-height:52px;border:0;border-radius:14px;font-weight:750;font-size:15px}
+.run{width:100%;background:#176e5b;color:white;box-shadow:0 4px 0 #0d5746}
+.run:active{transform:translateY(2px);box-shadow:0 2px 0 #0d5746}
+button:disabled{opacity:.6;cursor:wait;box-shadow:none}.copy{width:100%;background:#e6f0ed;color:#19624f}
+.status{min-height:24px;font-size:14px;color:#506b5f;line-height:1.6;margin:15px 2px}
+.summary{font-size:15px;line-height:1.7;background:#f0f6f3;border-radius:14px;padding:17px 16px;color:#274e40;margin-top:12px;white-space:pre-wrap}
+.results{margin-top:16px}.round{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 0;border-top:1px solid #e9f0eb;font-size:13px;color:#536b60}
+.advice{margin:20px 2px;font-size:14px;line-height:1.8;color:#597065}.advice strong{color:#235d4a}
+.footer{font-size:12px;color:#8a9890;margin-top:20px;line-height:1.7}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+<script src="./supabase-config.js?v=sb-realtime-20261107-r1"></script>
+</head>
+<body>
+<main class="wrap">
+<a class="back" href="./index.html">‹ 返回木木金金棋</a>
+<h1>联机网络检测</h1>
+<p class="lede">你和朋友都可以用各自手机打开此页。检测只测试连接，不创建房间、不保存聊天或棋局，也不会上传你的诊断结果。</p>
+<section class="card">
+<label for="connectionType">当前手机使用的网络</label>
+<select id="connectionType" aria-label="当前手机使用的网络">
+<option value="手机流量（5G/4G）">手机流量（5G / 4G）</option><option value="Wi-Fi">Wi-Fi</option><option value="其他/不确定">其他 / 不确定</option>
+</select>
+<div class="methods" style="margin-top:18px">
+<div class="method"><span><b>Supabase HTTPS</b><small>是否能连接项目 API</small></span><span id="httpsStatus" class="pill">未检测</span></div>
+<div class="method"><span><b>Supabase WebSocket</b><small>创建房间需要的实时连接</small></span><span id="wsStatus" class="pill">未检测</span></div>
+<div class="method"><span><b>Cloudflare 备用入口</b><small>仅测 HTTPS，不自动切换</small></span><span id="cfStatus" class="pill">未检测</span></div>
+</div>
+</section>
+<section class="card">
+<button class="run" id="runTest" type="button">开始 3 次网络检测</button>
+<p id="progress" class="status" role="status" aria-live="polite">建议先用 5G 检测一次，再关闭 VPN 切到 Wi-Fi 对照检测。</p>
+<div id="results" class="results" hidden>
+<div id="rounds"></div>
+<div id="summary" class="summary" aria-live="polite"></div>
+<button class="copy" id="copyReport" type="button" style="margin-top:16px">复制诊断结果</button>
+</div>
+</section>
+<p class="advice"><strong>注意：</strong>电脑上 Supabase 返回 HTTP 200，不代表手机 5G 也能访问。若 HTTPS 与 WebSocket 都失败，先比较 Wi-Fi 和手机流量；仅凭失败无法认定 Supabase 项目被暂停。即使备用 HTTPS 测试通过，也不代表其 WebSocket 一定可用。</p>
+<p class="footer">只复制时间、网络类型、每轮是否成功和耗时，不复制 API 密钥、身份票据或完整服务地址。Supabase 仍是游戏默认线路。</p>
+</main>
+<script type="module">
+import {runProbeSeries,summarizeConnectivity} from './network-lab.mjs?v=mobile-diagnosis-20261108-r1';
+import {diagnoseSupabase} from './supabase-network-check.mjs?v=sb-recovery-20261107-r3';
+const byId=id=>document.getElementById(id);
+const cfg=window.MMJJ_SB_CONFIG;
+let report='';
+function badge(id,label,kind=''){const el=byId(id);el.textContent=label;el.className='pill'+(kind?' '+kind:'');}
+async function cloudflareHealth(){
+ const endpoint='https://mmjj-friends.ndshuge.workers.dev/api/health';
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),7000);
+ try{const rsp=await fetch(endpoint,{cache:'no-store',signal:controller.signal,mode:'cors'});if(!rsp.ok)return false;return (await rsp.json())?.ok===true;}
+ catch(_){return false;}finally{clearTimeout(timer);}
+}
+async function runSingle(){
+ if(!cfg?.enabled||!cfg?.url||!cfg?.anonKey)return {httpsOk:false,websocketOk:false};
+ return diagnoseSupabase({url:cfg.url,anonKey:cfg.anonKey,timeoutMs:6500,
+  createRealtime:async()=>{const {RealtimeClient}=await import('./vendor/realtime.mjs');
+   return new RealtimeClient(cfg.url.replace(/\/$/,'')+'/realtime/v1',{
+    params:{apikey:cfg.anonKey},accessToken:async()=>cfg.anonKey,timeout:6500
+   });}
+ });
+}
+byId('runTest').addEventListener('click',async()=>{
+ byId('runTest').disabled=true;byId('results').hidden=true;report='';
+ const started=new Date().toLocaleString('zh-CN',{hour12:false}),type=byId('connectionType').value;
+ let cfOk=null,rows=[],summary;
+ badge('httpsStatus','检测中','pending');badge('wsStatus','检测中','pending');badge('cfStatus','检测中','pending');
+ byId('progress').textContent='正在检测备用入口并采集连续连接结果……';
+ try{
+  const cfPromise=cloudflareHealth();
+  rows=await runProbeSeries({probe:runSingle,count:3,intervalMs:650,onResult:row=>{
+   byId('progress').textContent='已经完成 '+row.round+'/3 轮……';
+   badge('httpsStatus',row.httpsOk?'通过':'失败',row.httpsOk?'good':'bad');
+   badge('wsStatus',row.websocketOk?'通过':'失败',row.websocketOk?'good':'bad');
+  }});
+  cfOk=await cfPromise;badge('cfStatus',cfOk?'HTTPS 可访问':'无法连接',cfOk?'good':'bad');
+  summary=summarizeConnectivity(rows,{cloudflareOk:cfOk});
+  const lines=rows.map(r=>'第 '+r.round+' 轮：HTTPS '+(r.httpsOk?'通过':'失败')+'；WebSocket '+(r.websocketOk?'通过':'失败')+'；'+r.elapsedMs+' 毫秒');
+  const box=byId('rounds');box.replaceChildren();
+  lines.forEach((line,i)=>{const div=document.createElement('div');div.className='round';div.textContent=line+' · '+(rows[i].ok?'正常':'异常');box.appendChild(div);});
+  byId('summary').textContent=summary.message;byId('results').hidden=false;
+  byId('progress').textContent='检测完成：Supabase 成功 '+summary.successCount+'/3 次';
+  report=['木木金金棋·移动网络诊断','检测时间：'+started,'网络：'+type,'Supabase 结果：'+summary.successCount+'/3 次成功',
+   '分类：'+summary.category,'Cloudflare HTTPS：'+(cfOk?'可访问':'未通过')].concat(lines,['建议：'+summary.message]).join('\n');
+ }catch(_){byId('progress').textContent='诊断工具运行异常，请刷新页面重新检测。';}
+ finally{byId('runTest').disabled=false;}
+});
+byId('copyReport').addEventListener('click',async()=>{
+ if(!report)return;
+ try{await navigator.clipboard.writeText(report);byId('copyReport').textContent='已复制，可以粘贴给我';}
+ catch(_){const field=document.createElement('textarea');field.value=report;document.body.appendChild(field);field.select();
+  try{document.execCommand('copy');byId('copyReport').textContent='已复制';}catch(e){byId('copyReport').textContent='复制失败，请截图';}field.remove();}
+});
+</script>
+</body>
+</html>
