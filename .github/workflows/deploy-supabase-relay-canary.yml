@@ -1,0 +1,57 @@
+name: Deploy Supabase Relay Canary (manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mmjj-supabase-relay-canary
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy separate Cloudflare Pages test gateway
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify gateway tests before provisioning
+        run: node --test relay/worker.test.mjs
+      - name: Resolve existing authorized Cloudflare account
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_NAME: "Ndshuge@gmail.com's Account"
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Cloudflare token missing"; exit 1; }
+          response="$(curl --fail --silent --show-error --retry 2 \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            'https://api.cloudflare.com/client/v4/accounts?per_page=50')"
+          account_id="$(jq -er --arg name "$CF_ACCOUNT_NAME" \
+            '.result[] | select(.name == $name) | .id' <<< "$response")"
+          echo "CLOUDFLARE_ACCOUNT_ID=$account_id" >> "$GITHUB_ENV"
+      - name: Create Cloudflare Pages test project if missing
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          if ! npx --yes wrangler@4.158.0 pages project list | grep -q 'mmjj-supabase-relay-canary'; then
+            npx --yes wrangler@4.158.0 pages project create mmjj-supabase-relay-canary --production-branch main
+          fi
+      - name: Package dedicated Advanced Mode Pages Worker
+        run: |
+          mkdir -p relay/dist
+          cp relay/worker.mjs relay/dist/_worker.js
+          echo '<!doctype html><meta charset="utf-8"><title>Mumu Supabase Relay Canary</title>' > relay/dist/index.html
+      - name: Deploy candidate relay without changing production frontend
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: npx --yes wrangler@4.158.0 pages deploy relay/dist --project-name mmjj-supabase-relay-canary --branch main
