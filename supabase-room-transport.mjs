@@ -13,16 +13,16 @@ function randomID(n=24){
  return Array.from(data,x=>ABC[x%ABC.length]).join('');
 }
 function validCode(code){if(!/^[A-Z2-9]{6}$/.test(code))throw Error('Invalid room code');}
-async function defaultRealtime(config){
+async function defaultRealtime(config,providerUrl=config.url){
  const {RealtimeClient}=await import('./vendor/realtime.mjs');
- const endpoint=config.url?.replace(/\/$/,'')+'/realtime/v1';
+ const endpoint=providerUrl?.replace(/\/$/,'')+'/realtime/v1';
  if(!/^https:\/\//.test(endpoint)||!/^[A-Za-z0-9_.-]{30,}$/.test(config.anonKey||''))
    throw Error('Supabase provider configuration missing');
  return new RealtimeClient(endpoint,{params:{apikey:config.anonKey},accessToken:async()=>config.anonKey,
-   timeout:12000,heartbeatIntervalMs:25000});
+   timeout:providerUrl!==config.url?28000:12000,heartbeatIntervalMs:25000});
 }
 export function createClient(options={}){
- const factory=options.realtimeFactory||(()=>defaultRealtime(options));
+ const factory=options.realtimeFactory||((providerUrl)=>defaultRealtime(options,providerUrl));
  if(!options.realtimeFactory&&(!options.url||!options.anonKey))throw Error('Supabase provider configuration missing');
  const storage=options.storage||globalThis.localStorage||null;
  let identity=options.identity;
@@ -85,23 +85,43 @@ export function createClient(options={}){
      if(joining&&(joining.stage==='snapshot'||room?.players.some(x=>x.id===identity))){joining.resolve();joining=null;}
    }
  }
+
  async function connect(roomCode){
    validCode(roomCode);code=roomCode;
-   backend=await factory();
-   channel=backend.channel(topic(code),{config:{broadcast:{self:false,ack:true},private:false}});
-   channel.on('broadcast',{event:'mmjj'},e=>receivePacket(e.payload));
-   await new Promise((resolve,reject)=>{
-     let finished=false;
-     const timer=setTimeout(()=>{if(!finished){finished=true;reject(Error('Supabase Realtime connection timed out'))}},options.connectTimeout||12000);
-     channel.subscribe((status,err)=>{
-       if(finished)return;
-       if(status==='SUBSCRIBED'){finished=true;connected=true;clearTimeout(timer);resolve();}
-       if(status==='TIMED_OUT'||status==='CHANNEL_ERROR'||status==='CLOSED'){
-         finished=true;clearTimeout(timer);reject(Error('Supabase Realtime is unreachable: '+(err?.message||status)));
-       }
-     });
-   });
+   const fallback=Array.isArray(options.fallbackUrls)?options.fallbackUrls.filter(x=>/^https:\/\//.test(x)): [];
+   const urls=[options.url,...fallback.filter(x=>x!==options.url)];
+   if(!urls.length)urls.push(undefined);
+   let lastError=null;
+   for(const providerUrl of urls){
+     try{
+       backend=await factory(providerUrl);
+       channel=backend.channel(topic(code),{config:{broadcast:{self:false,ack:true},private:false}});
+       channel.on('broadcast',{event:'mmjj'},e=>receivePacket(e.payload));
+       await new Promise((resolve,reject)=>{
+         let finished=false;
+         const slowRelay=providerUrl!==options.url;
+         const timer=setTimeout(()=>{if(!finished){finished=true;reject(Error('Supabase Realtime connection timed out'))}},options.connectTimeout||(slowRelay?30000:12000));
+         channel.subscribe((status,err)=>{
+           if(finished)return;
+           if(status==='SUBSCRIBED'){finished=true;connected=true;clearTimeout(timer);resolve();}
+           if(status==='TIMED_OUT'&&slowRelay)return;
+           if(status==='TIMED_OUT'||status==='CHANNEL_ERROR'||status==='CLOSED'){
+             finished=true;clearTimeout(timer);reject(Error('Supabase Realtime is unreachable: '+(err?.message||status)));
+           }
+         });
+       });
+       if(providerUrl!==options.url)onEvent({type:'route',route:'relay'});
+       return;
+     }catch(error){
+       lastError=error;
+       connected=false;
+       try{backend?.disconnect?.()}catch(_){}
+       backend=null;channel=null;
+     }
+   }
+   throw lastError||Error('No Supabase Realtime route available');
  }
+
  function invoke(type,data={}){
    mutation=mutation.then(async()=>{
      try{

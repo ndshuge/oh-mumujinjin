@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Supabase 中转实测｜木木金金棋</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f8f6;color:#20483b;color-scheme:light}
+*{box-sizing:border-box}body{max-width:650px;margin:auto;padding:calc(35px + env(safe-area-inset-top)) 18px 38px}
+a{color:#196b55;text-decoration:none;font-weight:650}h1{font-size:27px;margin:32px 0 11px}
+p{line-height:1.7;color:#61766c;font-size:15px}.card{background:white;border:1px solid #dce9e1;border-radius:22px;padding:22px;margin:22px 0;box-shadow:0 5px 24px rgba(23,81,59,.035)}
+.stamp{font-size:12px;font-weight:700;color:#3a7860;letter-spacing:.05em}
+button{font:inherit;display:block;width:100%;min-height:55px;border:none;border-radius:13px;cursor:pointer;font-size:16px;font-weight:700}
+.primary{color:#fff;background:#11735a;box-shadow:0 4px 0 #095941}.secondary{color:#1a6955;background:#eaf4ee;margin-top:14px}
+button:disabled{opacity:.62;box-shadow:none}.status{white-space:pre-wrap;line-height:1.75;margin:17px 0 0;color:#345449}
+.status.good{color:#147154}.status.bad{color:#a35237}.tip{font-size:13px;color:#7c8b80;margin-top:20px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+<script src="./supabase-config.js?v=relay-fallback-20261108-r1"></script>
+</head>
+<body>
+<a href="./network-test.html">‹ 返回联机检测</a>
+<h1>中转实时连接测试</h1>
+<p>这项检查不创建房间。它会通过新中转打开两条独立的 Supabase WebSocket，并实际发送、接收一次消息，验证这台手机所在网络是否支持新线路。</p>
+<div class="card">
+<div class="stamp">SUPABASE · REALTIME</div>
+<p>关闭 VPN 后在手机 5G 上运行；同一部手机也可以切换 Wi‑Fi 进行对照。</p>
+<button id="runTest" class="primary" type="button">开始中转实时连接测试</button>
+<div class="status" id="status" aria-live="polite" role="status">尚未检测</div>
+<button id="copyReport" class="secondary" type="button" hidden>复制结果</button>
+</div>
+<p class="tip">若测试失败，游戏不会将中转视为已验证的国内线路。若测试通过，请与朋友分别运行一次，再用正式游戏测试创建与加入房间。检测不会保存账号或棋局，也不会向聊天发送结果。</p>
+<script type="module">
+import {RealtimeClient} from './vendor/realtime.mjs';
+const cfg=window.MMJJ_SB_CONFIG;
+const status=document.getElementById('status'),runButton=document.getElementById('runTest'),copy=document.getElementById('copyReport');
+const now=()=>Date.now();
+let report='';
+const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function run(){
+ runButton.disabled=true;copy.hidden=true;status.className='status';
+ const started=now(),network=navigator.connection?.effectiveType||'未提供';
+ const clients=[];
+ try{
+  if(!cfg?.relayUrl||!cfg?.anonKey)throw Error('新线路尚未配置');
+  const topic='mmjj:relay-phone-test:'+crypto.randomUUID();
+  let delivered=false;const received=()=>{delivered=true};
+  function create(peer){
+   const client=new RealtimeClient(cfg.relayUrl.replace(/\/$/,'')+'/realtime/v1',{
+    params:{apikey:cfg.anonKey},accessToken:async()=>cfg.anonKey,timeout:28000,heartbeatIntervalMs:25000
+   });
+   clients.push(client);
+   const channel=client.channel(topic,{config:{broadcast:{self:false,ack:true},private:false}});
+   if(peer==='B')channel.on('broadcast',{event:'relay-test'},received);
+   return new Promise((resolve,reject)=>{
+    let finished=false;
+    const timer=setTimeout(()=>{if(!finished){finished=true;reject(Error(peer+' 订阅超时'))}},32000);
+    channel.subscribe((state,error)=>{
+     if(finished)return;
+     if(state==='SUBSCRIBED'){finished=true;clearTimeout(timer);resolve(channel);}
+     // Relayed connections can recover after an SDK-level timeout.
+     else if(state==='CLOSED'){finished=true;clearTimeout(timer);reject(Error(peer+' 通道关闭'));}
+    });
+   });
+  }
+  status.textContent='正在通过中转建立两条 WebSocket 连接……';
+  const [a,b]=await Promise.all([create('A'),create('B')]);
+  status.textContent='连接成功，正在验证实时消息传递……';
+  const result=await a.send({type:'broadcast',event:'relay-test',payload:{timestamp:started}});
+  if(result!=='ok'&&result!=='success'&&result!==undefined)throw Error('消息发送被拒绝');
+  for(let i=0;i<60&&!delivered;i++)await sleep(150);
+  if(!delivered)throw Error('消息未送达第二条连接');
+  const elapsed=now()-started;
+  status.textContent='成功：两条 WebSocket 已订阅，实时消息收发正常。\n总耗时：'+elapsed+' 毫秒。\n此设备可尝试使用 Supabase 中转。';
+  status.classList.add('good');
+  report='木木金金棋中转网络检查\n时间：'+new Date(started).toLocaleString('zh-CN')+'\n结果：两条 WebSocket 订阅与广播成功\n总耗时：'+elapsed+' 毫秒\n网络类型（浏览器提供）：'+network;
+ }catch(error){
+  status.textContent='失败：'+String(error?.message||'中转实时连接无法完成')+'\n此设备尚不能确认可用。请截图或复制结果。';
+  status.classList.add('bad');
+  report='木木金金棋中转网络检查\n时间：'+new Date(started).toLocaleString('zh-CN')+'\n结果：失败\n原因：'+String(error?.message||'连接失败').slice(0,100)+'\n网络类型：'+network;
+ }finally{
+  for(const client of clients)try{client.disconnect()}catch(_){}
+  runButton.disabled=false;copy.hidden=false;
+ }
+}
+runButton.addEventListener('click',run);
+copy.addEventListener('click',async()=>{
+ try{await navigator.clipboard.writeText(report);copy.textContent='已复制，发送结果即可';}
+ catch(_){copy.textContent='复制失败，请截图';}
+});
+</script>
+</body>
+</html>
