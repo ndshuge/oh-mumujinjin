@@ -92,7 +92,7 @@
             <button id="mmjjLeaveRoom" class="mmjj-ghost" type="button">退出房间</button>
           </div>
           <p id="mmjjRoomNotice" class="mmjj-room-notice" role="status" aria-live="polite">请选择模式和地图创建好友房间。</p>
-          <button type="button" id="mmjjTestConnection" class="mmjj-ghost">检测联机网络</button>
+          <button type="button" id="mmjjTestConnection" class="mmjj-ghost">检测联机网络</button><a href="./network-test.html" target="_blank" rel="noopener" class="mmjj-ghost mmjj-network-deep-link">手机连续检测（3 次） ↗</a>
         </div>
       </div>
     </section>`;
