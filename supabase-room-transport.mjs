@@ -89,7 +89,10 @@ export function createClient(options={}){
  async function connect(roomCode){
    validCode(roomCode);code=roomCode;
    const fallback=Array.isArray(options.fallbackUrls)?options.fallbackUrls.filter(x=>/^https:\/\//.test(x)): [];
-   const urls=[options.url,...fallback.filter(x=>x!==options.url)];
+   const alternatives=fallback.filter(x=>x!==options.url);
+   const urls=options.preferRelay===true && alternatives.length
+     ? [...alternatives,options.url]
+     : [options.url,...alternatives];
    if(!urls.length)urls.push(undefined);
    let lastError=null;
    for(const providerUrl of urls){

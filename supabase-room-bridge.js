@@ -6,7 +6,7 @@
  const storage=root.localStorage;
  let modulePromise=null;
  async function clientModule(){
-   if(!modulePromise)modulePromise=import('./supabase-room-transport.mjs?v=relay-fallback-20261108-r1')
+   if(!modulePromise)modulePromise=import('./supabase-room-transport.mjs?v=relay-primary-20261109-r1')
      .catch(error=>{modulePromise=null;throw error});
    return modulePromise;
  }
@@ -15,7 +15,8 @@
    let callback=()=>{};
    const inner=clientModule().then(mod=>mod.createClient({
       url:config().url,anonKey:config().anonKey,storage,
-      fallbackUrls:config().relayUrl?[config().relayUrl]:[]
+      fallbackUrls:config().relayUrl?[config().relayUrl]:[],
+      preferRelay:config().preferRelay===true
    }));
    function init(op,args,cb){callback=cb;return inner.then(client=>client[op](...args,cb))}
    function send(op,...args){
@@ -45,11 +46,18 @@
  }
  async function checkConnection(){
    if(!available())throw Error('Supabase 线路未配置');
+   if(config().preferRelay===true && config().relayUrl){
+     const primary=await diagnoseAt(config().relayUrl);
+     if(primary.ok)return {...primary,route:'relay',detail:'Supabase 中转线路正常（当前默认）。'};
+     const fallback=await diagnoseAt(config().url);
+     if(fallback.ok)return {...fallback,route:'direct',detail:'默认中转线路不可用，已通过 Supabase 原地址连接。'};
+     return {...primary,detail:primary.detail+' Supabase 原地址也未通过检测。'};
+   }
    const primary=await diagnoseAt(config().url);
    if(primary.ok||!config().relayUrl)return primary;
    const relay=await diagnoseAt(config().relayUrl);
-   if(relay.ok)return {...relay,route:'relay',detail:'Supabase 原地址暂时无法连接，备用中转线路已通过 HTTPS 和 WebSocket 检测。可以尝试创建房间。'};
-   return {...primary,detail:primary.detail+' 备用中转也未连接成功；此网络暂不具备联机条件。'};
+   if(relay.ok)return {...relay,route:'relay',detail:'Supabase 原地址暂时不可用，备用中转已通过 HTTPS 与 WebSocket 检测。'};
+   return {...primary,detail:primary.detail+' 备用中转也未连接成功。'};
  }
  root.MumuSupabaseRooms=Object.freeze({available,createClient,checkConnection});
 })(window);
