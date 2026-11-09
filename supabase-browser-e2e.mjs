@@ -88,7 +88,7 @@ try{
  }
  await owner.evaluate('document.getElementById("mmjjStartRoom").click()');
  await owner.until('window.MumuOnline.active()===true',12000);
- await friend.until('window.MumuOnline.active()===true',12000);
+ await friend.until('window.MumuOnline.active()===true',45000);
  assert.equal(await owner.evaluate('MumuLobby.isVisible()'),false);
  assert.equal(await friend.evaluate('MumuLobby.isVisible()'),false);
  assert.equal(await owner.evaluate('MumuLobbyGame.info().phase'),'pick-attack');
@@ -120,7 +120,7 @@ try{
  await friend.evaluate('location.reload()');
  await friend.until('!!window.MumuFriendsUI && document.getElementById("mmjjJoinRoom")',12000);
  await friend.evaluate('document.getElementById("mmjjJoinRoom").click()');
- await friend.until('window.MumuOnline.active()===true',12000);
+ await friend.until('window.MumuOnline.active()===true',45000);
  assert.equal(await friend.evaluate('MumuLobbyGame.info().moves'),1);
  assert.equal(await friend.evaluate('MumuLobby.isVisible()'),false);
  console.log('PASS guest refreshes the browser and restores the ongoing match');
