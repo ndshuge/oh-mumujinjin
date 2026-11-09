@@ -57,3 +57,12 @@ async function play(mode){
 }
 test('Classic XiaoKe: RPS -> both camps -> human move -> genuine C-e2rc response',()=>play('classic'));
 test('Advanced XiaoKe: RPS -> both camps -> human move -> genuine C-f5 response',()=>play('advanced'));
+
+test('computer move must not teleport the wood token into the bottom-row trap',()=>{
+ const t=harness(),a=t.window.testAPI,s=a.get();
+ s.playMode='cpu';s.aiLevel='normal';s.phase='play';s.turn=1;
+ s.players=[{x:7,y:12},{x:1,y:0}];s.moves=1;
+ const before=JSON.stringify({players:s.players,moves:s.moves,turn:s.turn});
+ a.playerMove({p:{x:5,y:12},steps:1,nextLock:null});
+ assert.equal(JSON.stringify({players:s.players,moves:s.moves,turn:s.turn}),before);
+});

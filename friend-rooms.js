@@ -120,6 +120,8 @@
     function resign() {send({type:'resign'});}
     function rematch() {send({type:'rematch'});}
     function sendAction(action,revision) {send({type:'action',action:action,revision:revision});}
+    function requestUndo(revision) {send({type:'undo_request',revision:revision});}
+    function respondUndo(accepted,revision) {send({type:'undo_response',accepted:accepted===true,revision:revision});}
     function close(){
       manuallyClosed=true;
       if(reconnectTimer!==null){clearTimer(reconnectTimer);reconnectTimer=null;}
@@ -128,7 +130,7 @@
       currentState=null;
     }
     function resumeLast(onEvent){var saved=lastRoom(persistentStorage);if(!saved)throw Error('没有可恢复的上次房间');return join(saved,onEvent);}
-    return Object.freeze({create:create,join:join,resumeLast:resumeLast,ready:ready,start:start,resign:resign,rematch:rematch,sendAction:sendAction,close:close,
+    return Object.freeze({create:create,join:join,resumeLast:resumeLast,ready:ready,start:start,resign:resign,rematch:rematch,sendAction:sendAction,requestUndo:requestUndo,respondUndo:respondUndo,close:close,
       getState:function(){return currentState;},getCode:function(){return code;},getLastRoom:function(){return lastRoom(persistentStorage);},isOwner:function(){return owner;}});
   }
   function lastRoom(storage){

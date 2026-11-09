@@ -1,6 +1,7 @@
 /* Rule authority for casual Tencent IM friend rooms.
  * No credentials/secret tokens in this module. The host is the authority. */
 import {newMatch,applyAction} from './online-rules.mjs';
+import {recordActionForUndo,requestUndo,respondUndo,undoPublicState,resetUndo} from './online-undo.mjs';
 
 const copy=value=>JSON.parse(JSON.stringify(value));
 const CODE=/^[A-HJ-NP-Z2-9]{6}$/;
@@ -19,6 +20,7 @@ export function createRoom(code,ownerId,settings){
     schema:1,code,ownerId,settings:copy(settings),revision:0,status:'waiting',
     game:null,seatSide:null,rematchVotes:[false,false],
     players:[{id:ownerId,connected:true,ready:false},{id:null,connected:false,ready:false}],
+    undoRequest:null,undoBefore:null,undoSide:null,undoAtRevision:null,turnStartGame:null,
     updatedAt:Date.now()
   };
 }
@@ -57,19 +59,26 @@ export function applyIntent(state,actor,intent){
    const starting=first==='host'?host:first==='guest'?1-host:randomSide();
    room.seatSide=[host,1-host];
    room.game=newMatch(room.settings.map,room.settings.variant,starting);
-   room.status='playing';room.revision=0;room.rematchVotes=[false,false];
+   room.status='playing';room.revision=0;room.rematchVotes=[false,false];resetUndo(room);
+ }else if(intent.type==='undo_request'){
+   requestUndo(room,requireActor(room,actor),intent.revision);
+ }else if(intent.type==='undo_response'){
+   respondUndo(room,requireActor(room,actor),intent.accepted===true,intent.revision);
  }else if(intent.type==='action'){
    const seat=requireActor(room,actor);
+   if(room.undoRequest)throw Error('请先处理悔棋申请');
    if(room.status!=='playing'||!room.game)throw Error('对局尚未开始');
    if(intent.revision!==room.revision)throw Error('棋盘版本已更新，请重新同步');
+   const before=copy(room.game);
    room.game=applyAction(room.game,room.seatSide[seat],intent.action);
    room.revision++;
+   recordActionForUndo(room,before,room.seatSide[seat]);
    if(room.game.phase==='finished'){room.status='finished';room.rematchVotes=[false,false];}
  }else if(intent.type==='resign'){
    const seat=requireActor(room,actor);
    if(room.status!=='playing'||!room.game)throw Error('当前没有进行中的对局');
    room.game.phase='finished';room.game.winner=1-room.seatSide[seat];
-   room.status='finished';room.revision++;room.rematchVotes=[false,false];
+   room.status='finished';room.revision++;room.rematchVotes=[false,false];resetUndo(room);
  }else if(intent.type==='rematch'){
    const seat=requireActor(room,actor);
    if(room.status!=='finished'||room.game?.phase!=='finished')throw Error('请先结束当前对局');
@@ -78,7 +87,7 @@ export function applyIntent(state,actor,intent){
      room.seatSide=[room.seatSide[1],room.seatSide[0]];
      const starting=1-room.game.firstSide;
      room.game=newMatch(room.settings.map,room.settings.variant,starting);
-     room.status='playing';room.revision=0;room.rematchVotes=[false,false];
+     room.status='playing';room.revision=0;room.rematchVotes=[false,false];resetUndo(room);
    }
  }else throw Error('未知房间操作');
  room.updatedAt=Date.now();
@@ -86,6 +95,11 @@ export function applyIntent(state,actor,intent){
 }
 export function viewFor(room){
  const result=copy(room);
+ Object.assign(result,room.undoBefore?undoPublicState(room):{
+   undoAvailableBy:Number.isInteger(room.undoAvailableBy)?room.undoAvailableBy:null,
+   undoRequest:room.undoRequest||null
+ });
+ for(const key of ['undoBefore','undoSide','undoAtRevision','turnStartGame'])delete result[key];
  // IDs are anonymous random identities and are not credentials. No UserSig or signer keys travel here.
  result.players=result.players.map(({id,connected,ready})=>({id,connected,ready}));
  return result;

@@ -419,6 +419,8 @@
     if(event.type==='action'&&window.MumuOnline&&window.MumuOnline.apply)window.MumuOnline.apply(event);
     if(event.type==='state'&&['playing','finished'].includes(event.room.status)&&window.MumuOnline&&window.MumuOnline.sync)
       window.MumuOnline.sync(event.room.game,event.room.revision);
+    if(event.type==='state'&&window.MumuOnline&&window.MumuOnline.setUndo)
+      window.MumuOnline.setUndo(event.room,!!event.owner);
     if(event.type==='state'&&window.MumuOnline&&window.MumuOnline.setRematch)
       window.MumuOnline.setRematch(event.room,!!event.owner);
   }
@@ -587,6 +589,16 @@
   }
   window.MumuFriendsUI=Object.freeze({
     open:open,store:store,leave:leaveRoom,
+    requestUndo:function(revision){
+      if(!client)return message('联机房间已断开，请重新加入');
+      try{client.requestUndo(revision);message('已向好友申请悔棋，等待回复');}
+      catch(error){message(error?.message||'申请悔棋失败');}
+    },
+    respondUndo:function(accepted,revision){
+      if(!client)return message('联机房间已断开，请重新加入');
+      try{client.respondUndo(accepted,revision);message(accepted?'已同意悔棋，正在同步棋局':'已拒绝悔棋，棋局保持不变');}
+      catch(error){message(error?.message||'处理悔棋失败');}
+    },
     requestRematch:function(){
       if(!client)return message("房间已断开，请重新加入");
       try{client.rematch();message("已请求再来一局，等待对方确认");}catch(error){message(error.message); }

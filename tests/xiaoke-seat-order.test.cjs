@@ -104,3 +104,17 @@ test('do not undo the computer opening before human makes any move',async()=>{
  assert.equal(a.get().moves,1,'computer first move should remain until the player moves');
  assert.equal(a.get().turn,0);
 });
+
+test('a restored match that seals the wood player inside three walls must be quarantined',()=>{
+ const first=harness(),a=first.api,base=JSON.parse(JSON.stringify(a.get()));
+ const map=first.window.MumuMapV2.get();
+ Object.assign(base,{phase:'play',playMode:'cpu',aiLevel:'xiaoke',turn:1,
+    players:[{x:7,y:12},{x:5,y:12}],moves:2,history:[],
+    walls:[{x:4,y:11,o:'v',owner:0},{x:5,y:11,o:'v',owner:0},{x:4,y:11,o:'h',owner:0}],
+    left:[2,5],pending:null,slideDir:[null,null],winner:null});
+ const raw=JSON.stringify({version:2,state:base,map,mapFingerprint:first.window.MumuMapV2.fingerprint(map)});
+ const restored=harness({...first.store,'mumujinjin-game-v1':raw});
+ assert.equal(restored.api.get().moves,0);
+ assert.equal(restored.api.get().players[1],null);
+ assert.ok(restored.store['mumujinjin-invalid-save-backup-v1']);
+});

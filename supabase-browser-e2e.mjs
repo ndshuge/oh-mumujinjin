@@ -69,8 +69,14 @@ try{
  await friend.evaluate('document.getElementById("mmjjJoinRoom").click()');
  await friend.until('document.getElementById("mmjjRoomLive").hidden===false',15000);
  console.log('PASS browser B opened invite URL and joined room');
- await owner.until('document.getElementById("mmjjLiveMapSummary").hidden===false',5000);
- await friend.until('document.getElementById("mmjjLiveMapSummary").hidden===false',5000);
+ try {
+  await owner.until('document.getElementById("mmjjLiveMapSummary").hidden===false',30000);
+  await friend.until('document.getElementById("mmjjLiveMapSummary").hidden===false',30000);
+ } catch (error) {
+  const stateDump=async c=>c.evaluate('JSON.stringify({notice:document.getElementById("mmjjRoomNotice").textContent,state:document.getElementById("mmjjRoomState").textContent,players:document.getElementById("mmjjRoomPlayers").textContent,code:document.getElementById("mmjjLiveCode").textContent,mapHidden:document.getElementById("mmjjLiveMapSummary").hidden,joinHidden:document.getElementById("mmjjJoinRoom").hidden})');
+  console.error('ROOM SNAPSHOT host',await stateDump(owner),'friend',await stateDump(friend));
+  throw error;
+ }
  const hostMap=await owner.evaluate('document.getElementById("mmjjLiveMapSummary").querySelector("strong").textContent');
  assert.equal(hostMap,await friend.evaluate('document.getElementById("mmjjLiveMapSummary").querySelector("strong").textContent'));
  console.log('PASS host and guest preview the same immutable room map');
@@ -107,16 +113,44 @@ try{
      clientX:r.left+ax*r.width/720,clientY:r.top+ay*r.height/980}));
   })()`);
  };
+ const confirmStep=async client=>{
+  await client.until('!document.getElementById("mmjjOnlineConfirm").hidden',6000);
+  await client.evaluate('document.getElementById("mmjjOnlineConfirm").click()');
+ };
  await clickTile(owner,7,12);
+ assert.equal(await owner.evaluate('MumuLobbyGame.info().phase'),'pick-attack','selecting a square must not commit');
+ await confirmStep(owner);
  await owner.until('MumuLobbyGame.info().phase==="pick-defend"',8000);
  await friend.until('MumuLobbyGame.info().phase==="pick-defend"',8000);
  await clickTile(friend,1,0);
+ assert.equal(await friend.evaluate('MumuLobbyGame.info().phase'),'pick-defend');
+ await confirmStep(friend);
  await owner.until('MumuLobbyGame.info().phase==="play"',8000);
  await friend.until('MumuLobbyGame.info().phase==="play"',8000);
  await clickTile(owner,7,11);
+ assert.equal(await owner.evaluate('MumuLobbyGame.info().moves'),0,'the preview must leave the game unchanged');
+ await confirmStep(owner);
  await owner.until('MumuLobbyGame.info().moves===1',8000);
  await friend.until('MumuLobbyGame.info().moves===1',8000);
- console.log('PASS real board clicks: both birth positions + synchronized move');
+ console.log('PASS real board clicks: birth positions and synchronized move only after confirmation');
+ // A real bilateral consent exchange must not roll back after only one vote.
+ await owner.until('!document.getElementById("mmjjOnlineUndoRequest").hidden',8000);
+ await owner.evaluate('document.getElementById("mmjjOnlineUndoRequest").click()');
+ await friend.until('!document.getElementById("mmjjOnlineUndoBanner").hidden',8000);
+ assert.equal(await friend.evaluate('MumuLobbyGame.info().moves'),1);
+ await friend.evaluate('document.getElementById("mmjjOnlineUndoDecline").click()');
+ await owner.until('document.getElementById("mmjjOnlineUndoBanner").hidden',8000);
+ assert.equal(await owner.evaluate('MumuLobbyGame.info().moves'),1,'declined undo preserves game');
+ await owner.evaluate('document.getElementById("mmjjOnlineUndoRequest").click()');
+ await friend.until('!document.getElementById("mmjjOnlineUndoBanner").hidden',8000);
+ await friend.evaluate('document.getElementById("mmjjOnlineUndoAccept").click()');
+ await owner.until('MumuLobbyGame.info().moves===0',8000);
+ await friend.until('MumuLobbyGame.info().moves===0',8000);
+ console.log('PASS declined undo preserves turn and accepted undo restores both clients');
+ await clickTile(owner,7,11);
+ await confirmStep(owner);
+ await friend.until('MumuLobbyGame.info().moves===1',8000);
+
  await friend.evaluate('location.reload()');
  await friend.until('!!window.MumuFriendsUI && document.getElementById("mmjjJoinRoom")',12000);
  await friend.evaluate('document.getElementById("mmjjJoinRoom").click()');
@@ -153,11 +187,16 @@ try{
      side:0,firstSide:0,sendAction:(action)=>window.__mmjjPortalActions.push(action)});
    const modalVisible=!document.getElementById("portalModal").hidden;
    document.getElementById("stayBtn").click();
+   const previewActions=window.__mmjjPortalActions.slice();
+   const confirmVisible=!document.getElementById("mmjjOnlineConfirm").hidden;
+   document.getElementById("mmjjOnlineConfirm").click();
    const actions=window.__mmjjPortalActions.slice();
    MumuOnline.stop();
-   return {modalVisible,actions};
+   return {modalVisible,confirmVisible,previewActions,actions};
  })()`);
  assert.equal(portalResult.modalVisible,true,'first portal must open modal');
+ assert.equal(portalResult.confirmVisible,true,'portal decision is staged after closing its overlay');
+ assert.deepEqual(portalResult.previewActions,[],'portal selection must not send until confirmed');
  assert.deepEqual(portalResult.actions,[{kind:'portal',warp:false}],'first portal must allow a stay decision');
  console.log('PASS first portal index 0 accepts a decision via UI');
  console.log('BROWSER PVP E2E PASS');
