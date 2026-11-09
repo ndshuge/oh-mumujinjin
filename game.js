@@ -46,13 +46,92 @@
     var required = state.phase==="pick-attack"?0:state.phase==="pick-defend"?1:state.turn;
     return required === onlineSession.side;
   }
+  var onlineDock={hidden:true};
+  if(typeof document.querySelector==='function'&&typeof document.createElement==='function'){
+    var onlineFooter=document.querySelector('.tool-footer');
+    if(onlineFooter){
+      onlineDock=document.createElement('div');
+      onlineDock.id='mmjjOnlineDock';onlineDock.className='mmjj-online-dock';onlineDock.hidden=true;
+      onlineDock.innerHTML='<div class="mmjj-online-draft-line"><strong id="mmjjOnlineDraftLabel">请选择下一步</strong><span id="mmjjOnlineDraftDetail">选中目标后点击确认</span></div>'+
+        '<div class="mmjj-online-draft-actions"><button type="button" id="mmjjOnlineCancel" class="mmjj-online-cancel" hidden>取消预览</button><button type="button" id="mmjjOnlineConfirm" class="mmjj-online-confirm" hidden>确认落子</button></div>'+
+        '<div id="mmjjOnlineUndoBanner" class="mmjj-online-undo-banner" hidden><span id="mmjjOnlineUndoLabel"></span><div class="mmjj-online-undo-actions"><button type="button" id="mmjjOnlineUndoDecline">拒绝</button><button type="button" id="mmjjOnlineUndoAccept">同意悔棋</button></div></div>'+
+        '<button type="button" id="mmjjOnlineUndoRequest" class="mmjj-online-undo-request" hidden>申请悔棋</button>';
+      onlineFooter.insertAdjacentElement('afterend',onlineDock);
+      document.getElementById('mmjjOnlineConfirm').addEventListener('click',onlineConfirmDraft);
+      document.getElementById('mmjjOnlineCancel').addEventListener('click',function(){if(onlineSession){onlineSession.draft=null;if(state.pending&&onlineIsMyTurn())setModal('portalModal',true);renderOnlineControls();drawBoard();}});
+      document.getElementById('mmjjOnlineUndoRequest').addEventListener('click',function(){undo();});
+      document.getElementById('mmjjOnlineUndoDecline').addEventListener('click',function(){respondToOnlineUndo(false);});
+      document.getElementById('mmjjOnlineUndoAccept').addEventListener('click',function(){respondToOnlineUndo(true);});
+    }
+  }
+  function renderOnlineControls(){
+    var needed=!!(onlineSession&&(onlineSession.draft||onlineSession.undoRequest||
+      onlineSession.undoAvailableBy===onlineSession.seatIndex));
+    onlineDock.hidden=!needed;
+    if(document.body?.classList?.toggle)document.body.classList.toggle('mmjj-online-staged',needed);
+    if(!onlineSession||!onlineDock.querySelector)return;
+    var draft=onlineSession.draft,request=onlineSession.undoRequest,seat=onlineSession.seatIndex;
+    var canConfirm=onlineIsMyTurn()&&!onlineSession.awaiting&&!request;
+    var detail=draft?(draft.kind==='move'?'移动至 '+String.fromCharCode(65+draft.to.x)+(13-draft.to.y):
+      draft.kind==='wall'?'在棋盘上筑墙':draft.kind==='origin'?'选定出生点':'选择传送门效果'):
+      (request?'正在处理悔棋申请':onlineIsMyTurn()?'点击棋盘选择，再确认落子':'等待好友落子');
+    onlineDock.querySelector('#mmjjOnlineDraftLabel').textContent=detail;
+    onlineDock.querySelector('#mmjjOnlineDraftDetail').textContent=draft?'此步仅在本机预览，确认后才会发送':'';
+    onlineDock.querySelector('#mmjjOnlineConfirm').hidden=!draft;
+    onlineDock.querySelector('#mmjjOnlineConfirm').disabled=!canConfirm;
+    onlineDock.querySelector('#mmjjOnlineCancel').hidden=!draft;
+    onlineDock.querySelector('#mmjjOnlineUndoRequest').hidden=!(onlineSession.undoAvailableBy===seat&&!request);
+    var banner=onlineDock.querySelector('#mmjjOnlineUndoBanner');
+    banner.hidden=!request;
+    if(request){
+      var mine=request.by===seat;
+      onlineDock.querySelector('#mmjjOnlineUndoLabel').textContent=mine?'悔棋申请已送达，等待好友答复':'好友申请悔棋，是否撤销最后一步？';
+      onlineDock.querySelector('#mmjjOnlineUndoAccept').hidden=mine;
+      onlineDock.querySelector('#mmjjOnlineUndoDecline').textContent=mine?'撤回申请':'拒绝';
+    }
+    if($('undoBtn'))$('undoBtn').disabled=onlineSession.undoAvailableBy!==seat||!!request;
+  }
+  function respondToOnlineUndo(accepted){
+    if(!onlineSession||!onlineSession.undoRequest)return;
+    window.MumuFriendsUI?.respondUndo(accepted,onlineSession.revision);
+  }
+  function onlineConfirmDraft(){
+    if(!onlineSession||!onlineSession.draft||onlineSession.awaiting)return;
+    if(!onlineIsMyTurn()||onlineSession.undoRequest)return;
+    if(onlineSession.draftRevision!==onlineSession.revision){onlineSession.draft=null;renderOnlineControls();return;}
+    var draft=onlineSession.draft;
+    onlineSession.awaiting=true;onlineSession.draft=null;
+    renderOnlineControls();drawBoard();
+    try{
+      Promise.resolve(onlineSession.sendAction(draft,onlineSession.revision)).catch(function(error){
+        if(onlineSession){onlineSession.awaiting=false;notice(error?.message||'网络连接中断');renderOnlineControls();}
+      });
+    }catch(error){onlineSession.awaiting=false;notice(error?.message||'网络连接中断');renderOnlineControls();}
+  }
+  function drawOnlinePreview(){
+    if(!onlineSession||!onlineSession.draft)return;
+    var draft=onlineSession.draft;
+    if(draft.kind==='wall'){drawWall(Object.assign({owner:onlineSession.side},draft.wall),true,true);return;}
+    var p=draft.kind==='move'?draft.to:draft.kind==='origin'?draft.p:null;
+    if(!p)return;
+    var cx=X+(p.x+.5)*STEP,cy=Y+(p.y+.5)*STEP;
+    ctx.save();ctx.globalAlpha=.8;
+    ctx.fillStyle=onlineSession.side===0?'#ffe3ad':'#b4eee3';
+    ctx.strokeStyle=onlineSession.side===0?'#ae6b2b':'#278875';ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(cx,cy,STEP*.32,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.setLineDash([5,5]);ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(cx,cy,STEP*.44,0,Math.PI*2);ctx.stroke();
+    ctx.restore();
+  }
   function onlineSend(action){
     if(!onlineSession||onlineApplying)return false;
     if(!onlineIsMyTurn()){notice("等待好友完成当前回合");return true;}
-    if(onlineSession.awaiting){notice("正在等待服务器确认上一步");return true;}
-    onlineSession.awaiting=true;
-    try{onlineSession.sendAction(action,onlineSession.revision);}
-    catch(error){onlineSession.awaiting=false;notice(error.message||"网络连接中断");}
+    if(onlineSession.awaiting||onlineSession.undoRequest){notice("请先等待当前操作完成");return true;}
+    if(action.kind==='wall'&&!validWall(action.wall)){notice("此处不能筑墙：必须保留双方通路");return true;}
+    onlineSession.draft=action;
+    if(action.kind==='portal')setModal('portalModal',false);
+    onlineSession.draftRevision=onlineSession.revision;
+    renderOnlineControls();drawBoard();
     return true;
   }
   var aiDialogueDisabled=false,aiBanterTurns=0;
@@ -830,7 +909,10 @@
   }
   function record(){state.history.push(snapshot());if(state.history.length>120)state.history.shift();}
   function undo(){
-    if(onlineSession){notice("好友联机暂不提供悔棋");return;}
+    if(onlineSession){
+      if(onlineSession.undoAvailableBy!==onlineSession.seatIndex||onlineSession.undoRequest){notice('现在无法申请悔棋');return;}
+      window.MumuFriendsUI?.requestUndo(onlineSession.revision);return;
+    }
     if(!state.history.length){notice("还没有可悔的步骤。");return;}
     if(state.playMode==="cpu"&&state.firstTurn===1&&state.moves===1&&state.phase==="play"){
       notice("轮到你走第一步；走棋之后才能悔棋。");return;
@@ -951,6 +1033,11 @@
     if(who===1)showAIQuote("opening",true);
   }
   function playerMove(move){
+    // Computer strategies may produce stale or illegal moves. Canonical
+    // legal options decide both the destination and special-tile momentum.
+    var legal=move&&move.p&&availableMoves().find(function(option){return same(option.p,move.p);});
+    if(!legal){notice('非法移动已拦截：请选择棋盘上可到达的位置');return;}
+    move=legal;
     if(onlineSend({kind:"move",to:{x:move.p.x,y:move.p.y}}))return;
     record();
     state.players[state.turn]={x:move.p.x,y:move.p.y};
@@ -1678,7 +1765,7 @@
     drawBase();
     drawTargets();
     state.walls.forEach(function(w){drawWall(w,true,false);});
-    if(!editing){drawPawn(1);drawPawn(0);}
+    if(!editing){drawPawn(1);drawPawn(0);drawOnlinePreview();}
     else {
       var validity=validateMap(mapDraft());
       rounded(X-14,Y-14,W*STEP+28,H*STEP+28,16,null,validity.ok?"#5fe3c2":"#fa786a");
@@ -2016,7 +2103,31 @@
       localStorage.setItem("mumujinjin-xiaoke-default-v1","1");
     }
   }catch(e){}
-  initMap();refreshMapSelect();
+  initMap();
+  function restoredMatchReachable(game){
+    if(!game||!['play','finished'].includes(game.phase))return true;
+    if(!Array.isArray(game.players)||game.players.length!==2)return false;
+    if(!game.players.every(function(p){return p&&inside(p)&&!rock(p);}))return false;
+    if(!Array.isArray(game.walls)||game.walls.some(function(w){
+      return !w||!Number.isInteger(w.x)||!Number.isInteger(w.y)||
+        w.x<0||w.y<0||w.x>W-2||w.y>H-2||!['h','v'].includes(w.o);
+    }))return false;
+    return game.players.every(function(p,i){
+      return findPath(p,CAMPS[1-i],game.walls,game.slideDir?.[i]||null);
+    });
+  }
+  if(loadedAtBoot&&!restoredMatchReachable(state)){
+    // Preserve the raw save for recovery/debugging instead of silently
+    // continuing from an impossible game board.
+    try{backupInvalidSave(localStorage.getItem('mumujinjin-game-v1'));}catch(_){}
+    var prior=state;
+    state=newGame(prior.variant);
+    state.playMode=prior.playMode;state.aiLevel=prior.aiLevel;
+    if(prior.playMode==='local')state.phase='pick-attack';
+    state.notice='检测到旧棋局存在不可到达的棋子或封路，已备份并重置本局';
+    save();
+  }
+  refreshMapSelect();
   // Public read-only Map V2 API, independent from AI research policies.
   // Lobby uses an explicit start API so new matches only begin after mode/map selection.
   window.MumuLobbyGame=Object.freeze({
@@ -2074,7 +2185,7 @@
     $("playAgainBtn").disabled=false;
     $("mmjjRematchStatus").hidden=state.phase!=="finished";
 
-    drawUI();drawBoard();
+    drawUI();drawBoard();renderOnlineControls();
   }
   window.MumuOnline=Object.freeze({
     start:function(event){
@@ -2094,7 +2205,8 @@
       }else applied=installMap(map,"custom");
       if(!applied){onlineApplying=false;notice("房间地图未通过本机验证");return;}
       onlineSession={side:event.side,firstSide:event.firstSide,revision:event.room.revision||0,
-        sendAction:event.sendAction,awaiting:false};
+        sendAction:event.sendAction,awaiting:false,draft:null,draftRevision:0,
+        seatIndex:event.owner?0:1,undoAvailableBy:null,undoRequest:null};
       onlineHydrate(game);
       onlineApplying=false;
       var status=document.querySelector(".connection-tag");
@@ -2118,7 +2230,15 @@
       onlineSession.awaiting=false;
       if(reason)notice(reason);
     },
-    active:function(){return !!onlineSession;},
+     active:function(){return !!onlineSession;},
+     setUndo:function(room,owner){
+       if(!onlineSession||!room)return;
+       onlineSession.seatIndex=owner?0:1;
+       onlineSession.undoAvailableBy=Number.isInteger(room.undoAvailableBy)?room.undoAvailableBy:null;
+       onlineSession.undoRequest=room.undoRequest||null;
+       if(room.undoRequest)onlineSession.draft=null;
+       renderOnlineControls();drawBoard();
+     },
     hint:function(message){if(onlineSession)notice(message);},
     setRematch:function(room,owner){
       if(!onlineSession||!room)return;
@@ -2133,13 +2253,18 @@
     },
     sync:function(game,revision){
       if(!onlineSession||!game)return;
-      onlineSession.revision=revision;onlineSession.awaiting=false;onlineHydrate(game);
+       var changed=revision!==onlineSession.revision;
+       onlineSession.revision=revision;onlineSession.awaiting=false;
+       if(changed)onlineSession.draft=null;
+       onlineHydrate(game);
     },
     stop:function(){
       onlineResignButton.hidden=true;
       $("playAgainBtn").textContent="再来一局";
       $("playAgainBtn").disabled=false;$("mmjjRematchStatus").hidden=true;
-      onlineSession=null;onlineApplying=false;closeAll();state.playMode="local";
+       onlineSession=null;onlineApplying=false;onlineDock.hidden=true;
+       if(document.body?.classList?.remove)document.body.classList.remove('mmjj-online-staged');
+       closeAll();state.playMode="local";
       var status=document.querySelector(".connection-tag");
       if(status&&status.hasAttribute("data-original")){
         status.textContent=status.getAttribute("data-original");

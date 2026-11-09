@@ -84,3 +84,42 @@ test('joining a full room does not displace its players',async()=>{
   const response=await f.room.fetch(new Request('https://room.internal/join',{method:'POST',body:'{}'}));
   assert.equal(response.status,409);
 });
+
+test('durable room never rolls back on a single-player undo and persists only after opponent agrees',async()=>{
+ const f=fixture();await init(f,{side:'gold',first:'host'});
+ const host=f.websocket(0),guest=f.websocket(1);
+ const send=(socket,message)=>f.room.webSocketMessage(socket,JSON.stringify(message));
+ await send(host,{type:'ready'});await send(guest,{type:'ready'});await send(host,{type:'start'});
+ await send(host,{type:'action',revision:0,action:{kind:'origin',p:{x:6,y:12}}});
+ await send(guest,{type:'action',revision:1,action:{kind:'origin',p:{x:0,y:0}}});
+ const before=structuredClone((await f.room.getRoom()).game);
+ await send(host,{type:'action',revision:2,action:{kind:'move',to:{x:6,y:11}}});
+ assert.equal((await f.room.getRoom()).revision,3);
+ await send(host,{type:'undo_request',revision:3});
+ assert.equal((await f.room.getRoom()).undoRequest.by,0);
+ await send(guest,{type:'action',revision:3,action:{kind:'move',to:{x:0,y:1}}});
+ assert.equal((await f.room.getRoom()).revision,3);
+ assert.match(f.received[1].at(-1).error,/悔棋/);
+ await send(host,{type:'undo_response',accepted:true,revision:3});
+ assert.match(f.received[0].at(-1).error,/对方/);
+ await send(guest,{type:'undo_response',accepted:true,revision:3});
+ const after=await f.room.getRoom();
+ assert.equal(after.revision,4);assert.equal(after.status,'playing');
+ assert.deepEqual(after.game,before);
+ assert.equal(after.undoRequest,null);
+ assert.equal(f.received[0].at(-1).room.undoBefore,undefined);
+});
+test('durable undo rejected by opponent leaves version and move unchanged',async()=>{
+ const f=fixture();await init(f,{side:'gold',first:'host'});
+ const host=f.websocket(0),guest=f.websocket(1);
+ const send=(socket,message)=>f.room.webSocketMessage(socket,JSON.stringify(message));
+ await send(host,{type:'ready'});await send(guest,{type:'ready'});await send(host,{type:'start'});
+ await send(host,{type:'action',revision:0,action:{kind:'origin',p:{x:6,y:12}}});
+ await send(guest,{type:'action',revision:1,action:{kind:'origin',p:{x:0,y:0}}});
+ await send(host,{type:'action',revision:2,action:{kind:'move',to:{x:6,y:11}}});
+ await send(host,{type:'undo_request',revision:3});
+ await send(guest,{type:'undo_response',accepted:false,revision:3});
+ assert.equal((await f.room.getRoom()).revision,3);
+ assert.equal((await f.room.getRoom()).undoRequest,null);
+ assert.equal((await f.room.getRoom()).game.players[0].y,11);
+});

@@ -2,6 +2,7 @@
    Each room owns the canonical game state and validates moves with online-rules.mjs.
    Deploy separately; GitHub Pages remains a static frontend. */
 import {newMatch, applyAction} from '../online-rules.mjs';
+import {recordActionForUndo,requestUndo,respondUndo,undoPublicState,resetUndo} from '../online-undo.mjs';
 
 const ROOM_LIFETIME_MS=24*60*60*1000;
 function randomString(size,alphabet){
@@ -97,6 +98,7 @@ export class GameRoom {
   clean(room){return room && room.expiresAt>Date.now();}
   publicRoom(room){
     return {code:room.code,status:room.status,revision:room.revision,rematchVotes:room.rematchVotes||[false,false],
+      ...undoPublicState(room),
       settings:room.settings,game:room.game,
       players:room.players.map(p=>({connected:!!p.connected,ready:!!p.ready}))};
   }
@@ -117,6 +119,7 @@ export class GameRoom {
       const next={code,settings,createdAt:now,expiresAt:now+ROOM_LIFETIME_MS,
         players:[{token:ownerToken,connected:false,ready:false,lastSeenAt:null},{token:null,connected:false,ready:false,lastSeenAt:null}],
         status:'waiting',revision:0,game:null,seatSide:null,rematchVotes:[false,false]};
+      resetUndo(next);
       await this.save(next);await this.ctx.storage.setAlarm(next.expiresAt);
       return response({code,token:ownerToken,owner:true});
     }
@@ -177,7 +180,7 @@ export class GameRoom {
         const first=room.settings.first;
         const firstSide=first==='host'?hostSide:first==='guest'?1-hostSide:Math.floor(Math.random()*2);
         room.game=newMatch(room.settings.map,room.settings.variant,firstSide);
-        room.status='playing';room.rematchVotes=[false,false];this.touch(room,seat);await this.save(room);
+        room.status='playing';room.rematchVotes=[false,false];resetUndo(room);this.touch(room,seat);await this.save(room);
         for(const peer of this.ctx.getWebSockets()){
           const who=peer.deserializeAttachment()?.seat;
           try{peer.send(JSON.stringify({type:'match_start',room:this.publicRoom(room),
@@ -188,7 +191,7 @@ export class GameRoom {
       if(msg.type==='resign'){
         if(room.status!=='playing'||!room.game||room.game.phase==='finished')throw Error('当前没有进行中的对局');
         room.game.phase='finished';room.game.winner=1-room.seatSide[seat];
-        room.status='finished';room.revision++;room.rematchVotes=[false,false];this.touch(room,seat);
+        room.status='finished';room.revision++;room.rematchVotes=[false,false];resetUndo(room);this.touch(room,seat);
         await this.save(room);this.broadcastState(room);return;
       }
       if(msg.type==='rematch'){
@@ -199,7 +202,7 @@ export class GameRoom {
           room.seatSide=[room.seatSide[1],room.seatSide[0]];
           const firstSide=1-room.game.firstSide;
           room.game=newMatch(room.settings.map,room.settings.variant,firstSide);
-          room.status='playing';room.revision=0;room.rematchVotes=[false,false];
+          room.status='playing';room.revision=0;room.rematchVotes=[false,false];resetUndo(room);
           await this.save(room);
           for(const peer of this.ctx.getWebSockets()){
             const who=peer.deserializeAttachment()?.seat;
@@ -209,11 +212,18 @@ export class GameRoom {
         }else await this.save(room);
         this.broadcastState(room);return;
       }
+      if(msg.type==='undo_request'||msg.type==='undo_response'){
+        if(msg.type==='undo_request')requestUndo(room,seat,msg.revision);
+        else respondUndo(room,seat,msg.accepted===true,msg.revision);
+        this.touch(room,seat);await this.save(room);this.broadcastState(room);return;
+      }
       if(msg.type==='action'){
+        if(room.undoRequest)throw Error('请先处理悔棋申请');
         if(room.status!=='playing'||!room.game)throw Error('对局尚未开始');
         if(msg.revision!==room.revision)throw Error('棋盘版本已更新，请同步房间');
+        const before=JSON.parse(JSON.stringify(room.game));
         const next=applyAction(room.game,room.seatSide[seat],msg.action);
-        room.game=next;room.revision++;if(next.phase==='finished'){room.status='finished';room.rematchVotes=[false,false];}this.touch(room,seat);
+        room.game=next;room.revision++;recordActionForUndo(room,before,room.seatSide[seat]);if(next.phase==='finished'){room.status='finished';room.rematchVotes=[false,false];}this.touch(room,seat);
         await this.save(room);
         this.broadcast(room,{type:'action_accepted',action:msg.action,
           by:room.seatSide[seat],revision:room.revision,game:next});

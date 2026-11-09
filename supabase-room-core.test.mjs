@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {codeToGroup,createRoom,applyIntent} from './supabase-room-core.mjs';
+import {codeToGroup,createRoom,applyIntent,viewFor} from './supabase-room-core.mjs';
 const map={version:2,rulesVersion:'map-v2-r1',name:'test',rocks:[],ice:[],boost:[],portals:[]};
 const settings={variant:'classic',side:'gold',first:'host',map};
 test('room codes have deterministic names',()=>{assert.equal(codeToGroup('4ZV9KH'),'MMJJ_4ZV9KH');assert.throws(()=>codeToGroup('XY'))});
@@ -27,4 +27,38 @@ test('resignation and rematch swap seats only after two votes',()=>{
  r=applyIntent(r,'host',{type:'rematch'});
  assert.equal(r.status,'playing');
  assert.deepEqual(r.seatSide,[1,0]);
+});
+
+test('consensual undo reverts a full completed online turn, increments revision, and hides server snapshot',()=>{
+ let r=createRoom('ABC987','host',settings);
+ r=applyIntent(r,'guest',{type:'join'});
+ r=applyIntent(r,'host',{type:'ready'});r=applyIntent(r,'guest',{type:'ready'});r=applyIntent(r,'host',{type:'start'});
+ r=applyIntent(r,'host',{type:'action',revision:0,action:{kind:'origin',p:{x:6,y:12}}});
+ r=applyIntent(r,'guest',{type:'action',revision:1,action:{kind:'origin',p:{x:0,y:0}}});
+ const before=structuredClone(r.game);
+ r=applyIntent(r,'host',{type:'action',revision:2,action:{kind:'move',to:{x:6,y:11}}});
+ assert.equal(r.revision,3);assert.equal(r.game.turn,1);
+ r=applyIntent(r,'host',{type:'undo_request',revision:3});
+ assert.equal(r.undoRequest.by,0);
+ assert.throws(()=>applyIntent(r,'guest',{type:'action',revision:3,action:{kind:'move',to:{x:0,y:1}}}),/悔棋/);
+ assert.throws(()=>applyIntent(r,'host',{type:'undo_response',accepted:true,revision:3}),/对方/);
+ const view=viewFor(r);
+ assert.equal(view.undoAvailableBy,0);assert.equal(view.undoRequest.by,0);
+ assert.equal(view.undoBefore,undefined);
+ r=applyIntent(r,'guest',{type:'undo_response',accepted:true,revision:3});
+ assert.deepEqual(r.game,before);assert.equal(r.revision,4);assert.equal(r.undoRequest,null);
+ assert.throws(()=>applyIntent(r,'guest',{type:'undo_response',accepted:true,revision:3}),/申请|版本/);
+});
+test('rejecting an undo preserves canonical game and allows the next player to act',()=>{
+ let r=createRoom('ABC987','host',settings);
+ r=applyIntent(r,'guest',{type:'join'});
+ r=applyIntent(r,'host',{type:'ready'});r=applyIntent(r,'guest',{type:'ready'});r=applyIntent(r,'host',{type:'start'});
+ r=applyIntent(r,'host',{type:'action',revision:0,action:{kind:'origin',p:{x:6,y:12}}});
+ r=applyIntent(r,'guest',{type:'action',revision:1,action:{kind:'origin',p:{x:0,y:0}}});
+ r=applyIntent(r,'host',{type:'action',revision:2,action:{kind:'move',to:{x:6,y:11}}});
+ r=applyIntent(r,'host',{type:'undo_request',revision:3});
+ r=applyIntent(r,'guest',{type:'undo_response',accepted:false,revision:3});
+ assert.equal(r.revision,3);assert.equal(r.game.players[0].y,11);
+ r=applyIntent(r,'guest',{type:'action',revision:3,action:{kind:'move',to:{x:0,y:1}}});
+ assert.equal(r.revision,4);
 });

@@ -64,6 +64,6 @@ test('main page refreshes config, bridge and Realtime transport URL to avoid sta
  const html=readFileSync('index.html','utf8');
  const bridge=readFileSync('supabase-room-bridge.js','utf8');
  assert.match(html,/supabase-config\.js\?v=relay-primary-20261109-r1/);
- assert.match(html,/supabase-room-bridge\.js\?v=relay-primary-20261109-r1/);
- assert.match(bridge,/supabase-room-transport\.mjs\?v=relay-primary-20261109-r1/);
+ assert.match(html,/supabase-room-bridge\.js\?v=confirm-undo-20261109-r1/);
+ assert.match(bridge,/supabase-room-transport\.mjs\?v=confirm-undo-20261109-r1/);
 });

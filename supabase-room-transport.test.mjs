@@ -66,3 +66,23 @@ test('join does not miss an admission snapshot delivered before send acknowledge
  assert.ok(events.some(e=>e.type==='state'&&e.room.players[1].id==='guest000000000000000000001'));
  await host.close();await guest.close();
 });
+
+test('Supabase transports undo request and peer consent through room authority',async()=>{
+ const net=mockRealtime(),a=[],b=[];
+ const host=createClient({realtimeFactory:net.factory,identity:'host0000000000000000000001',codeFactory:()=> '4ZV9KH'});
+ const guest=createClient({realtimeFactory:net.factory,identity:'guest000000000000000000001'});
+ const created=await host.create(settings,e=>a.push(e));
+ await guest.join(created.code,e=>b.push(e));
+ await until(()=>a.some(e=>e.type==='state'&&e.room.players[1].id));
+ await host.ready();await guest.ready();await until(()=>a.some(e=>e.type==='state'&&e.room.status==='ready'));
+ await host.start();await until(()=>b.some(e=>e.type==='started'));
+ await host.sendAction({kind:'origin',p:{x:7,y:12}},0);await until(()=>b.some(e=>e.type==='action'&&e.revision===1));
+ await guest.sendAction({kind:'origin',p:{x:0,y:0}},1);await until(()=>a.some(e=>e.type==='action'&&e.revision===2));
+ await host.sendAction({kind:'move',to:{x:7,y:11}},2);await until(()=>b.some(e=>e.type==='action'&&e.revision===3));
+ await host.requestUndo(3);await until(()=>b.some(e=>e.type==='state'&&e.room.undoRequest?.by===0));
+ assert.equal(b.filter(e=>e.type==='state').at(-1).room.undoAvailableBy,0);
+ await guest.respondUndo(true,3);
+ await until(()=>a.some(e=>e.type==='state'&&e.room.revision===4));
+ assert.equal(a.filter(e=>e.type==='state').at(-1).room.game.players[0].y,12);
+ await host.close();await guest.close();
+});

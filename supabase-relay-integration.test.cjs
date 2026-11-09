@@ -19,7 +19,7 @@ test('browser bridge configures relay priority and keeps original URL as backup'
 });
 test('production HTML invalidates old cached bridge and transport modules',()=>{
  const s=fs.readFileSync('index.html','utf8');
- assert.match(s,/supabase-room-bridge\.js\?v=relay-primary-20261109-r1/);
+ assert.match(s,/supabase-room-bridge\.js\?v=confirm-undo-20261109-r1/);
  const b=fs.readFileSync('supabase-room-bridge.js','utf8');
- assert.match(b,/supabase-room-transport\.mjs\?v=relay-primary-20261109-r1/);
+ assert.match(b,/supabase-room-transport\.mjs\?v=confirm-undo-20261109-r1/);
 });

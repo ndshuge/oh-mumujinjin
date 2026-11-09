@@ -2,7 +2,7 @@
  * No database tables, academy account sessions, or service_role key involved.
  * Host-authoritative, suitable for trusted casual matches (not prizes).
  */
-import {createRoom,applyIntent,viewFor} from './supabase-room-core.mjs';
+import {createRoom,applyIntent,viewFor} from './supabase-room-core.mjs?v=confirm-undo-20261109-r1';
 const ABC='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const clone=o=>JSON.parse(JSON.stringify(o));
@@ -182,6 +182,8 @@ export function createClient(options={}){
    channel=null;connected=false;
  }
  const ready=()=>invoke('ready'),start=()=>invoke('start'),resign=()=>invoke('resign'),
-   rematch=()=>invoke('rematch'),sendAction=(action,revision)=>invoke('action',{action,revision});
- return Object.freeze({create,join,ready,start,resign,rematch,sendAction,close});
+   rematch=()=>invoke('rematch'),sendAction=(action,revision)=>invoke('action',{action,revision}),
+   requestUndo=revision=>invoke('undo_request',{revision}),
+   respondUndo=(accepted,revision)=>invoke('undo_response',{accepted:accepted===true,revision});
+ return Object.freeze({create,join,ready,start,resign,rematch,sendAction,requestUndo,respondUndo,close});
 }
